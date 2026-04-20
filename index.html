@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
     <title>네이버 블로그 이미지 다운로더 - 리뷰 사진 한번에 저장</title>
     <meta name="description" content="네이버 플레이스 리뷰 블로그 사진을 선택해서 ZIP으로 한번에 다운로드. 식당·카페 사장님을 위한 무료 이미지 저장 도구." />
     <meta name="keywords" content="네이버 블로그 이미지 다운로드, 네이버 플레이스 리뷰 사진 저장, 블로그 사진 다운로더" />
@@ -1131,7 +1132,7 @@
             card.id = `card-${imgIdx}`;
             card.innerHTML = `
               <div class="chk">✓</div>
-              <img src="${img.url}" loading="lazy" onerror="this.parentElement.style.display='none'" />
+              <img src="${img.url}" loading="lazy" onerror="this.style.opacity='0'" />
               <div class="num">${localIdx + 1}</div>
             `;
             card.addEventListener('click', () => toggleImg(imgIdx, card));
