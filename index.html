@@ -398,12 +398,11 @@
           font-size: 11px; font-weight: 700;
           border-radius: 20px; padding: 2px 8px;
         }
-        .platform-badge.reviewnote {
-          color: #fff; background: #2a7dd4;
-        }
-        .platform-badge.popomon {
-          color: #fff; background: #8468F7;
-        }
+        .platform-badge.reviewnote   { color: #fff; background: #2a7dd4; }
+        .platform-badge.popomon      { color: #fff; background: #8468F7; }
+        .platform-badge.dinnerqueen  { color: #fff; background: #E95280; }
+        .platform-badge.supermembers { color: #fff; background: #A1A1A1; }
+        .platform-badge.gangnam      { color: #fff; background: #FF6213; }
         .blog-item.done-item { background: #f8fffe; }
         .blog-item.done-item .blog-title { color: #aaa; }
         .blog-item.done-item .blog-meta  { color: #bbb; }
@@ -608,6 +607,9 @@
         <div class="platform-notice">
           <span class="platform-badge reviewnote" style="font-size:11px;">리뷰노트</span>
           <span class="platform-badge popomon" style="font-size:11px; margin-left:4px;">포포몬</span>
+          <span class="platform-badge dinnerqueen" style="font-size:11px; margin-left:4px;">디너의여왕</span>
+          <span class="platform-badge supermembers" style="font-size:11px; margin-left:4px;">슈퍼멤버스</span>
+          <span class="platform-badge gangnam" style="font-size:11px; margin-left:4px;">강남맛집</span>
           뱃지는 체험단 플랫폼을 자동 감지한 결과로,
           <b>정확하지 않을 수 있습니다.</b>
           <br />
@@ -742,6 +744,18 @@
       }
 
       // ── 방법 안내 토글 ──
+      const PLATFORM_LABELS = {
+        reviewnote:   { label: '리뷰노트',    cls: 'reviewnote' },
+        popomon:      { label: '포포몬',      cls: 'popomon' },
+        dinnerqueen:  { label: '디너의여왕',  cls: 'dinnerqueen' },
+        supermembers: { label: '슈퍼멤버스',  cls: 'supermembers' },
+        gangnam:      { label: '강남맛집',    cls: 'gangnam' },
+      };
+      function platformBadge(platform) {
+        const p = PLATFORM_LABELS[platform];
+        return p ? `<span class="platform-badge ${p.cls}">${p.label}</span>` : '';
+      }
+
       function toggleHowTo() {
         const steps = document.getElementById('howToSteps');
         const arrow = document.getElementById('howToArrow');
@@ -882,7 +896,7 @@
               <div class="blog-title">${b.title || '(제목 없음)'}</div>
               <div class="blog-meta">${b.name}</div>
             </div>
-            ${b.platform === 'reviewnote' ? '<span class="platform-badge reviewnote">리뷰노트</span>' : b.platform === 'popomon' ? '<span class="platform-badge popomon">포포몬</span>' : ''}
+            ${platformBadge(b.platform)}
             ${b.loaded ? '<span class="loaded-badge">불러옴</span>' : ''}
             ${isDone ? '<span class="done-badge">완료</span>' : ''}
             <div class="blog-date">${b.date}</div>
@@ -1044,7 +1058,10 @@
         // 협찬 플랫폼 감지
         const platform =
           /cdn\.railguns\.in.*reviewnote|reviewnote\.cloud/.test(html) ? 'reviewnote' :
-          /popomon\.com/.test(html) ? 'popomon' :
+          /popomon\.com/.test(html)                                     ? 'popomon' :
+          /dinnerqueen\.net/.test(html)                                 ? 'dinnerqueen' :
+          /d3i7y4ugnppb9p\.cloudfront\.net/.test(html)                 ? 'supermembers' :
+          /xn--939au0g4vj8sq\.net/.test(html)                          ? 'gangnam' :
           null;
         if (platform) {
           if (blogMeta) blogMeta.platform = platform;
@@ -1117,7 +1134,7 @@
           const header = document.createElement('div');
           header.className = 'img-group-header';
           header.innerHTML = `
-            ${group.meta.platform === 'reviewnote' ? '<span class="platform-badge reviewnote">리뷰노트</span>' : group.meta.platform === 'popomon' ? '<span class="platform-badge popomon">포포몬</span>' : ''}
+            ${platformBadge(group.meta.platform)}
             <span class="img-group-name">${group.meta.name || '직접 입력'}</span>
             <span class="img-group-title-wrap">
               ${group.meta.url
