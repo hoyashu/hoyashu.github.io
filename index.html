@@ -665,7 +665,7 @@
       <div class="site-footer-inner">
         <div>
           <div class="site-footer-name">코딩수영장</div>
-          <div class="site-footer-version">v1.6</div>
+          <div class="site-footer-version">v1.6.1</div>
         </div>
         <div class="site-footer-links">
           <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
@@ -1293,61 +1293,72 @@
         doDownload();
       }
 
+      const ZIP_CHUNK = 30;
+
       async function doDownload() {
         const list = [...imgSelected].sort((a, b) => a - b).map(i => images[i]);
+        const total = list.length;
+        const chunks = [];
+        for (let i = 0; i < total; i += ZIP_CHUNK) chunks.push(list.slice(i, i + ZIP_CHUNK));
+        const totalChunks = chunks.length;
 
         isBusy = true;
         document.getElementById('dlBtn').disabled = true;
-        showOverlay('이미지 다운로드 중...', `0 / ${list.length}장`, 0);
 
-        const zip = new JSZip();
-        let done = 0;
+        let doneTotal = 0;
 
-        await Promise.all(list.map(async (img, idx) => {
-          const num = String(idx + 1).padStart(3, '0');
-          const tries = [
-            // 1) 고화질 직접 접근 우선 (hires = w3840)
-            () => fetch(img.hires,{ signal: AbortSignal.timeout(15000) }),
-            () => fetch(img.url,  { signal: AbortSignal.timeout(15000) }),
-            // 2) 이미지 프록시 경유 (고화질 우선)
-            ...IMG_PROXIES.map(m => () => fetch(m(img.hires),{ signal: AbortSignal.timeout(15000) })),
-            ...IMG_PROXIES.map(m => () => fetch(m(img.url),  { signal: AbortSignal.timeout(15000) })),
-          ];
-          let saved = false;
-          for (const t of tries) {
-            try {
-              const res = await t();
-              if (!res.ok) continue;
-              const blob = await res.blob();
-              // 실제 이미지인지 확인 (JSON/HTML 오류 응답 제외)
-              if (!blob.size) continue;
-              if (blob.type && blob.type.includes('text')) continue;
-              if (blob.type && blob.type.includes('json')) continue;
-              const ext = guessExt(blob.type, img.url);
-              zip.file(`image_${num}.${ext}`, blob);
-              saved = true; break;
-            } catch {}
-          }
-          if (!saved) zip.file(`image_${num}_failed.txt`, `다운로드 실패: ${img.hires}`);
-          done++;
-          const pct = Math.round(done / list.length * 100);
-          updateOverlay('이미지 다운로드 중...', `${done} / ${list.length}장`, pct);
-        }));
+        for (let ci = 0; ci < totalChunks; ci++) {
+          const chunk = chunks[ci];
+          const chunkLabel = totalChunks > 1 ? ` (${ci + 1}/${totalChunks})` : '';
+          showOverlay(`이미지 다운로드 중...${chunkLabel}`, `${doneTotal} / ${total}장`, Math.round(doneTotal / total * 100));
 
-        updateOverlay('ZIP 파일 생성 중...', '', 100);
-        const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(zipBlob);
-        a.download = `naver_blog_images_${Date.now()}.zip`;
-        a.click();
-        URL.revokeObjectURL(a.href);
+          const zip = new JSZip();
+
+          await Promise.all(chunk.map(async (img, idx) => {
+            const globalIdx = ci * ZIP_CHUNK + idx;
+            const num = String(globalIdx + 1).padStart(3, '0');
+            const tries = [
+              () => fetch(img.hires,{ signal: AbortSignal.timeout(15000) }),
+              () => fetch(img.url,  { signal: AbortSignal.timeout(15000) }),
+              ...IMG_PROXIES.map(m => () => fetch(m(img.hires),{ signal: AbortSignal.timeout(15000) })),
+              ...IMG_PROXIES.map(m => () => fetch(m(img.url),  { signal: AbortSignal.timeout(15000) })),
+            ];
+            let saved = false;
+            for (const t of tries) {
+              try {
+                const res = await t();
+                if (!res.ok) continue;
+                const blob = await res.blob();
+                if (!blob.size) continue;
+                if (blob.type && blob.type.includes('text')) continue;
+                if (blob.type && blob.type.includes('json')) continue;
+                const ext = guessExt(blob.type, img.url);
+                zip.file(`image_${num}.${ext}`, blob);
+                saved = true; break;
+              } catch {}
+            }
+            if (!saved) zip.file(`image_${num}_failed.txt`, `다운로드 실패: ${img.hires}`);
+            doneTotal++;
+            updateOverlay(`이미지 다운로드 중...${chunkLabel}`, `${doneTotal} / ${total}장`, Math.round(doneTotal / total * 100));
+          }));
+
+          updateOverlay(`ZIP ${ci + 1}번 파일 생성 중...`, `${ci + 1} / ${totalChunks}`, 100);
+          const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+          const suffix = totalChunks > 1 ? `_${ci + 1}of${totalChunks}` : '';
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(zipBlob);
+          a.download = `naver_blog_images${suffix}_${Date.now()}.zip`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+
+          if (ci < totalChunks - 1) await new Promise(r => setTimeout(r, 800));
+        }
 
         hideOverlay();
         isBusy = false;
         document.getElementById('dlBtn').disabled = false;
-        setImgStatus(`완료! ${list.length}장 다운로드됨`, 'ok');
+        setImgStatus(`완료! ${total}장 / ${totalChunks > 1 ? `ZIP ${totalChunks}개` : 'ZIP 1개'} 다운로드됨`, 'ok');
 
-        // 완료된 블로그 URL을 localStorage에 저장
         if (currentFetchUrls.length > 0) markDone(currentFetchUrls);
       }
 
