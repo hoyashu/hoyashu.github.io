@@ -648,7 +648,7 @@
       <div class="site-footer-inner">
         <div>
           <div class="site-footer-name">코딩수영장</div>
-          <div class="site-footer-version">v1.5</div>
+          <div class="site-footer-version">v1.5.2</div>
         </div>
         <div class="site-footer-links">
           <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
@@ -1057,11 +1057,11 @@
 
         // 협찬 플랫폼 감지
         const platform =
-          /cdn\.railguns\.in.*reviewnote|reviewnote\.cloud/.test(html) ? 'reviewnote' :
-          /popomon\.com/.test(html)                                     ? 'popomon' :
-          /dinnerqueen\.net/.test(html)                                 ? 'dinnerqueen' :
-          /d3i7y4ugnppb9p\.cloudfront\.net/.test(html)                 ? 'supermembers' :
-          /xn--939au0g4vj8sq\.net/.test(html)                          ? 'gangnam' :
+          /reviewnote/.test(html) ? 'reviewnote' :
+          /popomon/.test(html)                                     ? 'popomon' :
+          /dinnerqueen/.test(html)                                 ? 'dinnerqueen' :
+          /d3i7y4ugnppb9p/.test(html)                 ? 'supermembers' :
+          /xn--939au0g4vj8sq/.test(html)                          ? 'gangnam' :
           null;
         if (platform) {
           if (blogMeta) blogMeta.platform = platform;
