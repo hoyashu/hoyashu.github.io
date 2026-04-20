@@ -292,6 +292,25 @@
       }
       .console-copy-btn:hover { background: #02b350; }
 
+      /* ── 푸터 ── */
+      .site-footer {
+        background: #222; color: #aaa;
+        margin-top: 48px; padding: 20px;
+      }
+      .site-footer-inner {
+        max-width: 1000px; margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .site-footer-name { font-size: 13px; font-weight: 700; color: #fff; }
+      .site-footer-version { font-size: 11px; color: #666; margin-top: 2px; }
+      .site-footer-links { display: flex; gap: 20px; }
+      .site-footer-links a {
+        display: flex; align-items: center; gap: 6px;
+        color: #aaa; text-decoration: none; font-size: 13px;
+        transition: color 0.15s;
+      }
+      .site-footer-links a:hover { color: #03c75a; }
+
       /* ── 모바일 차단 ── */
       .mobile-block {
         display: none;
@@ -572,7 +591,6 @@
           <span class="platform-badge popomon" style="font-size:11px; margin-left:4px;">포포몬</span>
           뱃지는 체험단 플랫폼을 자동 감지한 결과로,
           <b>정확하지 않을 수 있습니다.</b>
-          <br />
           체험단 협찬 사진의 저작권은 원작자에게 있으므로, 사용 전 저작권 문제가 없는지 반드시 직접 확인하세요.
         </div>
         <div class="img-toolbar" id="imgToolbar" style="display:none;">
@@ -603,6 +621,31 @@
         </script>
       </div>
     </div>
+
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <div>
+          <div class="site-footer-name">코딩수영장</div>
+          <div class="site-footer-version">v1.1.0</div>
+        </div>
+        <div class="site-footer-links">
+          <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+              />
+            </svg>
+            GitHub
+          </a>
+          <a href="https://hoyashu.tistory.com" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+            </svg>
+            블로그
+          </a>
+        </div>
+      </div>
+    </footer>
 
     <script>
       const HTML_PROXIES = [
