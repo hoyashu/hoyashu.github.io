@@ -136,6 +136,23 @@
         .img-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.14); }
         .img-card.selected { outline: 3px solid #03c75a; }
         .img-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+        .gif-placeholder {
+          width: 100%; aspect-ratio: 1;
+          background: #1e1e1e;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .gif-badge {
+          font-size: 18px; font-weight: 800; letter-spacing: 2px;
+          color: #03c75a; border: 2px solid #03c75a;
+          border-radius: 6px; padding: 4px 10px;
+        }
+        .gif-card-badge {
+          position: absolute; top: 7px; right: 7px;
+          font-size: 10px; font-weight: 800;
+          background: rgba(0,0,0,0.6); color: #03c75a;
+          border-radius: 4px; padding: 1px 5px;
+          pointer-events: none;
+        }
         .img-card .chk {
           position: absolute; top: 7px; left: 7px;
           width: 20px; height: 20px; border-radius: 50%;
@@ -648,7 +665,7 @@
       <div class="site-footer-inner">
         <div>
           <div class="site-footer-name">코딩수영장</div>
-          <div class="site-footer-version">v1.5.2</div>
+          <div class="site-footer-version">v1.6</div>
         </div>
         <div class="site-footer-links">
           <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
@@ -1058,10 +1075,10 @@
         // 협찬 플랫폼 감지
         const platform =
           /reviewnote/.test(html) ? 'reviewnote' :
-          /popomon/.test(html)                                     ? 'popomon' :
-          /dinnerqueen/.test(html)                                 ? 'dinnerqueen' :
-          /d3i7y4ugnppb9p/.test(html)                 ? 'supermembers' :
-          /xn--939au0g4vj8sq/.test(html)                          ? 'gangnam' :
+          /popomon\.com/.test(html)                                     ? 'popomon' :
+          /dinnerqueen\.net/.test(html)                                 ? 'dinnerqueen' :
+          /d3i7y4ugnppb9p\.cloudfront\.net/.test(html)                 ? 'supermembers' :
+          /xn--939au0g4vj8sq\.net/.test(html)                          ? 'gangnam' :
           null;
         if (platform) {
           if (blogMeta) blogMeta.platform = platform;
@@ -1069,10 +1086,21 @@
           if (blogIdx !== -1) blogs[blogIdx].platform = platform;
         }
 
-        doc.querySelectorAll('img').forEach(img => {
-          for (const attr of ['src', 'data-lazy-src', 'data-src', 'data-original']) {
-            const v = img.getAttribute(attr);
-            if (v && isNaverImage(v)) found.add(cleanUrl(v));
+        // img와 video[data-gif-url]을 DOM 순서대로 한 번에 처리
+        const gifUrls = new Set();
+        doc.querySelectorAll('img, video[data-gif-url]').forEach(el => {
+          if (el.tagName === 'VIDEO') {
+            const v = el.getAttribute('data-gif-url');
+            if (v && isNaverImage(v) && !/type=w80_blur/.test(v)) {
+              const clean = cleanUrl(v);
+              found.add(clean);
+              gifUrls.add(hiresUrl(clean));
+            }
+          } else {
+            for (const attr of ['src', 'data-lazy-src', 'data-src', 'data-original']) {
+              const v = el.getAttribute(attr);
+              if (v && isNaverImage(v)) found.add(cleanUrl(v));
+            }
           }
         });
         doc.querySelectorAll('[style]').forEach(el => {
@@ -1086,6 +1114,16 @@
         if (raw1) raw1.forEach(u => { if (isNaverImage(u)) found.add(cleanUrl(u.split('\\u')[0])); });
         const raw2 = html.match(/https?:\/\/blogfiles\.pstatic\.net\/[^"'\s)]+/g);
         if (raw2) raw2.forEach(u => found.add(cleanUrl(u)));
+        // GIF: data-gif-url raw 추출 (프록시가 video 태그 속성 제거할 경우 대비, &quot; 인코딩 포함)
+        const rawGifPattern = /data-gif-url=(?:"|&quot;)(https?:\/\/postfiles\.pstatic\.net\/[^"&]+)/g;
+        let gm;
+        while ((gm = rawGifPattern.exec(html)) !== null) {
+          const u = cleanUrl(gm[1]);
+          if (!/type=w80_blur/.test(u)) {
+            found.add(u);
+            gifUrls.add(hiresUrl(u));
+          }
+        }
 
         const existingHires = new Set(images.map(i => i.hires));
         [...found]
@@ -1093,7 +1131,7 @@
           .forEach(url => {
             const hires = hiresUrl(url);
             if (!existingHires.has(hires)) {
-              images.push({ url, hires, blogMeta });
+              images.push({ url, hires, blogMeta, isGif: gifUrls.has(hires) });
               existingHires.add(hires);
             }
           });
@@ -1104,6 +1142,7 @@
       function hiresUrl(url) {
         try {
           const u = new URL(url);
+          u.hostname = u.hostname.replace('mblogvideo-phinf.pstatic.net', 'postfiles.pstatic.net');
           if (u.searchParams.has('type')) u.searchParams.set('type', 'w3840');
           return u.toString();
         }
@@ -1170,7 +1209,12 @@
             card.id = `card-${imgIdx}`;
             card.innerHTML = `
               <div class="chk">✓</div>
-              <img src="https://wsrv.nl/?url=${encodeURIComponent(img.url)}&w=300&h=300&fit=cover" loading="lazy" onerror="this.style.opacity='0'" />
+              ${img.isGif
+                ? `<img src="https://wsrv.nl/?url=${encodeURIComponent(img.url)}&n=-1" loading="lazy"
+                       onerror="this.outerHTML='<div class=\\'gif-placeholder\\'><span class=\\'gif-badge\\'>GIF</span></div>'" />
+                   <span class="gif-card-badge">GIF</span>`
+                : `<img src="https://wsrv.nl/?url=${encodeURIComponent(img.url)}&w=300&h=300&fit=cover" loading="lazy" onerror="this.style.opacity='0'" />`
+              }
               <div class="num">${localIdx + 1}</div>
             `;
             card.addEventListener('click', () => toggleImg(imgIdx, card));
