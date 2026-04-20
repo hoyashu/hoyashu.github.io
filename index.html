@@ -1132,7 +1132,7 @@
             card.id = `card-${imgIdx}`;
             card.innerHTML = `
               <div class="chk">✓</div>
-              <img src="${img.url}" loading="lazy" onerror="this.style.opacity='0'" />
+              <img src="https://wsrv.nl/?url=${encodeURIComponent(img.url)}&w=300&h=300&fit=cover" loading="lazy" onerror="this.style.opacity='0'" />
               <div class="num">${localIdx + 1}</div>
             `;
             card.addEventListener('click', () => toggleImg(imgIdx, card));
