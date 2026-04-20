@@ -374,6 +374,18 @@
         .btn-cancel { background: #f0f0f0; color: #555; border: none; }
         .btn-cancel:hover { background: #e4e4e4; }
 
+        /* ── 불러옴 배지 ── */
+        .loaded-badge {
+          flex-shrink: 0;
+          font-size: 11px; font-weight: 600;
+          color: #1a73e8; background: #e8f0fe;
+          border-radius: 20px; padding: 2px 8px;
+        }
+        .blog-item.loaded-item {
+          opacity: 0.6; cursor: default;
+        }
+        .blog-item.loaded-item:hover { background: inherit; }
+
         /* ── 완료 배지 ── */
         .done-badge {
           flex-shrink: 0;
@@ -437,20 +449,19 @@
           <b>모든 법적 책임은 사용자 본인에게 있으며</b>
           , 이 서비스는 어떠한 책임도 지지 않습니다.
         </div>
-        <label class="modal-check">
+        <label class="modal-check" style="display:none;">
           <input type="checkbox" id="dontShowAgain" />
-          오늘 하루 다시 보지 않기
         </label>
         <div class="modal-btns">
           <button class="btn btn-cancel" onclick="closeModal()">취소</button>
           <button class="btn btn-green" onclick="confirmDownload()">동의하고 다운로드</button>
         </div>
-        <p class="modal-affiliate">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+        <p class="modal-affiliate">이 서비스는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
       </div>
     </div>
 
     <!-- 다운로드 로딩 오버레이 -->
-    <div class="coupang-notice">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</div>
+    <div class="coupang-notice">이 서비스는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</div>
 
     <div class="mobile-block" id="mobileBlock">
       <div class="mobile-block-icon">🖥️</div>
@@ -599,6 +610,7 @@
           <span class="platform-badge popomon" style="font-size:11px; margin-left:4px;">포포몬</span>
           뱃지는 체험단 플랫폼을 자동 감지한 결과로,
           <b>정확하지 않을 수 있습니다.</b>
+          <br />
           체험단 협찬 사진의 저작권은 원작자에게 있으므로, 사용 전 저작권 문제가 없는지 반드시 직접 확인하세요.
         </div>
         <div class="img-toolbar" id="imgToolbar" style="display:none;">
@@ -634,7 +646,7 @@
       <div class="site-footer-inner">
         <div>
           <div class="site-footer-name">코딩수영장</div>
-          <div class="site-footer-version">v1.3.3</div>
+          <div class="site-footer-version">v1.4</div>
         </div>
         <div class="site-footer-links">
           <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
@@ -859,7 +871,10 @@
         blogs.forEach((b, i) => {
           const isDone = downloadedSet.has(normalizeUrl(b.url));
           const item = document.createElement('div');
-          item.className = 'blog-item' + (b.selected ? ' selected' : '') + (isDone ? ' done-item' : '');
+          item.className = 'blog-item'
+            + (b.selected ? ' selected' : '')
+            + (isDone ? ' done-item' : '')
+            + (b.loaded ? ' loaded-item' : '');
           item.innerHTML = `
             <div class="blog-check">${b.selected ? '✓' : ''}</div>
             ${b.thumb ? `<img class="blog-thumb" src="${b.thumb}" onerror="this.style.display='none'" />` : '<div class="blog-thumb"></div>'}
@@ -867,11 +882,12 @@
               <div class="blog-title">${b.title || '(제목 없음)'}</div>
               <div class="blog-meta">${b.name}</div>
             </div>
-            ${b.platform === 'reviewnote' ? '<span class="platform-badge reviewnote">리뷰노트</span>' : ''}
+            ${b.platform === 'reviewnote' ? '<span class="platform-badge reviewnote">리뷰노트</span>' : b.platform === 'popomon' ? '<span class="platform-badge popomon">포포몬</span>' : ''}
+            ${b.loaded ? '<span class="loaded-badge">불러옴</span>' : ''}
             ${isDone ? '<span class="done-badge">완료</span>' : ''}
             <div class="blog-date">${b.date}</div>
           `;
-          item.addEventListener('click', () => toggleBlog(i, item));
+          if (!b.loaded) item.addEventListener('click', () => toggleBlog(i, item));
           list.appendChild(item);
         });
       }
@@ -916,9 +932,11 @@
 
       // ── STEP 2: 이미지 가져오기 ──
       async function fetchImages() {
-        const selected = blogs.filter(b => b.selected);
-        if (selected.length === 0) return;
-        // blog 객체 전체를 넘겨 메타 정보 보존
+        const selected = blogs.filter(b => b.selected && !b.loaded);
+        if (selected.length === 0) {
+          setImgStatus('새로 불러올 블로그가 없습니다. (이미 불러온 항목은 제외됩니다)', 'error');
+          return;
+        }
         await runFetch(selected);
       }
 
@@ -939,11 +957,8 @@
         document.getElementById('panel2').classList.remove('disabled');
         document.getElementById('badge2').classList.remove('done');
         document.getElementById('imgToolbar').style.display = 'none';
-        document.getElementById('grid').innerHTML = '';
         document.getElementById('fetchBtn').disabled = true;
         document.getElementById('imgStatus').textContent = '';
-        images = [];
-        imgSelected.clear();
 
         // 프로그레스 표시
         const fetchProgress = document.getElementById('fetchProgress');
@@ -963,7 +978,9 @@
           try {
             const postViewUrl = await resolvePostViewUrl(b.url);
             const html = await fetchHtml(postViewUrl);
-            extractImages(html, { name: b.name, title: b.title, date: b.date, url: b.url });
+            extractImages(html, b);
+            b.loaded = true;
+            renderBlogList();
           } catch (e) {
             errors.push(e.message);
           }
@@ -1198,26 +1215,14 @@
       }
 
       // ── 저작권 모달 ──
-      const COPYRIGHT_KEY = 'copyright_skip_until';
-
       function downloadSelected() {
         if (imgSelected.size === 0) return;
-        const skipUntil = localStorage.getItem(COPYRIGHT_KEY);
-        if (skipUntil && Date.now() < Number(skipUntil)) {
-          doDownload(); // 오늘 하루 건너뛰기 체크한 경우
-        } else {
-          document.getElementById('dontShowAgain').checked = false;
-          document.getElementById('copyrightModal').classList.add('show');
-        }
+        document.getElementById('copyrightModal').classList.add('show');
       }
       function closeModal() {
         document.getElementById('copyrightModal').classList.remove('show');
       }
       function confirmDownload() {
-        if (document.getElementById('dontShowAgain').checked) {
-          const until = Date.now() + 24 * 60 * 60 * 1000; // 24시간
-          localStorage.setItem(COPYRIGHT_KEY, until);
-        }
         closeModal();
         window.open('https://link.coupang.com/a/esK4HH', '_blank', 'noopener');
         doDownload();
