@@ -1280,10 +1280,6 @@
         if (currentFetchUrls.length > 0) markDone(currentFetchUrls);
       }
 
-      // Enter 키로 리뷰 목록 가져오기
-      document.getElementById('placeUrl').addEventListener('keydown', e => {
-        if (e.key === 'Enter') loadReviews();
-      });
 
       function guessExt(mime, url) {
         if (/jpeg|jpg/.test(mime)) return 'jpg';
