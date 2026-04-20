@@ -156,12 +156,30 @@
         padding: 10px 12px; margin-bottom: 10px;
         background: #f8f8f8; border-radius: 8px;
         border-left: 3px solid #03c75a;
+        cursor: pointer; user-select: none;
       }
+      .img-group-header:hover { background: #f0f0f0; }
+      .img-group-toggle { font-size: 11px; color: #aaa; margin-left: auto; flex-shrink: 0; }
+      .img-group-body { overflow: hidden; transition: none; }
+      .img-group-body.collapsed { display: none; }
       .img-group-name { font-size: 13px; font-weight: 700; }
+      .platform-notice {
+        font-size: 12px; color: #888; line-height: 1.7;
+        background: #fafafa; border: 1px solid #eee;
+        border-radius: 8px; padding: 10px 14px;
+        margin-bottom: 14px;
+      }
+      .platform-notice b { color: #e53935; }
+
+      .img-group-title-wrap {
+        flex: 1; overflow: hidden; min-width: 0;
+      }
       .img-group-title {
         font-size: 12px; color: #666;
-        flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        text-decoration: none; display: inline;
       }
+      a.img-group-title:hover { color: #03c75a; text-decoration: underline; }
       .img-group-date { font-size: 11px; color: #aaa; white-space: nowrap; }
       .img-group-count { font-size: 11px; color: #888; white-space: nowrap; }
       .img-group-btns { display: flex; gap: 6px; }
@@ -169,14 +187,37 @@
         font-size: 11px; padding: 3px 10px;
         border: 1px solid #ddd; border-radius: 6px;
         background: #fff; cursor: pointer; white-space: nowrap;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
       }
       .btn-group-sel:hover { background: #f0f0f0; }
+      .btn-group-sel.active-sel { background: #03c75a; border-color: #03c75a; color: #fff; }
+      .btn-group-sel.active-desel { background: #eee; border-color: #bbb; color: #999; }
 
       /* ── 진행바 ── */
       .progress-wrap { margin-top: 16px; }
       .progress-bar { height: 5px; background: #e0e0e0; border-radius: 3px; overflow: hidden; margin-top: 6px; }
       .progress-fill { height: 100%; background: #03c75a; width: 0%; transition: width 0.2s; }
       .progress-label { font-size: 12px; color: #888; }
+
+      /* ── fetch 로딩 프로그레스 ── */
+      .fetch-progress-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 8px;
+      }
+      .fetch-spinner {
+        width: 16px; height: 16px; border-radius: 50%;
+        border: 2px solid #e0e0e0; border-top-color: #03c75a;
+        animation: spin 0.7s linear infinite; flex-shrink: 0;
+      }
+      #fetchProgressLabel { font-size: 13px; color: #555; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .fetch-progress-count { font-size: 13px; font-weight: 700; color: #03c75a; white-space: nowrap; }
+      .fetch-progress-bar-wrap {
+        height: 6px; background: #e8e8e8; border-radius: 4px; overflow: hidden;
+      }
+      .fetch-progress-bar {
+        height: 100%; background: #03c75a; width: 0%;
+        transition: width 0.3s ease; border-radius: 4px;
+      }
 
       /* ── 다운로드 오버레이 ── */
       .dl-overlay {
@@ -297,6 +338,10 @@
         margin-bottom: 18px; cursor: pointer;
       }
       .modal-check input { width: 15px; height: 15px; cursor: pointer; }
+      .modal-affiliate {
+        font-size: 11px; color: #bbb; text-align: center;
+        margin-top: 12px; line-height: 1.5;
+      }
       .modal-btns { display: flex; gap: 10px; }
       .modal-btns .btn { flex: 1; padding: 12px; font-size: 14px; }
       .btn-cancel { background: #f0f0f0; color: #555; border: none; }
@@ -308,6 +353,17 @@
         font-size: 11px; font-weight: 600;
         color: #fff; background: #03c75a;
         border-radius: 20px; padding: 2px 8px;
+      }
+      .platform-badge {
+        flex-shrink: 0;
+        font-size: 11px; font-weight: 700;
+        border-radius: 20px; padding: 2px 8px;
+      }
+      .platform-badge.reviewnote {
+        color: #fff; background: #2a7dd4;
+      }
+      .platform-badge.popomon {
+        color: #fff; background: #8468F7;
       }
       .blog-item.done-item { background: #f8fffe; }
       .blog-item.done-item .blog-title { color: #aaa; }
@@ -362,6 +418,9 @@
           <button class="btn btn-cancel" onclick="closeModal()">취소</button>
           <button class="btn btn-green" onclick="confirmDownload()">동의하고 다운로드</button>
         </div>
+        <p class="modal-affiliate">
+          이 서비스는 쿠팡 파트너스 활동의 일환으로, 다운로드 시 쿠팡 페이지가 열리며 이를 통한 구매 시 일정 수수료를 제공받을 수 있습니다.
+        </p>
       </div>
     </div>
 
@@ -497,7 +556,25 @@
         <div class="step-title">이미지 선택 &amp; 다운로드</div>
       </div>
       <div class="panel disabled" id="panel2">
+        <div id="fetchProgress" style="display:none; margin-bottom:16px;">
+          <div class="fetch-progress-header">
+            <div class="fetch-spinner"></div>
+            <span id="fetchProgressLabel">블로그 불러오는 중...</span>
+            <span id="fetchProgressCount" class="fetch-progress-count"></span>
+          </div>
+          <div class="fetch-progress-bar-wrap">
+            <div class="fetch-progress-bar" id="fetchProgressBar"></div>
+          </div>
+        </div>
         <div class="status" id="imgStatus"></div>
+        <div class="platform-notice">
+          <span class="platform-badge reviewnote" style="font-size:11px;">리뷰노트</span>
+          <span class="platform-badge popomon" style="font-size:11px; margin-left:4px;">포포몬</span>
+          뱃지는 체험단 플랫폼을 자동 감지한 결과로,
+          <b>정확하지 않을 수 있습니다.</b>
+          <br />
+          체험단 협찬 사진의 저작권은 원작자에게 있으므로, 사용 전 저작권 문제가 없는지 반드시 직접 확인하세요.
+        </div>
         <div class="img-toolbar" id="imgToolbar" style="display:none;">
           <button class="btn btn-outline btn-sm" onclick="selectAll()">전체 선택</button>
           <button class="btn btn-outline btn-sm" onclick="deselectAll()">전체 해제</button>
@@ -739,6 +816,7 @@
               <div class="blog-title">${b.title || '(제목 없음)'}</div>
               <div class="blog-meta">${b.name}</div>
             </div>
+            ${b.platform === 'reviewnote' ? '<span class="platform-badge reviewnote">리뷰노트</span>' : ''}
             ${isDone ? '<span class="done-badge">완료</span>' : ''}
             <div class="blog-date">${b.date}</div>
           `;
@@ -805,19 +883,32 @@
       async function runFetch(blogItems) {
         currentFetchUrls = blogItems.map(b => b.url);
         isBusy = true;
+        const total = blogItems.length;
+
         document.getElementById('panel2').classList.remove('disabled');
         document.getElementById('badge2').classList.remove('done');
         document.getElementById('imgToolbar').style.display = 'none';
         document.getElementById('grid').innerHTML = '';
         document.getElementById('fetchBtn').disabled = true;
+        document.getElementById('imgStatus').textContent = '';
         images = [];
         imgSelected.clear();
-        setImgStatus('이미지를 불러오는 중...');
+
+        // 프로그레스 표시
+        const fetchProgress = document.getElementById('fetchProgress');
+        const fetchProgressBar = document.getElementById('fetchProgressBar');
+        const fetchProgressLabel = document.getElementById('fetchProgressLabel');
+        const fetchProgressCount = document.getElementById('fetchProgressCount');
+        fetchProgress.style.display = 'block';
+        fetchProgressBar.style.width = '0%';
+        fetchProgressCount.textContent = `0 / ${total}`;
 
         const errors = [];
-        for (let i = 0; i < blogItems.length; i++) {
+        for (let i = 0; i < total; i++) {
           const b = blogItems[i];
-          setImgStatus(`(${i + 1}/${blogItems.length}) ${b.name || b.url} 불러오는 중...`);
+          fetchProgressLabel.textContent = `${b.name || b.url} 불러오는 중...`;
+          fetchProgressCount.textContent = `${i + 1} / ${total}`;
+          fetchProgressBar.style.width = `${Math.round(((i) / total) * 100)}%`;
           try {
             const postViewUrl = await resolvePostViewUrl(b.url);
             const html = await fetchHtml(postViewUrl);
@@ -826,6 +917,12 @@
             errors.push(e.message);
           }
         }
+
+        fetchProgressBar.style.width = '100%';
+        fetchProgressCount.textContent = `${total} / ${total}`;
+        fetchProgressLabel.textContent = '완료!';
+        await new Promise(r => setTimeout(r, 600));
+        fetchProgress.style.display = 'none';
 
         isBusy = false;
         document.getElementById('fetchBtn').disabled = false;
@@ -837,7 +934,7 @@
 
         renderGrid();
         selectAll();
-        const msg = `총 ${images.length}장 찾음 (${blogItems.length}개 글)` +
+        const msg = `총 ${images.length}장 찾음 (${total}개 글)` +
           (errors.length ? ` | 실패 ${errors.length}개` : '');
         setImgStatus(msg, 'ok');
         document.getElementById('imgToolbar').style.display = 'flex';
@@ -875,6 +972,17 @@
       function extractImages(html, blogMeta) {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const found = new Set();
+
+        // 협찬 플랫폼 감지
+        const platform =
+          /cdn\.railguns\.in.*reviewnote|reviewnote\.cloud/.test(html) ? 'reviewnote' :
+          /popomon\.com/.test(html) ? 'popomon' :
+          null;
+        if (platform) {
+          if (blogMeta) blogMeta.platform = platform;
+          const blogIdx = blogs.findIndex(b => b.url === blogMeta?.url);
+          if (blogIdx !== -1) blogs[blogIdx].platform = platform;
+        }
 
         doc.querySelectorAll('img').forEach(img => {
           for (const attr of ['src', 'data-lazy-src', 'data-src', 'data-original']) {
@@ -937,18 +1045,33 @@
           const header = document.createElement('div');
           header.className = 'img-group-header';
           header.innerHTML = `
+            ${group.meta.platform === 'reviewnote' ? '<span class="platform-badge reviewnote">리뷰노트</span>' : group.meta.platform === 'popomon' ? '<span class="platform-badge popomon">포포몬</span>' : ''}
             <span class="img-group-name">${group.meta.name || '직접 입력'}</span>
-            <span class="img-group-title">${group.meta.title || ''}</span>
+            <span class="img-group-title-wrap">
+              ${group.meta.url
+                ? `<a class="img-group-title" href="${group.meta.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${group.meta.title || ''}</a>`
+                : `<span class="img-group-title">${group.meta.title || ''}</span>`
+              }
+            </span>
             <span class="img-group-date">${group.meta.date || ''}</span>
             <span class="img-group-count">${group.indices.length}장</span>
-            <div class="img-group-btns">
+            <div class="img-group-btns" onclick="event.stopPropagation()">
               <button class="btn-group-sel" onclick="selectGroup(${gi})">선택</button>
               <button class="btn-group-sel" onclick="deselectGroup(${gi})">해제</button>
             </div>
+            <span class="img-group-toggle">▾</span>
           `;
+          header.addEventListener('click', () => {
+            const body = section.querySelector('.img-group-body');
+            const arrow = header.querySelector('.img-group-toggle');
+            const collapsed = body.classList.toggle('collapsed');
+            arrow.textContent = collapsed ? '▸' : '▾';
+          });
           section.appendChild(header);
 
           // 이미지 그리드
+          const body = document.createElement('div');
+          body.className = 'img-group-body';
           const grid = document.createElement('div');
           grid.className = 'grid';
           group.indices.forEach((imgIdx, localIdx) => {
@@ -964,7 +1087,8 @@
             card.addEventListener('click', () => toggleImg(imgIdx, card));
             grid.appendChild(card);
           });
-          section.appendChild(grid);
+          body.appendChild(grid);
+          section.appendChild(body);
           container.appendChild(section);
         });
 
@@ -1008,6 +1132,18 @@
       function updateImgCount() {
         document.getElementById('imgCountLabel').textContent = `${imgSelected.size} / ${images.length}장 선택됨`;
         document.getElementById('dlBtn').disabled = imgSelected.size === 0;
+        document.querySelectorAll('.img-group').forEach(group => {
+          const cards = [...group.querySelectorAll('.img-card')];
+          if (!cards.length) return;
+          const total = cards.length;
+          const selected = cards.filter(c => c.classList.contains('selected')).length;
+          const btns = group.querySelectorAll('.btn-group-sel');
+          const selBtn = btns[0], deselBtn = btns[1];
+          selBtn.classList.toggle('active-sel', selected === total);
+          selBtn.classList.toggle('active-desel', false);
+          deselBtn.classList.toggle('active-desel', selected === 0);
+          deselBtn.classList.toggle('active-sel', false);
+        });
       }
 
       // ── 저작권 모달 ──
@@ -1032,6 +1168,7 @@
           localStorage.setItem(COPYRIGHT_KEY, until);
         }
         closeModal();
+        window.open('https://link.coupang.com/a/esK4HH', '_blank', 'noopener');
         doDownload();
       }
 
