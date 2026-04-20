@@ -646,7 +646,7 @@
       <div class="site-footer-inner">
         <div>
           <div class="site-footer-name">코딩수영장</div>
-          <div class="site-footer-version">v1.4</div>
+          <div class="site-footer-version">v1.5</div>
         </div>
         <div class="site-footer-links">
           <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
@@ -1085,7 +1085,11 @@
       function isNaverImage(url) { return /postfiles\.pstatic\.net|blogfiles\.pstatic\.net/.test(url); }
       function cleanUrl(url) { return url.replace(/&amp;/g, '&'); }
       function hiresUrl(url) {
-        try { const u = new URL(url); u.searchParams.delete('type'); return u.toString(); }
+        try {
+          const u = new URL(url);
+          if (u.searchParams.has('type')) u.searchParams.set('type', 'w3840');
+          return u.toString();
+        }
         catch { return url; }
       }
 
@@ -1241,12 +1245,12 @@
         await Promise.all(list.map(async (img, idx) => {
           const num = String(idx + 1).padStart(3, '0');
           const tries = [
-            // 1) 직접 접근 (원본 URL, hires URL 순)
-            () => fetch(img.url,  { signal: AbortSignal.timeout(15000) }),
+            // 1) 고화질 직접 접근 우선 (hires = w3840)
             () => fetch(img.hires,{ signal: AbortSignal.timeout(15000) }),
-            // 2) 이미지 프록시 경유 (원본 URL 우선)
-            ...IMG_PROXIES.map(m => () => fetch(m(img.url),  { signal: AbortSignal.timeout(15000) })),
+            () => fetch(img.url,  { signal: AbortSignal.timeout(15000) }),
+            // 2) 이미지 프록시 경유 (고화질 우선)
             ...IMG_PROXIES.map(m => () => fetch(m(img.hires),{ signal: AbortSignal.timeout(15000) })),
+            ...IMG_PROXIES.map(m => () => fetch(m(img.url),  { signal: AbortSignal.timeout(15000) })),
           ];
           let saved = false;
           for (const t of tries) {
