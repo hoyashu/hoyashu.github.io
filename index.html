@@ -114,6 +114,43 @@
         .status.error { color: #e53935; }
         .status.ok    { color: #03c75a; }
 
+        /* ── 하단 고정 바 ── */
+        .sticky-bar {
+          display: none;
+          position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
+          background: #fff; border-top: 1px solid #e0e0e0;
+          box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+          padding: 12px 20px;
+        }
+        .sticky-bar-inner {
+          max-width: 1000px; margin: 0 auto;
+          display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .sticky-bar-info { font-size: 13px; color: #888; }
+        .sticky-bar-info strong { color: #333; font-size: 15px; }
+        .sticky-bar.show { display: block; }
+        body.has-sticky { padding-bottom: 68px; }
+
+        /* ── 필터바 ── */
+        .filter-bar {
+          display: flex; align-items: center; gap: 8px;
+          margin-bottom: 14px; flex-wrap: wrap;
+        }
+        .filter-label { font-size: 12px; color: #aaa; }
+        .toolbar-divider { width: 1px; height: 20px; background: #e0e0e0; margin: 0 2px; }
+        .filter-chip {
+          display: flex; align-items: center; gap: 5px;
+          padding: 5px 14px; border-radius: 20px;
+          font-size: 12px; font-weight: 600; cursor: pointer;
+          border: 1.5px solid #ddd; background: #fff; color: #666;
+          transition: all 0.15s;
+        }
+        .filter-chip:hover { border-color: #03c75a; color: #03c75a; }
+        .filter-chip.active {
+          background: #03c75a; border-color: #03c75a;
+          color: #fff;
+        }
+
         /* ── 이미지 그리드 ── */
         .img-toolbar {
           display: flex; align-items: center; gap: 8px;
@@ -635,8 +672,13 @@
         <div class="img-toolbar" id="imgToolbar" style="display:none;">
           <button class="btn btn-outline btn-sm" onclick="selectAll()">전체 선택</button>
           <button class="btn btn-outline btn-sm" onclick="deselectAll()">전체 해제</button>
-          <button class="btn btn-blue btn-sm" id="dlBtn" onclick="downloadSelected()">선택 다운로드</button>
-          <span class="count-label" id="imgCountLabel"></span>
+          <div class="toolbar-divider"></div>
+          <button class="btn btn-outline btn-sm" onclick="collapseAll()">전체 접기</button>
+          <button class="btn btn-outline btn-sm" onclick="expandAll()">전체 펴기</button>
+        </div>
+        <div class="filter-bar" id="filterBar" style="display:none;">
+          <span class="filter-label">필터</span>
+          <button class="filter-chip" id="chipSponsored" onclick="toggleSponsoredFilter()">🏷 체험단 글만</button>
         </div>
         <div id="grid"></div>
         <div class="progress-wrap" id="progressWrap" style="display:none;">
@@ -665,7 +707,7 @@
       <div class="site-footer-inner">
         <div>
           <div class="site-footer-name">코딩수영장</div>
-          <div class="site-footer-version">v1.6.1</div>
+          <div class="site-footer-version">v1.5</div>
         </div>
         <div class="site-footer-links">
           <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
@@ -685,6 +727,28 @@
         </div>
       </div>
     </footer>
+
+    <!-- Step 1 하단 고정바: 블로그 이미지 가져오기 -->
+    <div class="sticky-bar" id="stickyFetch">
+      <div class="sticky-bar-inner">
+        <div class="sticky-bar-info">
+          <strong id="stickyBlogCount">0</strong>
+          개 블로그 선택됨
+        </div>
+        <button class="btn btn-blue" id="stickyFetchBtn" onclick="fetchImages()">선택한 블로그 이미지 가져오기</button>
+      </div>
+    </div>
+
+    <!-- Step 2 하단 고정바: 선택 다운로드 -->
+    <div class="sticky-bar" id="stickyDownload">
+      <div class="sticky-bar-inner">
+        <div class="sticky-bar-info">
+          <strong id="stickyImgCount">0 / 0장</strong>
+          선택됨
+        </div>
+        <button class="btn btn-blue" id="stickyDlBtn" onclick="downloadSelected()">선택 다운로드</button>
+      </div>
+    </div>
 
     <script>
       const HTML_PROXIES = [
@@ -894,6 +958,7 @@
         setParseStatus(`블로그 글 ${blogs.length}개를 찾았습니다.`, 'ok');
         document.getElementById('blogSection').style.display = 'block';
         updateBlogCount();
+        showStickyFetch();
       }
 
       function renderBlogList() {
@@ -950,6 +1015,24 @@
         const cnt = blogs.filter(b => b.selected).length;
         document.getElementById('blogCountLabel').textContent = `${cnt} / ${blogs.length}개 선택됨`;
         document.getElementById('fetchBtn').disabled = cnt === 0;
+        document.getElementById('stickyBlogCount').textContent = cnt;
+        document.getElementById('stickyFetchBtn').disabled = cnt === 0;
+      }
+
+      function showStickyFetch() {
+        document.getElementById('stickyFetch').classList.add('show');
+        document.getElementById('stickyDownload').classList.remove('show');
+        document.body.classList.add('has-sticky');
+      }
+      function showStickyDownload() {
+        document.getElementById('stickyDownload').classList.add('show');
+        document.getElementById('stickyFetch').classList.remove('show');
+        document.body.classList.add('has-sticky');
+      }
+      function hideStickyBars() {
+        document.getElementById('stickyFetch').classList.remove('show');
+        document.getElementById('stickyDownload').classList.remove('show');
+        document.body.classList.remove('has-sticky');
       }
 
       function toggleAlt() {
@@ -990,6 +1073,7 @@
         document.getElementById('imgToolbar').style.display = 'none';
         document.getElementById('fetchBtn').disabled = true;
         document.getElementById('imgStatus').textContent = '';
+        hideStickyBars();
 
         // 프로그레스 표시
         const fetchProgress = document.getElementById('fetchProgress');
@@ -1037,6 +1121,11 @@
           (errors.length ? ` | 실패 ${errors.length}개` : '');
         setImgStatus(msg, 'ok');
         document.getElementById('imgToolbar').style.display = 'flex';
+        sponsoredFilterOn = false;
+        document.getElementById('chipSponsored').classList.remove('active');
+        const hasSponsored = images.some(img => img.blogMeta?.platform);
+        document.getElementById('filterBar').style.display = hasSponsored ? 'flex' : 'none';
+        showStickyDownload();
       }
 
       async function resolvePostViewUrl(raw) {
@@ -1262,9 +1351,47 @@
         document.querySelectorAll('.img-card').forEach(c => c.classList.remove('selected'));
         updateImgCount();
       }
+
+      let sponsoredFilterOn = false;
+
+      function toggleSponsoredFilter() {
+        sponsoredFilterOn = !sponsoredFilterOn;
+        const chip = document.getElementById('chipSponsored');
+        chip.classList.toggle('active', sponsoredFilterOn);
+
+        imgSelected.clear();
+        document.querySelectorAll('.img-card').forEach(c => c.classList.remove('selected'));
+
+        if (sponsoredFilterOn) {
+          document.querySelectorAll('.img-group').forEach(group => {
+            if (group.querySelector('.platform-badge')) {
+              group.querySelectorAll('.img-card').forEach(card => {
+                const idx = parseInt(card.id.replace('card-', ''));
+                imgSelected.add(idx);
+                card.classList.add('selected');
+              });
+            }
+          });
+        } else {
+          // 필터 해제 시 전체 선택
+          images.forEach((_, i) => imgSelected.add(i));
+          document.querySelectorAll('.img-card').forEach(c => c.classList.add('selected'));
+        }
+        updateImgCount();
+      }
+
+      function collapseAll() {
+        document.querySelectorAll('.img-group-body').forEach(body => body.classList.add('collapsed'));
+        document.querySelectorAll('.img-group-toggle').forEach(arrow => arrow.textContent = '▸');
+      }
+
+      function expandAll() {
+        document.querySelectorAll('.img-group-body').forEach(body => body.classList.remove('collapsed'));
+        document.querySelectorAll('.img-group-toggle').forEach(arrow => arrow.textContent = '▾');
+      }
       function updateImgCount() {
-        document.getElementById('imgCountLabel').textContent = `${imgSelected.size} / ${images.length}장 선택됨`;
-        document.getElementById('dlBtn').disabled = imgSelected.size === 0;
+        document.getElementById('stickyImgCount').textContent = `${imgSelected.size} / ${images.length}장`;
+        document.getElementById('stickyDlBtn').disabled = imgSelected.size === 0;
         document.querySelectorAll('.img-group').forEach(group => {
           const cards = [...group.querySelectorAll('.img-card')];
           if (!cards.length) return;
@@ -1303,7 +1430,7 @@
         const totalChunks = chunks.length;
 
         isBusy = true;
-        document.getElementById('dlBtn').disabled = true;
+        document.getElementById('stickyDlBtn').disabled = true;
 
         let doneTotal = 0;
 
@@ -1356,7 +1483,7 @@
 
         hideOverlay();
         isBusy = false;
-        document.getElementById('dlBtn').disabled = false;
+        document.getElementById('stickyDlBtn').disabled = false;
         setImgStatus(`완료! ${total}장 / ${totalChunks > 1 ? `ZIP ${totalChunks}개` : 'ZIP 1개'} 다운로드됨`, 'ok');
 
         if (currentFetchUrls.length > 0) markDone(currentFetchUrls);
