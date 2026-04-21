@@ -34,7 +34,6 @@
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="네이버 블로그 이미지 다운로더" />
     <meta name="twitter:description" content="네이버 플레이스 리뷰 블로그 사진을 한번에 ZIP으로 다운로드. 식당·카페 사장님을 위한 무료 도구." />
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4514475744581891" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -395,6 +394,11 @@
           transition: color 0.15s;
         }
         .site-footer-links a:hover { color: #03c75a; }
+        .site-footer-bottom {
+          max-width: 1000px; margin: 14px auto 0;
+          padding-top: 14px; border-top: 1px solid #333;
+          font-size: 11px; color: #555; line-height: 1.8;
+        }
 
         /* ── 모바일 차단 ── */
         .mobile-block {
@@ -491,6 +495,40 @@
         }
         .clear-history:hover { color: #e53935; text-decoration: underline; }
 
+        /* ── 콘텐츠 섹션 ── */
+        .content-section { }
+        .content-h2 {
+          font-size: 17px; font-weight: 700; color: #222;
+          margin-bottom: 14px; padding-bottom: 8px;
+          border-bottom: 2px solid #e8f5e9;
+        }
+        .content-p { font-size: 14px; color: #444; line-height: 1.9; }
+        .content-list {
+          font-size: 14px; color: #444; line-height: 2;
+          padding-left: 20px;
+        }
+        .content-ol { list-style: decimal; }
+        .content-list li { margin-bottom: 4px; }
+
+        /* ── FAQ ── */
+        .faq-item {
+          border: 1px solid #eee; border-radius: 10px;
+          margin-bottom: 10px; overflow: hidden;
+        }
+        .faq-q {
+          padding: 14px 16px; font-size: 14px; font-weight: 600;
+          cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+          background: #fafafa; user-select: none;
+        }
+        .faq-q:hover { background: #f0f0f0; }
+        .faq-arrow { font-size: 12px; color: #aaa; flex-shrink: 0; margin-left: 8px; }
+        .faq-a {
+          display: none; padding: 12px 16px;
+          font-size: 13px; color: #555; line-height: 1.8;
+          border-top: 1px solid #eee; background: #fff;
+        }
+        .faq-a.open { display: block; }
+
         /* ── 대안 입력 토글 ── */
         .alt-toggle { font-size: 12px; color: #03c75a; cursor: pointer; margin-top: 10px; display: inline-block; }
         .alt-toggle:hover { text-decoration: underline; }
@@ -570,21 +608,6 @@
     <div class="container">
       <h1>📷 네이버 블로그 이미지 다운로더</h1>
       <p class="subtitle">내 플레이스를 리뷰한 블로그 글에서 사진을 한번에 다운로드하세요.</p>
-
-      <!-- 상단 광고 -->
-      <div style="margin-bottom:20px;">
-        <ins
-          class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-4514475744581891"
-          data-ad-slot="auto"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        ></ins>
-        <script>
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-      </div>
 
       <!-- ── STEP 1 ── -->
       <div class="step-header">
@@ -716,27 +739,150 @@
         </div>
       </div>
 
-      <!-- 하단 광고 -->
-      <div style="margin-top:28px;">
-        <ins
-          class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-4514475744581891"
-          data-ad-slot="auto"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        ></ins>
-        <script>
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-      </div>
+      <!-- ── 서비스 소개 ── -->
+      <section class="content-section" style="margin-top:40px;">
+        <h2 class="content-h2">네이버 블로그 이미지 다운로더란?</h2>
+        <p class="content-p">
+          네이버 플레이스에 등록된 식당, 카페, 가게를 방문한 블로거들이 남긴 리뷰 글에는 수많은 사진이 포함되어 있습니다. 사장님 입장에서는 이 사진들을 직접
+          하나하나 저장하기가 번거롭습니다.
+          <strong>네이버 블로그 이미지 다운로더</strong>
+          는 네이버 플레이스 리뷰 블로그의 사진을 한번에 골라서 ZIP 파일로 저장할 수 있는 무료 도구입니다.
+        </p>
+        <p class="content-p" style="margin-top:10px;">
+          별도 설치 없이 웹 브라우저에서 바로 사용할 수 있으며, 업로드되는 파일이 없어 개인정보 걱정 없이 안전하게 이용할 수 있습니다.
+        </p>
+      </section>
+
+      <!-- ── 주요 기능 ── -->
+      <section class="content-section" style="margin-top:32px;">
+        <h2 class="content-h2">주요 기능</h2>
+        <ul class="content-list">
+          <li>
+            <strong>블로그 목록 자동 추출</strong>
+            — 네이버 플레이스 HTML을 붙여넣으면 리뷰 블로그 목록을 자동으로 파악합니다.
+          </li>
+          <li>
+            <strong>이미지 선택 다운로드</strong>
+            — 원하는 이미지만 골라서 ZIP 파일로 한번에 저장합니다.
+          </li>
+          <li>
+            <strong>고화질 저장</strong>
+            — 가능한 경우 원본에 가까운 고화질(w3840) 이미지로 다운로드합니다.
+          </li>
+          <li>
+            <strong>GIF 지원</strong>
+            — 블로그에 포함된 움직이는 GIF 이미지도 함께 저장할 수 있습니다.
+          </li>
+          <li>
+            <strong>체험단 자동 감지</strong>
+            — 리뷰노트, 포포몬, 디너의여왕, 슈퍼멤버스, 강남맛집 등 체험단 플랫폼을 자동으로 감지해 뱃지로 표시합니다.
+          </li>
+          <li>
+            <strong>ZIP 자동 분할</strong>
+            — 사진이 많을 경우 30장씩 나눠 여러 ZIP 파일로 저장해 다운로드 오류를 예방합니다.
+          </li>
+          <li>
+            <strong>다운로드 이력 관리</strong>
+            — 이미 저장한 블로그를 기억해 중복 다운로드를 방지합니다.
+          </li>
+        </ul>
+      </section>
+
+      <!-- ── 사용 방법 ── -->
+      <section class="content-section" style="margin-top:32px;">
+        <h2 class="content-h2">사용 방법</h2>
+        <ol class="content-list content-ol">
+          <li>
+            네이버 지도에서 내 플레이스 페이지를 열고
+            <strong>리뷰 탭</strong>
+            으로 이동합니다.
+          </li>
+          <li>
+            키보드
+            <strong>F12</strong>
+            를 눌러 개발자도구를 열고,
+            <strong>Console</strong>
+            탭을 클릭합니다.
+          </li>
+          <li>안내된 코드를 콘솔에 입력·실행하면 클립보드에 HTML이 복사됩니다.</li>
+          <li>
+            위의 입력창에 붙여넣고
+            <strong>블로그 목록 추출</strong>
+            버튼을 누릅니다.
+          </li>
+          <li>
+            다운로드할 블로그를 선택한 뒤
+            <strong>이미지 가져오기</strong>
+            를 누릅니다.
+          </li>
+          <li>
+            원하는 사진을 골라
+            <strong>선택 다운로드</strong>
+            를 누르면 ZIP 파일이 저장됩니다.
+          </li>
+        </ol>
+      </section>
+
+      <!-- ── FAQ ── -->
+      <section class="content-section" style="margin-top:32px; margin-bottom:40px;">
+        <h2 class="content-h2">자주 묻는 질문 (FAQ)</h2>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.nextElementSibling.classList.toggle('open')">
+            Q. 무료로 사용할 수 있나요?
+            <span class="faq-arrow">▾</span>
+          </div>
+          <div class="faq-a">네, 완전 무료입니다. 회원가입이나 로그인 없이 바로 사용할 수 있습니다.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.nextElementSibling.classList.toggle('open')">
+            Q. 어떤 브라우저를 지원하나요?
+            <span class="faq-arrow">▾</span>
+          </div>
+          <div class="faq-a">
+            크롬(Chrome) 브라우저를 권장합니다. Edge, Firefox 등 최신 PC 브라우저에서도 사용 가능합니다. 모바일 브라우저는 지원하지 않습니다.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.nextElementSibling.classList.toggle('open')">
+            Q. 이미지가 보이지 않거나 다운로드가 안 돼요.
+            <span class="faq-arrow">▾</span>
+          </div>
+          <div class="faq-a">
+            네이버 CDN 정책에 따라 일부 이미지는 외부에서 불러오지 못할 수 있습니다. 또한 네이버 정책 변경으로 예고 없이 일부 기능이 제한될 수 있습니다.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.nextElementSibling.classList.toggle('open')">
+            Q. 다운로드한 사진을 마케팅에 사용해도 되나요?
+            <span class="faq-arrow">▾</span>
+          </div>
+          <div class="faq-a">
+            블로그 사진의 저작권은 원작자(블로거)에게 있습니다. 상업적 사용 전에 반드시 해당 블로거에게 허락을 받으시기 바랍니다. 본 도구는 개인 보관·관리
+            목적으로만 사용해 주세요.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.nextElementSibling.classList.toggle('open')">
+            Q. 체험단 뱃지는 어떻게 감지하나요?
+            <span class="faq-arrow">▾</span>
+          </div>
+          <div class="faq-a">
+            블로그 본문 HTML에서 각 체험단 플랫폼의 고유 주소 패턴을 자동으로 검색해 표시합니다. 감지 결과는 정확하지 않을 수 있으니 참고용으로만 사용하세요.
+          </div>
+        </div>
+      </section>
     </div>
 
     <footer class="site-footer">
       <div class="site-footer-inner">
         <div>
           <div class="site-footer-name">코딩수영장</div>
-          <div class="site-footer-version">v1.7.2</div>
+          <div class="site-footer-version">v1.7.3</div>
         </div>
         <div class="site-footer-links">
           <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
@@ -754,6 +900,10 @@
             블로그
           </a>
         </div>
+      </div>
+      <div class="site-footer-bottom">
+        <p>© 2026 코딩수영장. All Rights Reserved.</p>
+        <p>본 서비스는 개인이 제작한 비공식 도구이며, 네이버(NAVER Corp.)와 아무런 관련이 없습니다.</p>
       </div>
     </footer>
 
