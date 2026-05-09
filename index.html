@@ -492,6 +492,8 @@
       .platform-badge.dinnerqueen  { color: #fff; background: #E95280; }
       .platform-badge.supermembers { color: #fff; background: #A1A1A1; }
       .platform-badge.gangnam      { color: #fff; background: #FF6213; }
+      .platform-badge.sponsored    { color: #fff; background: #e53935; }
+      .platform-badge.myownmoney   { color: #fff; background: #f57c00; }
       .blog-item.done-item { background: #f8fffe; }
       .blog-item.done-item .blog-title { color: #aaa; }
       .blog-item.done-item .blog-meta  { color: #bbb; }
@@ -1134,7 +1136,7 @@
           const date = li.querySelector('time')?.textContent.trim() || '';
           const thumbEl = li.querySelector('.MKLdN img');
           const thumb = thumbEl ? thumbEl.getAttribute('src') : '';
-          blogs.push({ url, name, title, date, thumb, selected: true });
+          blogs.push({ url, name, title, date, thumb, selected: true, myOwnMoney: /내돈내산/.test(title) });
         });
 
         if (blogs.length === 0) {
@@ -1167,6 +1169,8 @@
               <div class="blog-meta">${b.name}</div>
             </div>
             ${platformBadge(b.platform)}
+            ${b.sponsored ? '<span class="platform-badge sponsored">협찬</span>' : ''}
+            ${b.myOwnMoney ? '<span class="platform-badge myownmoney">내돈내산</span>' : ''}
             ${b.loaded ? '<span class="loaded-badge">불러옴</span>' : ''}
             ${isDone ? '<span class="done-badge">완료</span>' : ''}
             <div class="blog-date">${b.date}</div>
@@ -1363,6 +1367,20 @@
           if (blogIdx !== -1) blogs[blogIdx].platform = platform;
         }
 
+        // 협찬 태그 감지 (#협찬)
+        if (/#협찬/.test(html)) {
+          if (blogMeta) blogMeta.sponsored = true;
+          const blogIdx = blogs.findIndex(b => b.url === blogMeta?.url);
+          if (blogIdx !== -1) blogs[blogIdx].sponsored = true;
+        }
+
+        // 내돈내산 태그 감지 (본문)
+        if (/내돈내산/.test(html)) {
+          if (blogMeta) blogMeta.myOwnMoney = true;
+          const blogIdx = blogs.findIndex(b => b.url === blogMeta?.url);
+          if (blogIdx !== -1) blogs[blogIdx].myOwnMoney = true;
+        }
+
         // img와 video[data-gif-url]을 DOM 순서대로 한 번에 처리
         const gifUrls = new Set();
         doc.querySelectorAll('img, video[data-gif-url]').forEach(el => {
@@ -1451,6 +1469,8 @@
           header.className = 'img-group-header';
           header.innerHTML = `
             ${platformBadge(group.meta.platform)}
+            ${group.meta.sponsored ? '<span class="platform-badge sponsored">협찬</span>' : ''}
+            ${group.meta.myOwnMoney ? '<span class="platform-badge myownmoney">내돈내산</span>' : ''}
             <span class="img-group-name">${group.meta.name || '직접 입력'}</span>
             <span class="img-group-title-wrap">
               ${group.meta.url
@@ -1604,7 +1624,7 @@
       }
       function confirmDownload() {
         closeModal();
-        window.open('https://link.coupang.com/a/esK4HH', '_blank', 'noopener');
+        window.open('https://link.coupang.com/a/eFRrwB', '_blank', 'noopener');
         doDownload();
       }
 
