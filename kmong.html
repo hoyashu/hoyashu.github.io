@@ -283,7 +283,7 @@ body {
 .bm-tile { background:#161616; border:1px solid #393939; padding:var(--cds-spacing-06); margin-bottom:var(--cds-spacing-05); }
 .bm-tile .cds-tile__title { color:#f4f4f4; }
 .bm-tile .cds-tile__subtitle { color:#a8a8a8; margin-bottom:var(--cds-spacing-05); }
-.bm-steps { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:1px; background:#393939; margin-bottom:var(--cds-spacing-06); }
+.bm-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:1px; background:#393939; margin-bottom:var(--cds-spacing-06); }
 .bm-step { background:#262626; padding:var(--cds-spacing-05); }
 .bm-step__num { font-size:20px; font-weight:600; color:#78a9ff; margin-bottom:var(--cds-spacing-02); }
 .bm-step__title { font-size:12px; font-weight:600; color:#f4f4f4; margin-bottom:4px; }
@@ -400,7 +400,7 @@ body {
       <div class="bm-step">
         <div class="bm-step__num">02</div>
         <div class="bm-step__title">크몽 페이지 이동</div>
-        <div class="bm-step__desc">크몽 로그인 후 수익관리 → 월별 수수료 세금계산서 페이지로 이동</div>
+        <div class="bm-step__desc">크몽 로그인 후 수익관리 → 월별 수수료 세금계산서 페이지로 이동<br><a id="kmong-page-link" href="#" target="_blank" style="color:#78a9ff;font-size:11px;margin-top:4px;display:inline-block;">→ 크몽 세금계산서 페이지 바로가기</a></div>
       </div>
       <div class="bm-step">
         <div class="bm-step__num">03</div>
@@ -415,7 +415,8 @@ body {
     </div>
     <div class="bm-actions">
       <a id="bm-link" class="bm-btn" href="#">⬇&nbsp; 크몽 세금계산서 전년도 다운로드</a>
-      <span class="bm-hint">💡 클릭하지 말고 북마크바로 드래그하세요</span>
+      <a id="kmong-open-btn" href="#" target="_blank" class="cds-btn cds-btn--secondary" style="height:48px;font-size:13px;">↗&nbsp; 크몽 세금계산서 페이지 열기</a>
+      <span class="bm-hint">💡 드래그 버튼은 클릭 말고 북마크바로 드래그하세요</span>
     </div>
   </div>
 
@@ -860,6 +861,11 @@ function renderAnalysis(year) {
 (function(){
   const code=`(async function(){const p=s=>new Promise(r=>setTimeout(r,s));for(let i=0;i<20;i++){const b=document.getElementById('taxInvoiceListMoreBtn');if(!b||b.offsetParent===null)break;b.click();await p(1500);}const py=(new Date().getFullYear()-1).toString().slice(-2)+'년';const all=[...document.querySelectorAll('form[id^="taxInvoiceDownload_"]')];const forms=all.filter(f=>(f.closest('.tax-invoice-item')?.querySelector('.font-size-h4')?.textContent?.trim()||'').startsWith(py));for(let i=0;i<forms.length;i++){const f=forms[i];const token=f.querySelector('[name="_token"]').value;const id=f.querySelector('[name="tax_invoice_id"]').value;const label=(f.closest('.tax-invoice-item')?.querySelector('.font-size-h4')?.textContent?.trim()||id).replace(/\\s+/g,'');try{const r=await fetch(f.action,{method:'POST',body:new URLSearchParams({_token:token,tax_invoice_id:id}),credentials:'same-origin'});if(!r.ok)throw new Error('HTTP '+r.status);const blob=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=label+'_수수료세금계산서.xls';document.body.appendChild(a);a.click();document.body.removeChild(a);console.log('✅ '+(i+1)+'/'+forms.length+' '+label);}catch(e){console.error('❌ '+label,e.message);}await p(800);}alert(py+' 전체 '+forms.length+'개월 다운로드 완료!');})();`;
   document.getElementById('bm-link').href='javascript:'+encodeURIComponent(code);
+
+  // 크몽 세금계산서 페이지 URL (올해 연도 기준)
+  const kmongUrl = 'https://kmong.com/seller/profits_history?target=tax_invoices_before_' + new Date().getFullYear();
+  document.getElementById('kmong-page-link').href = kmongUrl;
+  document.getElementById('kmong-open-btn').href  = kmongUrl;
 })();
 
 /* ─────────────────────────────────────────────
