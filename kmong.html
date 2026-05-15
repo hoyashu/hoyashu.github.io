@@ -273,6 +273,35 @@ body {
 .tax-notice { background:var(--cds-layer-02); border-left:3px solid var(--cds-interactive); padding:var(--cds-spacing-05); font-size:13px; color:var(--cds-text-secondary); line-height:1.7; }
 .tax-notice strong { color:var(--cds-text-primary); }
 
+/* ── Featured stat card (세금신고 총 매출 강조) ── */
+.stat-card--featured { background:#0e6027; outline:3px solid #42be65; outline-offset:-3px; }
+.stat-card--featured .stat-label { color:rgba(255,255,255,.8); }
+.stat-card--featured .stat-value { font-size:26px; color:#fff; }
+.stat-card--featured .stat-sub { color:rgba(255,255,255,.65); }
+
+/* ── Filing guide ── */
+.filing-guide { border-top:1px solid var(--cds-border-subtle-01); margin-top:var(--cds-spacing-06); padding-top:var(--cds-spacing-06); }
+.filing-guide__title { font-size:16px; font-weight:600; margin-bottom:4px; }
+.filing-guide__sub { font-size:12px; color:var(--cds-text-secondary); margin-bottom:var(--cds-spacing-05); }
+.filing-amount-box { background:#edf5ff; border-left:4px solid var(--cds-interactive); padding:var(--cds-spacing-04) var(--cds-spacing-05); margin-bottom:var(--cds-spacing-05); display:flex; align-items:baseline; gap:var(--cds-spacing-04); flex-wrap:wrap; }
+.filing-amount-label { font-size:12px; color:#0043ce; font-weight:600; white-space:nowrap; }
+.filing-amount-value { font-size:24px; font-weight:600; color:#0043ce; font-family:'IBM Plex Sans'; }
+.filing-amount-note { font-size:11px; color:var(--cds-text-secondary); }
+.fg-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:var(--cds-spacing-04); }
+.fg-step { background:var(--cds-layer-02); border:1px solid var(--cds-border-subtle-01); padding:var(--cds-spacing-05); }
+.fg-step__header { display:flex; align-items:center; gap:var(--cds-spacing-03); margin-bottom:var(--cds-spacing-04); }
+.fg-step__num { width:28px; height:28px; flex-shrink:0; background:var(--cds-interactive); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; }
+.fg-step__title { font-size:14px; font-weight:600; }
+.fg-step__badge { font-size:11px; background:var(--cds-tag-blue-background); color:var(--cds-tag-blue-color); padding:1px 8px; border-radius:100px; }
+.fg-list { list-style:none; }
+.fg-list li { font-size:13px; color:var(--cds-text-secondary); padding:4px 0 4px 16px; position:relative; line-height:1.5; border-bottom:1px solid var(--cds-border-subtle-01); }
+.fg-list li:last-child { border:none; }
+.fg-list li::before { content:'→'; position:absolute; left:0; color:var(--cds-interactive); font-size:11px; top:5px; }
+.fg-list li strong { color:var(--cds-text-primary); }
+.fg-note { margin-top:var(--cds-spacing-03); font-size:11px; color:var(--cds-text-placeholder); line-height:1.5; }
+.fg-done { background:#defbe6; border:1px solid var(--cds-support-success); padding:var(--cds-spacing-04) var(--cds-spacing-05); display:flex; align-items:center; gap:var(--cds-spacing-03); font-size:14px; font-weight:600; color:#0e6027; margin-top:var(--cds-spacing-04); }
+.fg-done span { font-size:20px; }
+
 /* ── Bracket badge ── */
 .bracket-badge { display:inline-block; padding:1px 8px; font-size:11px; font-weight:600; border-radius:100px; margin-left:6px; }
 .badge-6  { background:var(--cds-tag-blue-background); color:var(--cds-tag-blue-color); }
@@ -457,6 +486,7 @@ body {
       <div class="tax-steps" id="tax-steps"></div>
       <div class="tax-result" id="tax-result"></div>
       <div class="tax-notice" id="tax-notice"></div>
+      <div id="filing-guide"></div>
     </div>
 
     <!-- Chart -->
@@ -708,6 +738,55 @@ function renderTax(YS, year) {
     ③ 이 계산은 <strong>크몽 수입만 기준</strong>입니다. 근로소득 등 다른 소득이 있으면 위 입력란에 추가하세요.<br>
     ④ 기납부세액(원천징수 등)이 있으면 실제 납부액이 줄어듭니다. 정확한 신고는 세무사에게 문의하세요.
   `;
+
+  // 홈택스 신고 가이드
+  const filingEl = document.getElementById('filing-guide');
+  if (filingEl) {
+    filingEl.innerHTML = `
+      <div class="filing-guide">
+        <div class="filing-guide__title">홈택스 종합소득세 신고 방법</div>
+        <div class="filing-guide__sub">크몽 수입은 <strong>업종코드 940909 (인적용역)</strong>에 해당합니다 — 물건 판매가 아닌 용역 제공 구조이기 때문입니다.</div>
+
+        <div class="filing-amount-box">
+          <span class="filing-amount-label">홈택스에 입력할 매출금액</span>
+          <span class="filing-amount-value">${fmtw(총매출)}</span>
+          <span class="filing-amount-note">판매금액 ${fmtw(판매금액)} + 의뢰인 쿠폰 ${fmtw(쿠폰금액)} · 수수료 포함 거래금액 기준으로 신고</span>
+        </div>
+
+        <div class="fg-grid">
+          <div class="fg-step">
+            <div class="fg-step__header">
+              <div class="fg-step__num">1</div>
+              <div class="fg-step__title">종합소득금액 매출 입력</div>
+              <span class="fg-step__badge">홈택스</span>
+            </div>
+            <ul class="fg-list">
+              <li>홈택스 로그인 → 종합소득세 신고</li>
+              <li>종합소득금액 항목에서 <strong>업종코드 940909</strong> 소득 찾기</li>
+              <li><strong>[수정]</strong> 버튼 클릭</li>
+              <li>매출액에 위 금액(<strong>${fmtw(총매출)}</strong>)을 기존 조회금액에 <strong>합산</strong>하여 입력</li>
+            </ul>
+            <div class="fg-note">※ 수수료를 포함한 거래금액(판매금액 + 쿠폰금액) 기준으로 신고해야 합니다</div>
+          </div>
+
+          <div class="fg-step">
+            <div class="fg-step__header">
+              <div class="fg-step__num">2</div>
+              <div class="fg-step__title">기타증빙서류 제출</div>
+              <span class="fg-step__badge">홈택스</span>
+            </div>
+            <ul class="fg-list">
+              <li>홈택스 검색창에 <strong>'종합소득세 기타 증빙서류 제출'</strong> 검색 → 클릭</li>
+              <li>세목 <strong>[종합소득세]</strong> 선택, 주문번호 입력 후 <strong>[조회]</strong></li>
+              <li>부속서류 <strong>[첨부하기]</strong> 클릭</li>
+              <li>크몽에서 다운받은 <strong>월별 세금계산서 파일 모두 첨부</strong></li>
+            </ul>
+            <div class="fg-done"><span>✓</span> 완료!</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 }
 
 /* ─────────────────────────────────────────────
@@ -734,7 +813,7 @@ function renderAnalysis(year) {
     { label:`${year}년 총 거래 건수`, value:`${YS.건수}건`,                 sub:'전체 거래', cls:'accent' },
     { label:'총 판매금액',            value:fmtw(YS.판매금액),             sub:'크몽 매출금액' },
     { label:'의뢰인 쿠폰 지원금',     value:fmtw(YS.쿠폰금액),            sub:'크몽 지급 → 매출 포함' },
-    { label:'세금신고 총 매출',       value:fmtw(YS.판매금액+YS.쿠폰금액),sub:'판매금액 + 쿠폰금액', cls:'green' },
+    { label:'세금신고 총 매출',       value:fmtw(YS.판매금액+YS.쿠폰금액),sub:'홈택스 매출 신고 금액', cls:'featured' },
     { label:'필요경비 (크몽 수수료)', value:fmtw(YS.합계수수료),           sub:'a+b+c 공제 가능' },
     { label:'수익금 (정산)',          value:fmtw(YS.수익금),               sub:'실제 수령액' },
     { label:'월 평균 작업 수',        value:`${avgMonthlyCount}건`,        sub:`활동 ${activeMonths}개월 기준` },
