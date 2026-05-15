@@ -399,6 +399,16 @@ body {
   .tf-op { display:none; }
   td,th { padding:8px 10px; font-size:12px; }
 }
+
+/* ── Footer ── */
+.site-footer { background:#1a1e2e; color:#aaa; margin-top:56px; padding:24px 20px 20px; }
+.site-footer-inner { max-width:1312px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+.site-footer-name { font-size:14px; font-weight:700; color:#fff; }
+.site-footer-version { font-size:12px; color:#555; margin-top:3px; }
+.site-footer-links { display:flex; gap:22px; }
+.site-footer-links a { display:flex; align-items:center; gap:6px; color:#888; text-decoration:none; font-size:14px; transition:color .15s; }
+.site-footer-links a:hover { color:#78a9ff; }
+.site-footer-bottom { max-width:1312px; margin:16px auto 0; padding-top:16px; border-top:1px solid #2a2e3e; font-size:12px; color:#555; line-height:1.9; }
 </style>
 </head>
 <body>
@@ -501,6 +511,29 @@ body {
 
   </div>
 </div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div>
+      <div class="site-footer-name">코딩수영장</div>
+      <div class="site-footer-version">v1.0.0</div>
+    </div>
+    <div class="site-footer-links">
+      <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="https://hoyashu.tistory.com" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        블로그
+      </a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">
+    <p>© 2026 코딩수영장. All Rights Reserved.</p>
+    <p>본 서비스는 개인이 제작한 비공식 도구이며, 크몽(KMONG Inc.)과 아무런 관련이 없습니다. 세금 신고는 반드시 관할 세무서 또는 세무사에게 확인하세요.</p>
+  </div>
+</footer>
 
 <script>
 /* ─────────────────────────────────────────────
@@ -781,7 +814,6 @@ function renderTax(YS, year) {
               <li>부속서류 <strong>[첨부하기]</strong> 클릭</li>
               <li>크몽에서 다운받은 <strong>월별 세금계산서 파일 모두 첨부</strong></li>
             </ul>
-            <div class="fg-done"><span>✓</span> 완료!</div>
           </div>
         </div>
 
