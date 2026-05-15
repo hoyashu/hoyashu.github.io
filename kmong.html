@@ -860,9 +860,6 @@ function renderAnalysis(year) {
     { label:'세금신고 총 매출',       value:fmtw(YS.판매금액+YS.쿠폰금액),sub:'홈택스 매출 신고 금액', cls:'featured' },
     { label:'필요경비 (크몽 수수료)', value:fmtw(YS.합계수수료),           sub:'a+b+c 공제 가능' },
     { label:'수익금 (정산)',          value:fmtw(YS.수익금),               sub:'실제 수령액' },
-    { label:'월 평균 작업 수',        value:`${avgMonthlyCount}건`,        sub:`활동 ${activeMonths}개월 기준` },
-    { label:'월 평균 수입',           value:fmtw(avgMonthlyIncome),        sub:`활동 ${activeMonths}개월 기준` },
-    { label:'건당 평균 작업 비용',    value:fmtw(avgPerOrder),             sub:'판매금액 ÷ 총 건수' },
   ].forEach(c => {
     sg.innerHTML += `<div class="stat-card${c.cls?' stat-card--'+c.cls:''}">
       <div class="stat-label">${c.label}</div>
@@ -930,7 +927,13 @@ function renderAnalysis(year) {
     return `<div class="cds-data-table-wrap"><table class="cds-data-table">${thead}${tbody}${tfoot}</table></div>`;
   }
 
-  function makeMonthlyStat(s) {
+  function makeMonthlyStat(s, extras = []) {
+    const extraHtml = extras.map(e => `
+      <div class="ms-card">
+        <div class="ms-label">${e.label}</div>
+        <div class="ms-value">${e.value}</div>
+        <div style="font-size:11px;color:var(--cds-text-placeholder);margin-top:2px;">${e.sub||''}</div>
+      </div>`).join('');
     return `<div class="month-stat-grid">
       <div class="ms-card"><div class="ms-label">거래 건수</div><div class="ms-value">${s.건수}건</div></div>
       <div class="ms-card ms-card--blue"><div class="ms-label">판매금액</div><div class="ms-value">${fmtw(s.판매금액)}</div></div>
@@ -939,6 +942,7 @@ function renderAnalysis(year) {
       <div class="ms-card"><div class="ms-label">서비스이용료 (a)</div><div class="ms-value">${fmtw(s.서비스이용료)}</div></div>
       <div class="ms-card"><div class="ms-label">결제수수료 (b)</div><div class="ms-value">${fmtw(s.결제수수료)}</div></div>
       <div class="ms-card"><div class="ms-label">VAT (c)</div><div class="ms-value">${fmtw(s.VAT)}</div></div>
+      ${extraHtml}
     </div>`;
   }
 
@@ -958,7 +962,11 @@ function renderAnalysis(year) {
 
   const allPanel = document.createElement('div');
   allPanel.className = 'cds-panel active'; allPanel.id = 'cpanel-all';
-  allPanel.innerHTML = makeMonthlyStat(YS) + makeTable(allRows, YS);
+  allPanel.innerHTML = makeMonthlyStat(YS, [
+    { label:'월 평균 작업 수',     value:`${avgMonthlyCount}건`,    sub:`활동 ${activeMonths}개월 기준` },
+    { label:'월 평균 수입',        value:fmtw(avgMonthlyIncome),    sub:`활동 ${activeMonths}개월 기준` },
+    { label:'건당 평균 작업 비용', value:fmtw(avgPerOrder),         sub:'판매금액 ÷ 총 건수' },
+  ]) + makeTable(allRows, YS);
   panelsEl.appendChild(allPanel);
 
   MONTHS.forEach((m, i) => {
