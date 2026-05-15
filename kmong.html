@@ -219,7 +219,6 @@ body {
 .stat-card--accent .stat-value,
 .stat-card--green .stat-value { color:#fff; }
 .stat-sub { font-size:11px; color:var(--cds-text-placeholder); margin-top:2px; }
-.stat-card--row2 { border-top:2px solid var(--cds-border-subtle-01); }
 .stat-card--accent .stat-sub,
 .stat-card--green .stat-sub { color:rgba(255,255,255,.55); }
 
@@ -868,23 +867,28 @@ function renderAnalysis(year) {
 
   const sg = document.getElementById('stat-grid');
   sg.innerHTML = '';
-  [
+  const row1 = [
     { label:`${year}년 총 거래 건수`, value:`${YS.건수}건`,                 sub:'전체 거래', cls:'accent' },
     { label:'총 판매금액',            value:fmtw(YS.판매금액),             sub:'크몽 매출금액' },
     { label:'의뢰인 쿠폰 지원금',     value:fmtw(YS.쿠폰금액),            sub:'크몽 지급 → 매출 포함' },
     { label:'세금신고 총 매출',       value:fmtw(YS.판매금액+YS.쿠폰금액),sub:'홈택스 매출 신고 금액', cls:'featured' },
     { label:'필요경비 (크몽 수수료)', value:fmtw(YS.합계수수료),           sub:'a+b+c 공제 가능' },
     { label:'수익금 (정산)',          value:fmtw(YS.수익금),               sub:'실제 수령액' },
-    { label:'월 평균 작업 수',        value:`${avgMonthlyCount}건`,        sub:`활동 ${activeMonths}개월 기준`, row2:true },
-    { label:'월 평균 수입',           value:fmtw(avgMonthlyIncome),        sub:`활동 ${activeMonths}개월 기준`, row2:true },
-    { label:'건당 평균 작업 비용',    value:fmtw(avgPerOrder),             sub:'판매금액 ÷ 총 건수', row2:true },
-  ].forEach(c => {
-    sg.innerHTML += `<div class="stat-card${c.cls?' stat-card--'+c.cls:''}${c.row2?' stat-card--row2':''}">
-      <div class="stat-label">${c.label}</div>
-      <div class="stat-value">${c.value}</div>
-      <div class="stat-sub">${c.sub||''}</div>
-    </div>`;
-  });
+  ];
+  const row2 = [
+    { label:'월 평균 작업 수',        value:`${avgMonthlyCount}건`,        sub:`활동 ${activeMonths}개월 기준` },
+    { label:'월 평균 수입',           value:fmtw(avgMonthlyIncome),        sub:`활동 ${activeMonths}개월 기준` },
+    { label:'건당 평균 작업 비용',    value:fmtw(avgPerOrder),             sub:'판매금액 ÷ 총 건수' },
+  ];
+  const mkCard = c => `<div class="stat-card${c.cls?' stat-card--'+c.cls:''}">
+    <div class="stat-label">${c.label}</div>
+    <div class="stat-value">${c.value}</div>
+    <div class="stat-sub">${c.sub||''}</div>
+  </div>`;
+  row1.forEach(c => sg.innerHTML += mkCard(c));
+  // 강제 줄바꿈: 화면 너비에 관계없이 row2는 항상 새 줄에서 시작
+  sg.innerHTML += `<div style="grid-column:1/-1;height:0;border-top:2px solid var(--cds-border-subtle-01);"></div>`;
+  row2.forEach(c => sg.innerHTML += mkCard(c));
 
   // Tax
   renderTax(YS, year);
