@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>크몽 종합소득세 신고 계산기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;600&family=IBM+Plex+Sans:wght@300;400;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── Carbon Design System tokens ── */
+:root {
+  --cds-background: #f4f4f4;
+  --cds-layer-01: #ffffff;
+  --cds-layer-02: #f4f4f4;
+  --cds-layer-accent-01: #e0e0e0;
+  --cds-border-subtle-01: #e0e0e0;
+  --cds-border-strong-01: #8d8d8d;
+  --cds-text-primary: #161616;
+  --cds-text-secondary: #525252;
+  --cds-text-placeholder: #a8a8a8;
+  --cds-text-on-color: #ffffff;
+  --cds-interactive: #0f62fe;
+  --cds-interactive-hover: #0353e9;
+  --cds-support-success: #198038;
+  --cds-support-error: #da1e28;
+  --cds-support-warning: #f1c21b;
+  --cds-support-info: #0043ce;
+  --cds-button-primary: #0f62fe;
+  --cds-button-secondary: #393939;
+  --cds-tag-blue-background: #d0e2ff;
+  --cds-tag-blue-color: #0043ce;
+  --cds-tag-green-background: #defbe6;
+  --cds-tag-green-color: #0e6027;
+  --cds-tag-red-background: #fff1f1;
+  --cds-tag-red-color: #a2191f;
+  --cds-tag-gray-background: #e0e0e0;
+  --cds-tag-gray-color: #161616;
+  --cds-focus: #0f62fe;
+  --cds-spacing-01: 2px;
+  --cds-spacing-02: 4px;
+  --cds-spacing-03: 8px;
+  --cds-spacing-04: 12px;
+  --cds-spacing-05: 16px;
+  --cds-spacing-06: 24px;
+  --cds-spacing-07: 32px;
+  --cds-spacing-08: 40px;
+  --cds-spacing-09: 48px;
+  --cds-spacing-10: 64px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family:'IBM Plex Sans KR','IBM Plex Sans',sans-serif;
+  background:var(--cds-background);
+  color:var(--cds-text-primary);
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* ── Header ── */
+.cds-header {
+  background:#161616;
+  color:#f4f4f4;
+  height:48px;
+  display:flex;
+  align-items:center;
+  padding:0 var(--cds-spacing-05);
+  border-bottom:1px solid #393939;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.cds-header__name {
+  font-size:14px;
+  font-weight:600;
+  color:#f4f4f4;
+  letter-spacing:.1px;
+}
+.cds-header__name span { color:#78a9ff; margin-right:6px; }
+
+/* ── Page header ── */
+.page-header {
+  background:#262626;
+  color:#f4f4f4;
+  padding:var(--cds-spacing-07) var(--cds-spacing-07) var(--cds-spacing-07);
+  border-bottom:1px solid #393939;
+}
+.page-header h1 {
+  font-size:28px;
+  font-weight:300;
+  letter-spacing:0;
+  margin-bottom:var(--cds-spacing-02);
+}
+.page-header p { font-size:14px; color:#c6c6c6; }
+
+/* ── Layout ── */
+.page-content { max-width:1312px; margin:0 auto; padding:var(--cds-spacing-06) var(--cds-spacing-07); }
+
+/* ── Tile ── */
+.cds-tile {
+  background:var(--cds-layer-01);
+  border:1px solid var(--cds-border-subtle-01);
+  padding:var(--cds-spacing-06);
+  margin-bottom:var(--cds-spacing-05);
+}
+.cds-tile__title {
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:var(--cds-spacing-02);
+  color:var(--cds-text-primary);
+}
+.cds-tile__subtitle {
+  font-size:12px;
+  color:var(--cds-text-secondary);
+  margin-bottom:var(--cds-spacing-06);
+}
+
+/* ── File uploader ── */
+.cds-file-drop {
+  border:2px dashed var(--cds-border-strong-01);
+  background:var(--cds-layer-02);
+  padding:var(--cds-spacing-09);
+  text-align:center;
+  cursor:pointer;
+  transition:background .1s, border-color .1s;
+  margin-bottom:var(--cds-spacing-05);
+}
+.cds-file-drop:hover, .cds-file-drop.over {
+  background:#e8efff;
+  border-color:var(--cds-interactive);
+}
+.cds-file-drop__icon { font-size:32px; margin-bottom:var(--cds-spacing-04); }
+.cds-file-drop__label {
+  font-size:14px;
+  font-weight:600;
+  color:var(--cds-text-primary);
+  margin-bottom:var(--cds-spacing-02);
+}
+.cds-file-drop__desc { font-size:12px; color:var(--cds-text-secondary); margin-bottom:var(--cds-spacing-05); }
+
+/* ── Buttons ── */
+.cds-btn {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:0 var(--cds-spacing-05);
+  height:40px;
+  font-size:14px;
+  font-weight:400;
+  border:none;
+  cursor:pointer;
+  font-family:inherit;
+  transition:background .1s;
+  text-decoration:none;
+}
+.cds-btn--primary { background:var(--cds-button-primary); color:#fff; }
+.cds-btn--primary:hover { background:var(--cds-interactive-hover); }
+.cds-btn--secondary { background:var(--cds-button-secondary); color:#fff; }
+.cds-btn--ghost { background:transparent; color:var(--cds-interactive); }
+.cds-btn--ghost:hover { background:#e8efff; }
+
+/* ── File chips ── */
+.file-chips { display:flex; flex-wrap:wrap; gap:var(--cds-spacing-02); margin-top:var(--cds-spacing-04); }
+.cds-tag {
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:0 var(--cds-spacing-03);
+  height:24px;
+  font-size:12px;
+  border-radius:100px;
+  font-family:'IBM Plex Mono',monospace;
+}
+.cds-tag--blue { background:var(--cds-tag-blue-background); color:var(--cds-tag-blue-color); }
+.cds-tag--green { background:var(--cds-tag-green-background); color:var(--cds-tag-green-color); }
+.cds-tag--red { background:var(--cds-tag-red-background); color:var(--cds-tag-red-color); }
+.cds-tag--gray { background:var(--cds-tag-gray-background); color:var(--cds-tag-gray-color); }
+
+/* ── Inline notification ── */
+.cds-inline-notif {
+  display:flex;
+  align-items:flex-start;
+  gap:var(--cds-spacing-04);
+  padding:var(--cds-spacing-04) var(--cds-spacing-05);
+  margin-top:var(--cds-spacing-04);
+  border-left:3px solid;
+  font-size:14px;
+}
+.cds-inline-notif--info { border-color:#0043ce; background:#edf5ff; color:#0043ce; }
+.cds-inline-notif--success { border-color:var(--cds-support-success); background:#defbe6; color:#0e6027; }
+.cds-inline-notif--error { border-color:var(--cds-support-error); background:#fff1f1; color:#a2191f; }
+
+/* ── Stat grid ── */
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1px; background:var(--cds-border-subtle-01); margin-bottom:var(--cds-spacing-05); }
+.stat-card { background:var(--cds-layer-01); padding:var(--cds-spacing-05); }
+.stat-card--accent { background:#0f62fe; }
+.stat-card--green { background:#198038; }
+.stat-label { font-size:12px; color:var(--cds-text-secondary); margin-bottom:var(--cds-spacing-02); }
+.stat-card--accent .stat-label,
+.stat-card--green .stat-label { color:rgba(255,255,255,.7); }
+.stat-value { font-size:20px; font-weight:600; color:var(--cds-text-primary); font-family:'IBM Plex Sans'; }
+.stat-card--accent .stat-value,
+.stat-card--green .stat-value { color:#fff; }
+.stat-sub { font-size:11px; color:var(--cds-text-placeholder); margin-top:2px; }
+.stat-card--accent .stat-sub,
+.stat-card--green .stat-sub { color:rgba(255,255,255,.55); }
+
+/* ── Tax flow ── */
+.tax-flow { display:flex; flex-wrap:wrap; gap:1px; background:var(--cds-border-subtle-01); margin-bottom:var(--cds-spacing-06); }
+.tf-item { flex:1; min-width:150px; background:var(--cds-layer-01); padding:var(--cds-spacing-05); }
+.tf-item--highlight { background:#edf5ff; }
+.tf-item--result { background:#defbe6; }
+.tf-label { font-size:11px; color:var(--cds-text-secondary); margin-bottom:4px; letter-spacing:.32px; text-transform:uppercase; }
+.tf-value { font-size:18px; font-weight:600; color:var(--cds-text-primary); font-family:'IBM Plex Sans'; }
+.tf-item--highlight .tf-value { color:#0043ce; }
+.tf-item--result .tf-value { color:#0e6027; font-size:22px; }
+.tf-sub { font-size:11px; color:var(--cds-text-placeholder); margin-top:2px; }
+.tf-op {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--cds-layer-02);
+  width:32px;
+  font-size:16px;
+  font-weight:300;
+  color:var(--cds-text-secondary);
+  flex-shrink:0;
+  align-self:stretch;
+}
+
+/* ── Tax steps ── */
+.tax-steps { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1px; background:var(--cds-border-subtle-01); margin-bottom:var(--cds-spacing-05); }
+.tax-step { background:var(--cds-layer-02); padding:var(--cds-spacing-05); }
+.tax-step__num { font-size:11px; font-weight:600; color:var(--cds-interactive); letter-spacing:.5px; margin-bottom:var(--cds-spacing-03); text-transform:uppercase; }
+.tax-step__title { font-size:13px; font-weight:600; color:var(--cds-text-primary); margin-bottom:var(--cds-spacing-04); }
+.tax-step__row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; border-bottom:1px solid var(--cds-border-subtle-01); color:var(--cds-text-secondary); }
+.tax-step__row:last-child { border:none; font-weight:600; color:var(--cds-text-primary); margin-top:2px; }
+.tx-minus { color:var(--cds-support-error); }
+
+/* ── Tax result ── */
+.tax-result { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1px; background:var(--cds-border-subtle-01); margin-bottom:var(--cds-spacing-05); }
+.tax-result-card { background:var(--cds-layer-01); padding:var(--cds-spacing-05); text-align:center; }
+.tax-result-card--total { background:#0f62fe; }
+.tr-label { font-size:12px; color:var(--cds-text-secondary); margin-bottom:var(--cds-spacing-02); }
+.tax-result-card--total .tr-label { color:rgba(255,255,255,.7); }
+.tr-value { font-size:24px; font-weight:600; font-family:'IBM Plex Sans'; color:var(--cds-text-primary); }
+.tax-result-card--total .tr-value { color:#fff; }
+.tr-sub { font-size:11px; color:var(--cds-text-placeholder); margin-top:4px; }
+.tax-result-card--total .tr-sub { color:rgba(255,255,255,.55); }
+
+/* ── Other income input ── */
+.cds-form-row { display:flex; align-items:center; gap:var(--cds-spacing-05); flex-wrap:wrap; background:var(--cds-layer-02); border:1px solid var(--cds-border-subtle-01); padding:var(--cds-spacing-04) var(--cds-spacing-05); margin-bottom:var(--cds-spacing-05); }
+.cds-label { font-size:12px; color:var(--cds-text-secondary); white-space:nowrap; }
+.cds-number-input {
+  height:40px;
+  border:none;
+  border-bottom:1px solid var(--cds-border-strong-01);
+  background:transparent;
+  font-size:14px;
+  font-family:'IBM Plex Sans KR',sans-serif;
+  color:var(--cds-text-primary);
+  outline:none;
+  width:180px;
+  padding:0 var(--cds-spacing-03);
+}
+.cds-number-input:focus { border-bottom:2px solid var(--cds-focus); }
+.cds-helper-text { font-size:12px; color:var(--cds-text-secondary); }
+
+/* ── Tax notice ── */
+.tax-notice { background:var(--cds-layer-02); border-left:3px solid var(--cds-interactive); padding:var(--cds-spacing-05); font-size:13px; color:var(--cds-text-secondary); line-height:1.7; }
+.tax-notice strong { color:var(--cds-text-primary); }
+
+/* ── Bracket badge ── */
+.bracket-badge { display:inline-block; padding:1px 8px; font-size:11px; font-weight:600; border-radius:100px; margin-left:6px; }
+.badge-6  { background:var(--cds-tag-blue-background); color:var(--cds-tag-blue-color); }
+.badge-15 { background:#ffd6e8; color:#740937; }
+.badge-24 { background:var(--cds-tag-red-background); color:var(--cds-tag-red-color); }
+
+/* ── Bookmarklet ── */
+.bm-tile { background:#161616; border:1px solid #393939; padding:var(--cds-spacing-06); margin-bottom:var(--cds-spacing-05); }
+.bm-tile .cds-tile__title { color:#f4f4f4; }
+.bm-tile .cds-tile__subtitle { color:#a8a8a8; margin-bottom:var(--cds-spacing-05); }
+.bm-steps { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:1px; background:#393939; margin-bottom:var(--cds-spacing-06); }
+.bm-step { background:#262626; padding:var(--cds-spacing-05); }
+.bm-step__num { font-size:20px; font-weight:600; color:#78a9ff; margin-bottom:var(--cds-spacing-02); }
+.bm-step__title { font-size:12px; font-weight:600; color:#f4f4f4; margin-bottom:4px; }
+.bm-step__desc { font-size:11px; color:#a8a8a8; line-height:1.5; }
+.bm-actions { display:flex; align-items:center; gap:var(--cds-spacing-05); flex-wrap:wrap; }
+.bm-btn { display:inline-flex; align-items:center; gap:8px; padding:0 var(--cds-spacing-06); height:48px; background:#0f62fe; color:#fff; font-size:14px; font-weight:600; text-decoration:none; font-family:'IBM Plex Sans KR',sans-serif; cursor:grab; border:2px dashed rgba(255,255,255,.3); transition:background .1s; }
+.bm-btn:hover { background:#0353e9; }
+.bm-hint { font-size:12px; color:#a8a8a8; }
+
+/* ── Chart ── */
+.chart-tile { background:var(--cds-layer-01); border:1px solid var(--cds-border-subtle-01); padding:var(--cds-spacing-06); margin-bottom:var(--cds-spacing-05); }
+.chart-tile h2 { font-size:16px; font-weight:600; margin-bottom:var(--cds-spacing-05); }
+
+/* ── Tabs ── */
+.cds-tabs { display:flex; border-bottom:1px solid var(--cds-border-subtle-01); margin-bottom:0; flex-wrap:wrap; background:var(--cds-layer-01); }
+.cds-tab {
+  padding:0 var(--cds-spacing-05);
+  height:40px;
+  border:none;
+  background:transparent;
+  font-size:14px;
+  color:var(--cds-text-secondary);
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  font-family:inherit;
+  white-space:nowrap;
+  transition:all .1s;
+}
+.cds-tab:hover { color:var(--cds-text-primary); background:var(--cds-layer-02); }
+.cds-tab.active { color:var(--cds-text-primary); border-bottom:2px solid var(--cds-interactive); font-weight:600; }
+.cds-tab.empty { opacity:.4; }
+.cds-panel { display:none; }
+.cds-panel.active { display:block; }
+
+/* ── Month summary ── */
+.month-stat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1px; background:var(--cds-border-subtle-01); border:1px solid var(--cds-border-subtle-01); margin-bottom:var(--cds-spacing-05); }
+.ms-card { background:var(--cds-layer-01); padding:var(--cds-spacing-04) var(--cds-spacing-05); }
+.ms-label { font-size:11px; color:var(--cds-text-secondary); margin-bottom:4px; }
+.ms-value { font-size:14px; font-weight:600; }
+.ms-card--blue .ms-value { color:#0043ce; }
+.ms-card--green .ms-value { color:var(--cds-support-success); }
+.ms-card--red .ms-value { color:var(--cds-support-error); }
+
+/* ── Data table ── */
+.cds-data-table-wrap { overflow-x:auto; background:var(--cds-layer-01); border:1px solid var(--cds-border-subtle-01); border-top:none; }
+.cds-data-table { width:100%; border-collapse:collapse; font-size:13px; }
+.cds-data-table thead { background:#e0e0e0; }
+.cds-data-table th {
+  padding:11px 16px;
+  text-align:right;
+  font-weight:600;
+  font-size:12px;
+  color:var(--cds-text-primary);
+  white-space:nowrap;
+  border-right:1px solid #c6c6c6;
+  letter-spacing:.32px;
+}
+.cds-data-table th:first-child,
+.cds-data-table th:nth-child(2) { text-align:left; }
+.cds-data-table th:last-child { border-right:none; }
+.cds-data-table td {
+  padding:10px 16px;
+  text-align:right;
+  border-bottom:1px solid var(--cds-border-subtle-01);
+  border-right:1px solid var(--cds-border-subtle-01);
+  color:var(--cds-text-primary);
+  white-space:nowrap;
+}
+.cds-data-table td:first-child { text-align:left; color:var(--cds-text-secondary); font-family:'IBM Plex Mono',monospace; font-size:12px; }
+.cds-data-table td:nth-child(2) { text-align:left; max-width:200px; overflow:hidden; text-overflow:ellipsis; }
+.cds-data-table td:last-child { border-right:none; }
+.cds-data-table tbody tr:hover td { background:#e8efff; }
+.cds-data-table tfoot td {
+  font-weight:600;
+  background:#e0e0e0;
+  border-top:2px solid #a8a8a8;
+}
+.td-profit { color:var(--cds-support-success); font-weight:600; }
+.no-data { text-align:center; padding:48px; color:var(--cds-text-placeholder); font-size:14px; background:var(--cds-layer-01); border:1px solid var(--cds-border-subtle-01); border-top:none; }
+
+@media(max-width:768px) {
+  .page-content { padding:var(--cds-spacing-05); }
+  .cds-tile, .bm-tile { padding:var(--cds-spacing-05); }
+  .tf-op { display:none; }
+  td,th { padding:8px 10px; font-size:12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Global header -->
+<header class="cds-header">
+  <span class="cds-header__name"><span>크몽</span>종합소득세 신고 계산기</span>
+</header>
+
+<!-- Page header -->
+<div class="page-header">
+  <h1>크몽 종합소득세 신고 계산기</h1>
+  <p>Step 1. 세금계산서 자동 다운로드 → Step 2. 파일 업로드 → 수익 현황 및 종합소득세 자동 계산</p>
+</div>
+
+<div class="page-content">
+
+  <!-- Step 1: Bookmarklet tile -->
+  <div class="bm-tile">
+    <div class="cds-tile__title">Step 1 — 크몽 세금계산서 자동 다운로드</div>
+    <div class="cds-tile__subtitle">아래 버튼을 북마크바로 드래그해 두고, 크몽 수익관리 페이지에서 클릭하면 전년도 전체 XLS 자동 다운로드</div>
+    <div class="bm-steps">
+      <div class="bm-step">
+        <div class="bm-step__num">01</div>
+        <div class="bm-step__title">북마크바로 드래그</div>
+        <div class="bm-step__desc">아래 파란 버튼을 브라우저 북마크바로 드래그 (안 보이면 Ctrl+Shift+B)</div>
+      </div>
+      <div class="bm-step">
+        <div class="bm-step__num">02</div>
+        <div class="bm-step__title">크몽 페이지 이동</div>
+        <div class="bm-step__desc">크몽 로그인 후 수익관리 → 월별 수수료 세금계산서 페이지로 이동</div>
+      </div>
+      <div class="bm-step">
+        <div class="bm-step__num">03</div>
+        <div class="bm-step__title">북마크 클릭</div>
+        <div class="bm-step__desc">저장한 북마크 클릭 → 전년도 전체 월 XLS 자동 다운로드</div>
+      </div>
+      <div class="bm-step">
+        <div class="bm-step__num">04</div>
+        <div class="bm-step__title">아래에 업로드</div>
+        <div class="bm-step__desc">다운로드된 파일을 Step 2 업로드 영역에 드래그 또는 선택</div>
+      </div>
+    </div>
+    <div class="bm-actions">
+      <a id="bm-link" class="bm-btn" href="#">⬇&nbsp; 크몽 세금계산서 전년도 다운로드</a>
+      <span class="bm-hint">💡 클릭하지 말고 북마크바로 드래그하세요</span>
+    </div>
+  </div>
+
+  <!-- Step 2: File upload tile -->
+  <div class="cds-tile">
+    <div class="cds-tile__title">Step 2 — 세금계산서 파일 업로드</div>
+    <div class="cds-tile__subtitle">Step 1에서 다운로드한 XLS 파일을 여기에 업로드하면 분석이 시작됩니다</div>
+    <div class="cds-file-drop" id="drop-area">
+      <div class="cds-file-drop__icon">📂</div>
+      <div class="cds-file-drop__label">파일을 드래그하거나 클릭해서 업로드</div>
+      <div class="cds-file-drop__desc">25년 01월_수수료세금계산서.xls · 여러 파일 동시 선택 가능</div>
+      <input type="file" id="file-input" multiple accept=".xls,.xlsx" style="display:none">
+      <button class="cds-btn cds-btn--primary" onclick="event.stopPropagation();document.getElementById('file-input').click()">파일 선택</button>
+    </div>
+    <div class="file-chips" id="file-chips"></div>
+    <div id="upload-status"></div>
+  </div>
+
+  <!-- Analysis (hidden until upload) -->
+  <div id="analysis" style="display:none">
+
+    <!-- Yearly stat grid -->
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <!-- Tax section -->
+    <div class="cds-tile">
+      <div class="cds-tile__title" id="tax-title">종합소득세 신고 안내</div>
+      <div class="cds-tile__subtitle" id="tax-subtitle"></div>
+
+      <div class="tax-flow" id="tax-flow"></div>
+
+      <div class="cds-form-row">
+        <span class="cds-label">크몽 외 다른 소득 (선택)</span>
+        <input type="number" class="cds-number-input" id="other-income" placeholder="0" min="0" step="10000">
+        <span class="cds-helper-text">다른 소득이 있으면 입력 시 합산 과세표준으로 재계산됩니다</span>
+      </div>
+
+      <div class="tax-steps" id="tax-steps"></div>
+      <div class="tax-result" id="tax-result"></div>
+      <div class="tax-notice" id="tax-notice"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-tile">
+      <h2>월별 수익 현황</h2>
+      <canvas id="monthly-chart" height="70"></canvas>
+    </div>
+
+    <!-- Tabs + table -->
+    <div class="cds-tabs" id="cds-tabs"></div>
+    <div id="cds-panels"></div>
+
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────
+   Constants & state
+───────────────────────────────────────────── */
+const MONTH_LABELS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+const MONTHS = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+
+let parsedData  = {};   // { year: { '01': [...rows] } }
+let activeYear  = null;
+let chartInst   = null;
+
+/* ─────────────────────────────────────────────
+   Utility
+───────────────────────────────────────────── */
+function parseNum(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  return parseFloat(String(v).replace(/,/g,'')) || 0;
+}
+const fmt  = n => n ? Math.round(n).toLocaleString('ko-KR') : '0';
+const fmtw = n => fmt(n) + '원';
+
+function parseFilename(name) {
+  // macOS는 파일명을 NFD(자모 분해) 형태로 저장 → NFC로 정규화 후 매칭
+  const m = name.normalize('NFC').match(/(\d{2})년\s*(\d{2})월/);
+  if (!m) return null;
+  return { year: 2000 + parseInt(m[1]), month: parseInt(m[2]) };
+}
+
+function summarize(rows) {
+  const s = k => rows.reduce((acc,r) => acc + (r[k]||0), 0);
+  return {
+    건수: rows.length,
+    판매금액: s('판매금액'), 서비스이용료: s('서비스이용료'),
+    결제수수료: s('결제수수료'), VAT: s('VAT'),
+    합계수수료: s('합계수수료'), 수익금: s('수익금'),
+    쿠폰금액: s('쿠폰금액'), 세금계산서금액: s('세금계산서금액'),
+  };
+}
+
+/* ─────────────────────────────────────────────
+   XLS parsing
+───────────────────────────────────────────── */
+function parseRows(jsonRows, year, month) {
+  const results = [];
+  for (let i = 1; i < jsonRows.length; i++) {
+    const row = jsonRows[i];
+    if (!row || row.length < 5) continue;
+
+    const raw0 = row[0];
+    if (raw0 === null || raw0 === undefined || raw0 === '') continue;
+
+    // Skip 합계 row
+    const col3 = String(row[3] || '');
+    if (col3.includes('합계')) continue;
+
+    // Parse order number
+    let orderStr;
+    if (typeof raw0 === 'number') {
+      orderStr = String(Math.round(raw0));
+    } else {
+      orderStr = String(raw0).trim();
+      // Skip long strings (footnote text)
+      if (orderStr.length > 20 || !/^\d+$/.test(orderStr)) continue;
+    }
+    if (!orderStr || orderStr.length < 3) continue;
+
+    results.push({
+      month: String(month).padStart(2,'0'),
+      주문번호:    orderStr,
+      상품명:      String(row[1] || ''),
+      거래시작일:  String(row[2] || ''),
+      구매확정일:  String(row[3] || ''),
+      판매금액:    parseNum(row[4]),
+      서비스이용료:parseNum(row[5]),
+      결제수수료:  parseNum(row[6]),
+      VAT:         parseNum(row[7]),
+      합계수수료:  parseNum(row[8]),
+      수익금:      parseNum(row[9]),
+      쿠폰금액:    parseNum(row[10]),
+      세금계산서건수: parseNum(row[11]),
+      세금계산서금액: parseNum(row[12]),
+    });
+  }
+  return results;
+}
+
+function readXLS(file) {
+  return new Promise(resolve => {
+    const info = parseFilename(file.name);
+    if (!info) {
+      resolve({ file, ok:false, reason:`파일명에서 연도/월을 인식 못함 (예: 25년 01월_수수료세금계산서.xls)` });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => resolve({ file, ok:false, reason:'파일 읽기 실패' });
+    reader.onload  = e => {
+      try {
+        // BinaryString 방식이 구형 XLS 파일에 가장 안정적
+        const wb = XLSX.read(e.target.result, { type:'binary', WTF:false });
+        if (!wb.SheetNames.length) throw new Error('시트 없음');
+        const ws       = wb.Sheets[wb.SheetNames[0]];
+        const jsonRows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+        const rows     = parseRows(jsonRows, info.year, info.month);
+        resolve({ file, ok:true, year:info.year, month:info.month, rows });
+      } catch(err) {
+        console.error('[XLS 파싱 오류]', file.name, err);
+        resolve({ file, ok:false, reason: err.message });
+      }
+    };
+    reader.readAsBinaryString(file);   // ← 핵심: ArrayBuffer 대신 BinaryString
+  });
+}
+
+/* ─────────────────────────────────────────────
+   File handling
+───────────────────────────────────────────── */
+async function handleFiles(files) {
+  if (!files.length) return;
+  const statusEl = document.getElementById('upload-status');
+  const chipsEl  = document.getElementById('file-chips');
+  statusEl.innerHTML = `<div class="cds-inline-notif cds-inline-notif--info">⏳ ${files.length}개 파일 처리 중...</div>`;
+
+  const results = await Promise.all(Array.from(files).map(readXLS));
+
+  let ok = 0, fail = 0;
+  results.forEach(r => {
+    const chip = document.createElement('span');
+    if (r.ok) {
+      chip.className = 'cds-tag cds-tag--green';
+      chip.textContent = `✓ ${r.year}년 ${r.month}월 (${r.rows.length}건)`;
+      if (!parsedData[r.year]) parsedData[r.year] = {};
+      parsedData[r.year][String(r.month).padStart(2,'0')] = r.rows;
+      ok++;
+    } else {
+      chip.className = 'cds-tag cds-tag--red';
+      chip.title = r.reason;
+      chip.textContent = `✗ ${r.file.name.slice(0,20)}`;
+      fail++;
+    }
+    chipsEl.appendChild(chip);
+  });
+
+  if (ok === 0) {
+    const reasons = results.map(r => r.reason).filter(Boolean);
+    const sample  = reasons[0] ? ` (${reasons[0]})` : '';
+    statusEl.innerHTML = `<div class="cds-inline-notif cds-inline-notif--error">❌ 모든 파일 파싱 실패 (${fail}개)${sample}</div>`;
+    return;
+  }
+
+  statusEl.innerHTML = `<div class="cds-inline-notif cds-inline-notif--success">✅ ${ok}개 파일 처리 완료${fail ? ` (${fail}개 실패)` : ''}</div>`;
+
+  const years = Object.keys(parsedData).map(Number).sort();
+  activeYear = years[years.length - 1];
+  renderAnalysis(activeYear);
+}
+
+/* ─────────────────────────────────────────────
+   Tax calculation
+───────────────────────────────────────────── */
+function calcTax(과세표준) {
+  if (과세표준 <= 0) return { 소득세:0, 지방:0, 합계:0, 세율:'0%', bracket:'비과세' };
+  let 세율, 누진공제, bracket;
+  if      (과세표준 <= 14000000) { 세율=6;  누진공제=0;        bracket='6%'; }
+  else if (과세표준 <= 50000000) { 세율=15; 누진공제=1260000;  bracket='15%'; }
+  else if (과세표준 <= 88000000) { 세율=24; 누진공제=5760000;  bracket='24%'; }
+  else                           { 세율=35; 누진공제=15440000; bracket='35%'; }
+  const 소득세 = Math.max(0, Math.round(과세표준 * 세율/100 - 누진공제));
+  return { 소득세, 지방: Math.round(소득세 * .1), 합계: Math.round(소득세 * 1.1), 세율: bracket };
+}
+
+function renderTax(YS, year) {
+  const 판매금액 = YS.판매금액, 쿠폰금액 = YS.쿠폰금액;
+  const 총매출   = 판매금액 + 쿠폰금액;
+  const 필요경비 = YS.합계수수료;
+  const 크몽기준 = 총매출 - 필요경비;
+  const other    = parseFloat(document.getElementById('other-income').value) || 0;
+  const 과세표준 = 크몽기준 + other;
+  const tax      = calcTax(과세표준);
+
+  document.getElementById('tax-title').textContent   = `${year}년 귀속 종합소득세 신고 안내`;
+  document.getElementById('tax-subtitle').textContent = `${year+1}년 5월 신고 기준 · 크몽 수수료 세금계산서 기반 자동 계산`;
+
+  document.getElementById('tax-flow').innerHTML = `
+    <div class="tf-item"><div class="tf-label">판매금액</div><div class="tf-value">${fmtw(판매금액)}</div><div class="tf-sub">크몽 매출금액</div></div>
+    <div class="tf-op">+</div>
+    <div class="tf-item"><div class="tf-label">의뢰인 쿠폰 지원금</div><div class="tf-value">${fmtw(쿠폰금액)}</div><div class="tf-sub">크몽 대신 지급 → 내 매출</div></div>
+    <div class="tf-op">=</div>
+    <div class="tf-item tf-item--highlight"><div class="tf-label">세금신고 총 매출</div><div class="tf-value">${fmtw(총매출)}</div><div class="tf-sub">매출 신고 금액</div></div>
+    <div class="tf-op">−</div>
+    <div class="tf-item"><div class="tf-label">필요경비 (크몽 수수료)</div><div class="tf-value">${fmtw(필요경비)}</div><div class="tf-sub">a+b+c 세금계산서로 공제</div></div>
+    ${other > 0 ? `<div class="tf-op">+</div><div class="tf-item"><div class="tf-label">기타 소득</div><div class="tf-value">${fmtw(other)}</div></div>` : ''}
+    <div class="tf-op">=</div>
+    <div class="tf-item tf-item--result"><div class="tf-label">과세표준</div><div class="tf-value">${fmtw(과세표준)}</div><div class="tf-sub">세율 ${tax.세율}</div></div>
+  `;
+
+  const bc = tax.세율==='6%'?'badge-6':tax.세율==='15%'?'badge-15':'badge-24';
+  document.getElementById('tax-steps').innerHTML = `
+    <div class="tax-step">
+      <div class="tax-step__num">Step 01 · 매출 계산</div>
+      <div class="tax-step__title">세금신고 총 매출</div>
+      <div class="tax-step__row"><span>판매금액</span><span>${fmtw(판매금액)}</span></div>
+      <div class="tax-step__row"><span>의뢰인 쿠폰 지원금</span><span>+ ${fmtw(쿠폰금액)}</span></div>
+      <div class="tax-step__row"><span>총 매출</span><span>${fmtw(총매출)}</span></div>
+    </div>
+    <div class="tax-step">
+      <div class="tax-step__num">Step 02 · 필요경비</div>
+      <div class="tax-step__title">크몽 수수료 (공제 가능)</div>
+      <div class="tax-step__row"><span>서비스이용료 (a)</span><span><span class="tx-minus">−</span> ${fmtw(YS.서비스이용료)}</span></div>
+      <div class="tax-step__row"><span>결제수수료 (b)</span><span><span class="tx-minus">−</span> ${fmtw(YS.결제수수료)}</span></div>
+      <div class="tax-step__row"><span>VAT (c)</span><span><span class="tx-minus">−</span> ${fmtw(YS.VAT)}</span></div>
+      <div class="tax-step__row"><span>필요경비 합계</span><span>${fmtw(필요경비)}</span></div>
+    </div>
+    <div class="tax-step">
+      <div class="tax-step__num">Step 03 · 소득세 계산</div>
+      <div class="tax-step__title">과세표준 × 세율 − 누진공제 <span class="bracket-badge ${bc}">${tax.세율}</span></div>
+      <div class="tax-step__row"><span>크몽 과세표준</span><span>${fmtw(크몽기준)}</span></div>
+      ${other>0?`<div class="tax-step__row"><span>기타 소득</span><span>+ ${fmtw(other)}</span></div>`:''}
+      <div class="tax-step__row"><span>합산 과세표준</span><span>${fmtw(과세표준)}</span></div>
+      <div class="tax-step__row"><span>산출세액</span><span>${fmtw(tax.소득세)}</span></div>
+    </div>
+  `;
+
+  document.getElementById('tax-result').innerHTML = `
+    <div class="tax-result-card"><div class="tr-label">종합소득세</div><div class="tr-value">${fmtw(tax.소득세)}</div><div class="tr-sub">과세표준 × ${tax.세율}</div></div>
+    <div class="tax-result-card"><div class="tr-label">지방소득세</div><div class="tr-value">${fmtw(tax.지방)}</div><div class="tr-sub">소득세 × 10%</div></div>
+    <div class="tax-result-card tax-result-card--total"><div class="tr-label">총 납부 예상세액</div><div class="tr-value">${fmtw(tax.합계)}</div><div class="tr-sub">소득세 + 지방소득세</div></div>
+  `;
+
+  document.getElementById('tax-notice').innerHTML = `
+    <strong>절세 팁 및 주의사항</strong><br>
+    ① 크몽 <strong>수수료 세금계산서</strong>(합계 ${fmtw(필요경비)})를 필요경비로 신고하면 과세표준이 낮아져 세금이 절감됩니다.<br>
+    ② <strong>의뢰인 쿠폰 사용금액</strong>은 크몽이 대신 지급하는 금액이므로 내 매출에 포함해야 합니다.<br>
+    ③ 이 계산은 <strong>크몽 수입만 기준</strong>입니다. 근로소득 등 다른 소득이 있으면 위 입력란에 추가하세요.<br>
+    ④ 기납부세액(원천징수 등)이 있으면 실제 납부액이 줄어듭니다. 정확한 신고는 세무사에게 문의하세요.
+  `;
+}
+
+/* ─────────────────────────────────────────────
+   Render analysis
+───────────────────────────────────────────── */
+function renderAnalysis(year) {
+  const yearData = parsedData[year] || {};
+  const allRows  = MONTHS.flatMap(m => yearData[m] || []);
+  const YS       = summarize(allRows);
+  const MS       = Object.fromEntries(MONTHS.map(m => [m, summarize(yearData[m] || [])]));
+
+  document.getElementById('analysis').style.display = 'block';
+  document.getElementById('analysis').scrollIntoView({ behavior:'smooth', block:'start' });
+
+  // Stat grid
+  const activeMonths = MONTHS.filter(m => (yearData[m]||[]).length > 0).length || 1;
+  const avgMonthlyCount  = Math.round(YS.건수 / activeMonths);
+  const avgMonthlyIncome = Math.round(YS.수익금 / activeMonths);
+  const avgPerOrder      = YS.건수 > 0 ? Math.round(YS.판매금액 / YS.건수) : 0;
+
+  const sg = document.getElementById('stat-grid');
+  sg.innerHTML = '';
+  [
+    { label:`${year}년 총 거래 건수`, value:`${YS.건수}건`,                 sub:'전체 거래', cls:'accent' },
+    { label:'총 판매금액',            value:fmtw(YS.판매금액),             sub:'크몽 매출금액' },
+    { label:'의뢰인 쿠폰 지원금',     value:fmtw(YS.쿠폰금액),            sub:'크몽 지급 → 매출 포함' },
+    { label:'세금신고 총 매출',       value:fmtw(YS.판매금액+YS.쿠폰금액),sub:'판매금액 + 쿠폰금액', cls:'green' },
+    { label:'필요경비 (크몽 수수료)', value:fmtw(YS.합계수수료),           sub:'a+b+c 공제 가능' },
+    { label:'수익금 (정산)',          value:fmtw(YS.수익금),               sub:'실제 수령액' },
+    { label:'월 평균 작업 수',        value:`${avgMonthlyCount}건`,        sub:`활동 ${activeMonths}개월 기준` },
+    { label:'월 평균 수입',           value:fmtw(avgMonthlyIncome),        sub:`활동 ${activeMonths}개월 기준` },
+    { label:'건당 평균 작업 비용',    value:fmtw(avgPerOrder),             sub:'판매금액 ÷ 총 건수' },
+  ].forEach(c => {
+    sg.innerHTML += `<div class="stat-card${c.cls?' stat-card--'+c.cls:''}">
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value">${c.value}</div>
+      <div class="stat-sub">${c.sub||''}</div>
+    </div>`;
+  });
+
+  // Tax
+  renderTax(YS, year);
+  document.getElementById('other-income').oninput = () => renderTax(YS, year);
+
+  // Chart
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(document.getElementById('monthly-chart'), {
+    type:'bar',
+    data:{
+      labels: MONTH_LABELS,
+      datasets:[
+        { label:'판매금액', data:MONTHS.map(m=>MS[m].판매금액), backgroundColor:'rgba(15,98,254,.15)', borderColor:'rgba(15,98,254,.8)', borderWidth:1.5 },
+        { label:'수익금',   data:MONTHS.map(m=>MS[m].수익금),   backgroundColor:'rgba(25,128,56,.7)', borderColor:'rgba(25,128,56,1)',   borderWidth:1.5 },
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{ position:'top', labels:{ font:{ family:'IBM Plex Sans',size:12 } } },
+        tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${Math.round(ctx.raw).toLocaleString('ko-KR')}원` } }
+      },
+      scales:{ y:{ ticks:{ callback: v => (v/10000).toFixed(0)+'만', font:{ family:'IBM Plex Mono' } } } }
+    }
+  });
+
+  // Tabs + panels
+  const tabsEl   = document.getElementById('cds-tabs');
+  const panelsEl = document.getElementById('cds-panels');
+  tabsEl.innerHTML = '';
+  panelsEl.innerHTML = '';
+
+  function makeTable(rows, totals) {
+    if (!rows.length) return `<div class="no-data">이 월의 데이터가 없습니다</div>`;
+    const thead = `<thead><tr>
+      <th>주문번호</th><th>상품명</th><th>거래시작일</th><th>구매확정일</th>
+      <th>판매금액</th><th>서비스이용료(a)</th><th>결제수수료(b)</th><th>VAT(c)</th>
+      <th>합계수수료</th><th>수익금</th><th>쿠폰금액</th><th>세금계산서금액</th>
+    </tr></thead>`;
+    const tbody = `<tbody>${rows.map(r=>`<tr>
+      <td>${r.주문번호}</td>
+      <td title="${r.상품명}">${r.상품명.length>26?r.상품명.slice(0,26)+'…':r.상품명}</td>
+      <td>${r.거래시작일}</td><td>${r.구매확정일}</td>
+      <td>${fmt(r.판매금액)}</td><td>${fmt(r.서비스이용료)}</td>
+      <td>${fmt(r.결제수수료)}</td><td>${fmt(r.VAT)}</td>
+      <td>${fmt(r.합계수수료)}</td>
+      <td class="td-profit">${fmt(r.수익금)}</td>
+      <td>${r.쿠폰금액?fmt(r.쿠폰금액):''}</td>
+      <td>${r.세금계산서금액?fmt(r.세금계산서금액):''}</td>
+    </tr>`).join('')}</tbody>`;
+    const tfoot = `<tfoot><tr>
+      <td colspan="2">합계 (${rows.length}건)</td><td></td><td></td>
+      <td>${fmt(totals.판매금액)}</td><td>${fmt(totals.서비스이용료)}</td>
+      <td>${fmt(totals.결제수수료)}</td><td>${fmt(totals.VAT)}</td>
+      <td>${fmt(totals.합계수수료)}</td><td class="td-profit">${fmt(totals.수익금)}</td>
+      <td>${fmt(totals.쿠폰금액)}</td><td>${fmt(totals.세금계산서금액)}</td>
+    </tr></tfoot>`;
+    return `<div class="cds-data-table-wrap"><table class="cds-data-table">${thead}${tbody}${tfoot}</table></div>`;
+  }
+
+  function makeMonthlyStat(s) {
+    return `<div class="month-stat-grid">
+      <div class="ms-card"><div class="ms-label">거래 건수</div><div class="ms-value">${s.건수}건</div></div>
+      <div class="ms-card ms-card--blue"><div class="ms-label">판매금액</div><div class="ms-value">${fmtw(s.판매금액)}</div></div>
+      <div class="ms-card ms-card--green"><div class="ms-label">수익금 (정산)</div><div class="ms-value">${fmtw(s.수익금)}</div></div>
+      <div class="ms-card ms-card--red"><div class="ms-label">수수료 합계</div><div class="ms-value">${fmtw(s.합계수수료)}</div></div>
+      <div class="ms-card"><div class="ms-label">서비스이용료 (a)</div><div class="ms-value">${fmtw(s.서비스이용료)}</div></div>
+      <div class="ms-card"><div class="ms-label">결제수수료 (b)</div><div class="ms-value">${fmtw(s.결제수수료)}</div></div>
+      <div class="ms-card"><div class="ms-label">VAT (c)</div><div class="ms-value">${fmtw(s.VAT)}</div></div>
+    </div>`;
+  }
+
+  function showTab(id) {
+    document.querySelectorAll('.cds-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.cds-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('ctab-'+id).classList.add('active');
+    document.getElementById('cpanel-'+id).classList.add('active');
+  }
+
+  // All tab
+  const allTab = document.createElement('button');
+  allTab.className = 'cds-tab active'; allTab.id = 'ctab-all';
+  allTab.textContent = `전체 ${year}년`;
+  allTab.onclick = () => showTab('all');
+  tabsEl.appendChild(allTab);
+
+  const allPanel = document.createElement('div');
+  allPanel.className = 'cds-panel active'; allPanel.id = 'cpanel-all';
+  allPanel.innerHTML = makeMonthlyStat(YS) + makeTable(allRows, YS);
+  panelsEl.appendChild(allPanel);
+
+  MONTHS.forEach((m, i) => {
+    const rows = yearData[m] || [];
+    const s    = MS[m];
+    const tab  = document.createElement('button');
+    tab.className = 'cds-tab' + (!rows.length ? ' empty' : '');
+    tab.id = 'ctab-'+m;
+    tab.textContent = MONTH_LABELS[i];
+    tab.onclick = () => showTab(m);
+    tabsEl.appendChild(tab);
+
+    const panel = document.createElement('div');
+    panel.className = 'cds-panel'; panel.id = 'cpanel-'+m;
+    panel.innerHTML = makeMonthlyStat(s) + makeTable(rows, s);
+    panelsEl.appendChild(panel);
+  });
+}
+
+/* ─────────────────────────────────────────────
+   Bookmarklet
+───────────────────────────────────────────── */
+(function(){
+  const code=`(async function(){const p=s=>new Promise(r=>setTimeout(r,s));for(let i=0;i<20;i++){const b=document.getElementById('taxInvoiceListMoreBtn');if(!b||b.offsetParent===null)break;b.click();await p(1500);}const py=(new Date().getFullYear()-1).toString().slice(-2)+'년';const all=[...document.querySelectorAll('form[id^="taxInvoiceDownload_"]')];const forms=all.filter(f=>(f.closest('.tax-invoice-item')?.querySelector('.font-size-h4')?.textContent?.trim()||'').startsWith(py));for(let i=0;i<forms.length;i++){const f=forms[i];const token=f.querySelector('[name="_token"]').value;const id=f.querySelector('[name="tax_invoice_id"]').value;const label=(f.closest('.tax-invoice-item')?.querySelector('.font-size-h4')?.textContent?.trim()||id).replace(/\\s+/g,'');try{const r=await fetch(f.action,{method:'POST',body:new URLSearchParams({_token:token,tax_invoice_id:id}),credentials:'same-origin'});if(!r.ok)throw new Error('HTTP '+r.status);const blob=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=label+'_수수료세금계산서.xls';document.body.appendChild(a);a.click();document.body.removeChild(a);console.log('✅ '+(i+1)+'/'+forms.length+' '+label);}catch(e){console.error('❌ '+label,e.message);}await p(800);}alert(py+' 전체 '+forms.length+'개월 다운로드 완료!');})();`;
+  document.getElementById('bm-link').href='javascript:'+encodeURIComponent(code);
+})();
+
+/* ─────────────────────────────────────────────
+   Drag & drop / file input
+───────────────────────────────────────────── */
+const dropArea  = document.getElementById('drop-area');
+const fileInput = document.getElementById('file-input');
+
+dropArea.addEventListener('dragover',  e => { e.preventDefault(); dropArea.classList.add('over'); });
+dropArea.addEventListener('dragleave', () => dropArea.classList.remove('over'));
+dropArea.addEventListener('drop', e => {
+  e.preventDefault();
+  dropArea.classList.remove('over');
+  handleFiles(e.dataTransfer.files);
+});
+dropArea.addEventListener('click', e => {
+  if (e.target.tagName === 'BUTTON') return;
+  fileInput.click();
+});
+fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFiles(fileInput.files); });
+</script>
+</body>
+</html>
