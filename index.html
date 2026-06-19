@@ -925,7 +925,7 @@
       <div class="site-footer-inner">
         <div>
           <div class="site-footer-name">코딩수영장</div>
-          <div class="site-footer-version">v1.7.4</div>
+          <div class="site-footer-version">v1.7.5</div>
         </div>
         <div class="site-footer-links">
           <a href="https://github.com/hoyashu" target="_blank" rel="noopener">
@@ -973,7 +973,14 @@
     </div>
 
     <script>
+      // ★ 직접 띄운 Cloudflare Worker 프록시 주소 (끝 슬래시 없이). 비우면 공개 프록시만 사용.
+      //   예: 'https://naver-img-proxy.내계정.workers.dev'
+      const WORKER_PROXY = 'https://naver-img-proxy.5126537.workers.dev';
+      const workerFn = url => `${WORKER_PROXY}/?url=${encodeURIComponent(url)}`;
+
+      // HTML 가져오기 프록시 (내 Worker 우선, 공개 프록시는 백업)
       const HTML_PROXIES = [
+        ...(WORKER_PROXY ? [workerFn] : []),
         url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
         url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
         url => `https://thingproxy.freeboard.io/fetch/${url}`,
@@ -981,6 +988,7 @@
       // wsrv.nl: 이미지 전용 프록시, Referer 우회에 강함
       const IMG_PROXIES = [
         url => `https://wsrv.nl/?url=${encodeURIComponent(url)}&filename=img`,
+        ...(WORKER_PROXY ? [workerFn] : []),
         url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
         url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
       ];
