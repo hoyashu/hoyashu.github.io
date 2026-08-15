@@ -358,12 +358,10 @@ const DAYS = [
    기본 항목(seed)은 코드에 박혀 있고, 여행 중 추가하는 건 localStorage에 쌓인다. */
 const HEADCOUNT = 2;
 const EXP_KEY = 'goseong_expense_v1';
-const EXPENSE_SEED = [
-  {id:"s1", date:"8/16", name:"동서울→속초 시외버스", cat:"교통", amount:33400, memo:"07:30 출발 · 일반 16,700원 × 2인"},
-  {id:"s2", date:"8/16", name:"하비치펜션 1박",       cat:"숙박", amount:150000, memo:"교암길 8"},
-  {id:"s3", date:"8/17", name:"바다별 민박 1박",      cat:"숙박", amount:100000, memo:"아야진해변길 139-7"},
-  {id:"s4", date:"8/18", name:"속초→동서울 시외버스", cat:"교통", amount:42600, memo:"14:30 출발 · 우등 21,300원 × 2인 · 좌석 1·25"},
-];
+// 모든 지출은 구글시트에 있다(버스·숙소 포함). 여기 코드에는 두지 않는다 —
+// 시트가 유일한 원장이어야 시트에서 고친 게 그대로 반영된다.
+// localStorage는 마지막으로 받아온 목록의 캐시 역할이라, 신호 없어도 화면은 뜬다.
+const EXPENSE_SEED = [];
 const EXP_CATS = ["교통","숙박","식사","카페","기타"];
 
 /* 구글시트 동기화.
@@ -684,9 +682,10 @@ function renderExpense(){
   document.getElementById('planHead').innerHTML =
     '<div class="ph-title">💰 여행 지출</div>'
     +'<div class="ph-sub">2인 합계로 기록하고, 오른쪽에 엔빵(1인당) 금액을 같이 보여줍니다. 여행 중에 아래 폼으로 계속 추가하세요.</div>';
-  document.getElementById('foot').innerHTML =
-    '💡 추가한 항목은 <b>이 브라우저에만 저장</b>돼요(localStorage). 폰에서 넣은 건 폰에만 남으니, 둘이 각자 넣지 말고 <b>한 기기에서 몰아서</b> 기록하세요. '
-    +'여행 끝나고 <b>📋 복사</b> 눌러서 저한테 붙여주시면 위키 지출 표에 합쳐 넣겠습니다.';
+  document.getElementById('foot').innerHTML = SYNC_URL
+    ? '💡 모든 지출은 <b>구글시트에 저장</b>됩니다. 폰·노트북 어디서 넣어도 같은 목록이고, <b>구글시트 앱에서 직접 고쳐도</b> 됩니다(다음에 열 때 반영). '
+      +'신호가 없으면 입력이 잠시 대기했다가 자동으로 올라가요.'
+    : '💡 추가한 항목은 <b>이 브라우저에만 저장</b>돼요(localStorage). 여행 끝나고 <b>📋 복사</b> 눌러서 저한테 붙여주시면 위키 지출 표에 합쳐 넣겠습니다.';
 
   let html = '<div class="exp-sec">';
   html += '<div class="exp-sum">'
@@ -701,7 +700,9 @@ function renderExpense(){
   html += '<table class="exp-table"><thead><tr>'
     +'<th>날짜</th><th>항목</th><th style="text-align:right">2인</th><th style="text-align:right">1인</th><th></th>'
     +'</tr></thead><tbody>';
-  if(!list.length) html += '<tr><td colspan="5" style="color:var(--muted);padding:14px 6px">아직 기록된 지출이 없어요.</td></tr>';
+  if(!list.length) html += '<tr><td colspan="5" style="color:var(--muted);padding:14px 6px">'
+    +(SYNC_URL ? '아직 목록을 못 받아왔어요. 신호를 확인하고 🔄 새로고침을 눌러주세요.' : '아직 기록된 지출이 없어요.')
+    +'</td></tr>';
   list.forEach(e=>{
     html += '<tr>'
       +'<td class="edate">'+e.date+'</td>'
@@ -733,7 +734,7 @@ function renderExpense(){
   html += '<div class="exp-tools">'
     +'<span class="exp-tool" id="expCopy">📋 복사 (마크다운 표)</span>'
     +(SYNC_URL ? '<span class="exp-tool" id="expSync">🔄 새로고침</span>' : '')
-    +'<span class="exp-tool" id="expReset">↺ 내가 추가한 것 초기화</span>'
+    +'<span class="exp-tool" id="expReset">↺ 이 기기 캐시 비우기</span>'
     +'<span id="syncBadge" style="align-self:center;font-size:11.5px;font-weight:500"></span>'
     +'</div></div>';
 
@@ -784,9 +785,9 @@ function renderExpense(){
   });
 
   document.getElementById('expReset').addEventListener('click', ()=>{
-    if(confirm('이 기기에 저장된 목록을 비웁니다. 기본 항목(버스·숙소)은 남습니다.'
-               + (SYNC_URL ? ' 구글시트의 기록은 지워지지 않고, 새로고침하면 다시 내려받습니다.' : '')
-               + ' 진행할까요?')){
+    if(confirm(SYNC_URL
+        ? '이 기기에 캐시된 목록만 비웁니다. 구글시트의 기록은 그대로이고, 바로 다시 내려받습니다. 진행할까요?'
+        : '이 기기에 저장된 목록을 비웁니다. 진행할까요?')){
       expSave({added:[], hidden:[], pending:[]});
       renderExpense();
       if(SYNC_URL) syncFlush();
