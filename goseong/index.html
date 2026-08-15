@@ -459,6 +459,106 @@ function paintSyncBadge(msg){
 function won(n){ return n.toLocaleString('ko-KR')+'원'; }
 function dateKey(d){ const m=String(d).match(/(\d+)\/(\d+)/); return m ? (+m[1])*100+(+m[2]) : 9999; }
 
+/* ───────── 실시간 예보 ─────────
+   페이지를 열 때마다 Open-Meteo에서 강수·파고·수온을 새로 받아 컨디션 바를 갱신한다.
+   실패하면(오프라인 등) 캐시 → 아래 코드에 적힌 8/15 기준 값 순으로 물러난다. */
+const FC_KEY  = 'goseong_forecast_v1';
+const FC_LAT  = 38.2746, FC_LNG = 128.5532;   // 아야진 숙소 부근
+const FC_MLAT = 38.2766, FC_MLNG = 128.5583;  // 앞바다(파고·수온)
+const FC_DATES = {'8/16':'2026-08-16', '8/17':'2026-08-17', '8/18':'2026-08-18'};
+let fcStamp = null;   // 예보를 받아온 시각
+
+function rainLabel(mm, prob){
+  if(mm >= 3)   return '비';
+  if(mm >= 0.5) return '약한 비';
+  if(prob >= 60) return '흐림(비 가능)';
+  if(prob >= 30) return '구름많음';
+  return '맑음';
+}
+function round1(x){ return Math.round(x*10)/10; }
+
+/* 시간대별 배열에서 [from,to)시 구간만 뽑기 */
+function sliceHours(times, vals, iso, from, to){
+  const out = [];
+  for(let i=0;i<times.length;i++){
+    if(times[i].slice(0,10) !== iso) continue;
+    const h = +times[i].slice(11,13);
+    if(h >= from && h < to) out.push(vals[i]);
+  }
+  return out.filter(v=>v!==null && v!==undefined);
+}
+const sum = a => a.reduce((s,x)=>s+x,0);
+const max = a => a.length ? Math.max.apply(null,a) : null;
+const min = a => a.length ? Math.min.apply(null,a) : null;
+const avg = a => a.length ? sum(a)/a.length : null;
+
+function buildCond(iso, land, sea){
+  const lt = land.hourly.time, st = sea && sea.hourly ? sea.hourly.time : [];
+  const mMM = sum(sliceHours(lt, land.hourly.precipitation, iso, 6, 12));
+  const aMM = sum(sliceHours(lt, land.hourly.precipitation, iso, 12, 18));
+  const mP  = max(sliceHours(lt, land.hourly.precipitation_probability, iso, 6, 12)) || 0;
+  const aP  = max(sliceHours(lt, land.hourly.precipitation_probability, iso, 12, 18)) || 0;
+  const di  = land.daily.time.indexOf(iso);
+  const dayMM = di >= 0 ? (land.daily.precipitation_sum[di] || 0) : (mMM + aMM);
+
+  let rain = '오전 ' + rainLabel(mMM, mP) + ' · 오후 ' + rainLabel(aMM, aP);
+  if(dayMM >= 1) rain += ' · ' + round1(dayMM) + 'mm';
+
+  const out = { rain: rain, rainLevel: dayMM >= 10 ? 'heavy' : '' };
+
+  if(st.length){
+    const w = sliceHours(st, sea.hourly.wave_height, iso, 6, 21);
+    const t = sliceHours(st, sea.hourly.sea_surface_temperature, iso, 6, 21);
+    if(w.length){
+      out.wave = min(w).toFixed(1) + '~' + max(w).toFixed(1) + 'm';
+      out.waveMax = max(w);
+    }
+    if(t.length) out.water = '약 ' + avg(t).toFixed(1) + '℃';
+  }
+  return out;
+}
+
+function applyForecast(land, sea){
+  DAYS.forEach(d=>{
+    const iso = FC_DATES[d.date];
+    if(!iso) return;
+    try{ Object.assign(d.cond, buildCond(iso, land, sea)); }catch(e){}
+  });
+}
+
+function loadForecast(){
+  const landUrl = 'https://api.open-meteo.com/v1/forecast?latitude='+FC_LAT+'&longitude='+FC_LNG
+    +'&hourly=precipitation_probability,precipitation&daily=precipitation_sum'
+    +'&timezone=Asia%2FSeoul&start_date=2026-08-16&end_date=2026-08-18';
+  const seaUrl = 'https://marine-api.open-meteo.com/v1/marine?latitude='+FC_MLAT+'&longitude='+FC_MLNG
+    +'&hourly=wave_height,sea_surface_temperature'
+    +'&timezone=Asia%2FSeoul&start_date=2026-08-16&end_date=2026-08-18';
+
+  // 캐시가 있으면 일단 그걸로 그린다 (오프라인 대비)
+  try{
+    const c = JSON.parse(localStorage.getItem(FC_KEY)||'null');
+    if(c && c.land){ applyForecast(c.land, c.sea); fcStamp = c.ts; repaintCurrent(); }
+  }catch(e){}
+
+  Promise.all([
+    fetch(landUrl).then(r=>r.json()),
+    fetch(seaUrl).then(r=>r.json()).catch(()=>null)
+  ]).then(([land, sea])=>{
+    if(!land || !land.hourly) throw new Error('bad forecast');
+    fcStamp = new Date().toISOString();
+    try{ localStorage.setItem(FC_KEY, JSON.stringify({ts:fcStamp, land:land, sea:sea})); }catch(e){}
+    applyForecast(land, sea);
+    repaintCurrent();
+  }).catch(()=>{ /* 하드코딩된 8/15 기준 값 유지 */ });
+}
+
+function fcStampText(){
+  if(!fcStamp) return '<span style="color:var(--muted)">📌 8/15 조회 기준 예보 (실시간 갱신 실패 — 하단 링크로 확인하세요)</span>';
+  const d = new Date(fcStamp);
+  const p = n => String(n).padStart(2,'0');
+  return '<span style="color:var(--muted)">🔄 예보 갱신: '+(d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes())+' 기준 (Open-Meteo)</span>';
+}
+
 const TYPE_COLOR = {stay:"#F4A623", beach:"#149AAE", food:"#EE6C56", cafe:"#5FA07A", transport:"#0B3644"};
 const map = L.map('map', {scrollWheelZoom:false, zoomControl:false});
 L.control.zoom({position:'bottomright'}).addTo(map);
@@ -543,19 +643,33 @@ function routeChip(f,t){
         +'🧭 '+f.name+' <span class="arr">→</span> '+t.name+' · '+icon+' '+label+timeTxt+' 길찾기</a>';
 }
 
+let currentView = {type:'day', idx:0};
 function setActiveTab(idx){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', i===idx));
+}
+/* 예보가 늦게 도착해도 지금 보고 있는 날짜면 다시 그린다 */
+function repaintCurrent(){
+  if(currentView.type === 'day') renderDay(currentView.idx);
 }
 
 function renderDay(idx){
   setActiveTab(idx);
+  currentView = {type:'day', idx:idx};
   const day = DAYS[idx];
+  const waveWarn = (day.cond.waveMax >= 1.5)
+    ? '<div class="ph-alert" style="background:#FFF2EC;border-color:#F6D9CC;border-left-color:#C9552F;color:#8f3a1c">'
+      +'🌊 <b>파고 '+round1(day.cond.waveMax)+'m</b> — 1.5m를 넘어 스노클링은 시야가 안 나오고 이안류 위험이 있어요. '
+      +'<b>무지개 방파제 안쪽</b>으로 옮기거나 그날은 능파대·카페로 돌리세요.</div>'
+    : '';
   document.getElementById('planHead').innerHTML =
     '<div class="ph-title">Day '+(idx+1)+' · '+day.date+' ('+day.dow+') — '+day.title+'</div>'
     +'<span class="ph-stay">🏠 '+day.stay+'</span>'
     +'<div class="ph-move">🧭 <span>'+day.move+'</span></div>'
     + condBar(day.cond)
-    + (day.alert ? '<div class="ph-alert">☔ '+day.alert+'</div>' : '');
+    + '<div style="margin-top:7px;font-size:11px">'+fcStampText()+'</div>'
+    + waveWarn
+    + (day.alert ? '<div class="ph-alert">☔ '+day.alert
+        +'<div style="margin-top:6px;font-size:11px;opacity:.75">※ 이 안내는 8/15 예보로 쓴 것입니다 — 숫자는 위 칩이 최신이에요.</div></div>' : '');
   document.getElementById('foot').innerHTML = '💡 '+day.foot+forecastNote+liveLinks;
 
   clearMap();
@@ -617,6 +731,7 @@ function renderDay(idx){
 
 function renderFood(){
   setActiveTab(3);
+  currentView = {type:'food'};
   document.getElementById('planHead').innerHTML =
     '<div class="ph-title">🍽️ 아야진 맛집 지도</div>'
     +'<div class="ph-sub">회·해장밥·오션뷰 카페를 한 곳에. 카드를 누르면 지도에서 위치를 볼 수 있어요.</div>';
@@ -671,6 +786,7 @@ function renderFood(){
 
 function renderExpense(){
   setActiveTab(4);
+  currentView = {type:'expense'};
   document.querySelector('.wrap').classList.add('solo');
   document.querySelector('.map-col').style.display = 'none';
 
@@ -826,6 +942,9 @@ document.getElementById('fitAll').addEventListener('click', ()=>{
 });
 
 renderDay(0);
+loadForecast();
+// 화면을 다시 켰을 때(폰에서 흔함) 예보 다시 받기
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) loadForecast(); });
 window.addEventListener('resize', ()=>map.invalidateSize());
 </script>
 </body>
