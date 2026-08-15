@@ -183,7 +183,8 @@
     <span class="chip">🗓️ 8/16 – 8/18</span>
     <span class="chip">🚌 동서울 07:30 → 속초 10:48 · 14:30 귀가</span>
     <span class="chip">🚗 차 없이</span>
-    <span class="chip">🌧️ 8/16 종일 비 · 실내 대안 반영</span>
+    <span class="chip">🌧️ 8/16 비 · 실내 대안 반영</span>
+    <span class="chip">🎪 글라스하우스 페스티벌 ~8/17</span>
   </div>
 </header>
 
@@ -224,6 +225,7 @@ const PLACES = {
   hoe:         {name:"동해활어자연산전문점", addr:"아야진항 회센터 거리 (매일 10–21:30)", lat:38.272140, lng:128.556052, type:"food", naver:"https://map.naver.com/p/search/아야진 동해활어자연산전문점"},
   nokwon:      {name:"녹원식당", addr:"토성면 교암길 60 · 생선찜·가오리찜 (10–20시 · 라스트오더 19:00 · 매일)", lat:38.289500, lng:128.546600, type:"food", naver:"https://map.naver.com/p/search/고성 녹원식당"},
   gosikdang:   {name:"고식당", addr:"토성면 교암길 80 2층 · 낙지철판구이 (11–20시 · 15~17시 브레이크 · 화 휴무)", lat:38.290600, lng:128.546200, type:"food", naver:"https://map.naver.com/p/search/고성 고식당 교암"},
+  glasshaus:   {name:"글라스하우스 (페스티벌)", addr:"토성면 천진해변길 43 · SUMMER MAGIC MAGNIFIER Vol.1 (8/14–8/17, 10~22시)", lat:38.260200, lng:128.559000, type:"cafe", naver:"https://map.naver.com/p/search/고성 글라스하우스"},
   onbutton:    {name:"On the Button", addr:"교암 북쪽 · 루프탑 오션뷰 카페 (주말 10–19시)", lat:38.296272, lng:128.547792, type:"cafe", naver:"https://map.naver.com/p/search/고성 On the Button"},
   cafeHaebyeon:{name:"카페 해변길", addr:"바다별 민박 바로 옆 · 10시 오픈, 식사도 가능", lat:38.274964, lng:128.553145, type:"cafe", naver:"https://map.naver.com/p/search/아야진 카페 해변길"},
 };
@@ -284,23 +286,24 @@ const FOODLIST = [
 
 const DAYS = [
   {
-    date:"8/16", dow:"일", title:"고성 도착 · 비 오는 날 실내 코스",
+    date:"8/16", dow:"일", title:"고성 도착 · 글라스하우스 페스티벌",
     stay:"하비치펜션 (교암)",
     move:"동서울 07:30 → 속초 10:48 · 이후 시내버스/택시로 하비치까지 약 20~30분",
     cond:{sunrise:"05:43", sunset:"19:04", golden:"18:10~19:04", rain:"종일 비 · 26.9mm", rainLevel:"heavy",
           wave:"0.4→1.1m (저녁 상승)", water:"약 25.5℃", moon:"가는 초승달", uv:"보통 (흐림)"},
     alert:"<b>종일 비(강수량 약 27mm)</b>입니다. 물놀이·태닝·해변 사진은 <b>8/17·8/18로 이월</b>하고, 첫날은 실내 위주로 짰어요. 비는 <b>17시 이후 약해지고 18시쯤 그칠</b> 전망이라 저녁 해변 산책은 가능합니다(대신 저녁에 바람이 강해져요). 저녁은 <b>셀프 BBQ → 교암길 식당가</b>로 변경.",
-    foot:"우비·우산 챙기세요 ☔ 저녁은 <b>셀프 BBQ 대신 교암길 식당가</b>로 바꿨어요 — 비 오는 날 속초에서 장 봐서 들고 오는 게 고생이라. 하비치(교암길 8) 바로 위 <b>교암길 60~80</b>에 식당이 모여 있고 도보 5~7분입니다. 1순위 <b>녹원식당</b>(생선찜·가오리찜, 백반기행 방영 / <b>라스트오더 19:00·웨이팅 있음 → 18시 도착 권장</b>), 대안 <b>고식당</b>(낙지철판, 라스트오더 19:20). 그래도 BBQ 하고 싶으면 숙소에서 <b>고기만 배달·근처 마트</b>로 최소화하세요.",
+    foot:"우비·우산 챙기세요 ☔ 비 오는 오후를 <b>글라스하우스 페스티벌</b>로 채웠어요 — 헛간 전시·푸드·DJ가 다 모여 있어서 카페에서 시간 때우는 것보다 낫습니다. <b>저녁도 페스티벌 푸드로</b>(타코스탠드·꺼거, 18시 마감). "
+        +"⚠️ 야외 행사라 <b>비가 세면 프로그램이 축소</b>될 수 있으니 출발 전 인스타 <b>@glasshaus.official</b> 당일 공지를 꼭 확인하세요. 접었다면 원래 계획인 <b>On the Button</b> 카페(교암 북쪽) + <b>녹원식당</b> 저녁(교암길 60, 라스트오더 19:00·웨이팅 있음)으로 되돌리면 됩니다 → 맛집 탭 참고.",
     items:[
       {time:"07:30", emoji:"🚌", title:"동서울 출발", place:null, note:"동서울 → 속초 시외버스 (일반) · 3시간 18분 · 2인 33,400원", dnote:"🎫 예매 완료 · 승차권 07:30 동서울 → 10:48 속초", rnote:"우비·우산·방수팩 · 젖을 옷 갈아입을 여벌 챙기기"},
       {time:"10:48", emoji:"📍", title:"속초 도착", place:"sokcho", note:"시내버스 1·1-1 또는 택시로 하비치 이동", rnote:"비 와서 택시가 편해요 · 저녁을 식당으로 바꿔서 장보기 없음(간식·물 정도만)"},
       {time:"11:20", emoji:"🧳", title:"하비치 짐 맡기기", place:"havichi", note:"터미널에서 20~30분"},
       {time:"12:00", emoji:"🍚", title:"점심", place:"sodamjeong", note:"소담정 – 육전·물회냉면", rnote:"실내 · 비 오는 시간대라 여유 있게"},
-      {time:"13:30", emoji:"☕", title:"카페 (실내)", place:"onbutton", rnote:"비 피크 시간(13~17시) · 루프탑 대신 창가 바다뷰로. 하비치에서 약 1.9km(도보 30분 이상)라 비 오는 날엔 택시 5분"},
-      {time:"15:30", emoji:"🛋️", title:"숙소 휴식", place:"havichi", rnote:"비 피크 시간 · 무리하지 말고 쉬기"},
-      {time:"17:00", emoji:"🚶", title:"교암해변 산책 · 돌멩이 줍기", place:"havichiBeach", dnote:"비 약해지는 시간대 · 파도 높아지니 물가 가까이 X", rnote:"비 계속 오면 생략하고 바로 저녁 식당으로"},
-      {time:"18:00", emoji:"🍲", title:"저녁 (교암길 식당가)", place:"nokwon", note:"녹원식당 – 생선찜·가오리찜 (대안: 고식당 낙지철판)", dnote:"⏰ 라스트오더 19:00 + 웨이팅 있는 집이라 18시 도착 권장 · 하비치에서 도보 5~7분"},
-      {time:"19:30", emoji:"🪨", title:"돌멩이 동물 만들기", place:"havichi", rnote:"실내 활동 · 낮에 주운 돌멩이로"},
+      {time:"13:30", emoji:"🚕", title:"글라스하우스로 이동", place:"glasshaus", note:"천진해변 · 하비치에서 택시 8분(약 3km)", rnote:"비 오는 날 이동이라 우비 필수 · 버스는 애매해서 택시 권장"},
+      {time:"14:00", emoji:"🎪", title:"페스티벌 – HOHO BARN", place:"glasshaus", note:"독립서점·빈티지 가구·바이닐·향·빈티지옷·주얼리", dnote:"🎪 SUMMER MAGIC MAGNIFIER Vol.1 (8/14~8/17) · 헛간 전시·마켓은 18시까지", rnote:"헛간 안이라 비를 피할 수 있는 프로그램 · 다만 우천 시 축소될 수 있으니 당일 인스타 @glasshaus.official 공지 확인"},
+      {time:"16:00", emoji:"🎧", title:"DJ 타임 + 이른 저녁", place:"glasshaus", note:"타코스탠드·꺼거·케이크레스트 / 바 키에즈·에이스포클럽", dnote:"음악 16~22시 · 푸드·음료는 18시 마감이라 저녁은 여기서 일찍 해결"},
+      {time:"18:30", emoji:"🚕", title:"숙소 복귀", place:"havichi", rnote:"음악은 22시까지 하니 더 놀아도 됨 · 대신 밤에 택시 잡기 어려울 수 있어요"},
+      {time:"19:30", emoji:"🪨", title:"돌멩이 동물 만들기", place:"havichi", rnote:"실내 활동 · 비 그치면(18시 이후) 교암해변 잠깐 나가 돌멩이 줍기"},
       {time:"21:00", emoji:"🌙", title:"밤바다 산책", place:"havichiBeach", dnote:"구름 많아 별은 어려울 수 있음 · 파고 1.1m·강풍이라 방파제·물가는 피하기"},
       {time:"22:00", emoji:"🛏️", title:"숙소", place:"havichi"},
     ]
@@ -328,7 +331,8 @@ const DAYS = [
       {time:"17:30", emoji:"📷", title:"해질녘 사진", place:"ayajinBeach", dnote:"실제 일몰 19:03 · 골든아워 18:10~, 블루아워 ~19:30"},
       {time:"18:30", emoji:"🚿", title:"샤워·휴식", place:"ayajinStay"},
       {time:"19:00", emoji:"🐟", title:"회", place:"hoe", note:"동해활어자연산전문점 (대안: 갈매기·해녀횟집)"},
-      {time:"21:00", emoji:"🌙", title:"밤바다 산책", place:"ayajinBeach", dnote:"달빛 약해 별 잘 보임(구름 걷히면) · 방파제 조명 조심"},
+      {time:"20:30", emoji:"🎧", title:"(선택) 페스티벌 마지막 밤", place:"glasshaus", note:"음악 22시 종료 · 아야진에서 택시 5분", dnote:"🎪 <b>8/17이 페스티벌 마지막 날</b> — 이날 안 가면 끝. 단 마켓·푸드는 18시에 닫고 <b>음악만</b> 남아요"},
+      {time:"21:00", emoji:"🌙", title:"밤바다 산책", place:"ayajinBeach", dnote:"페스티벌 안 가면 이걸로 · 달빛 약해 별 잘 보임(구름 걷히면) · 방파제 조명 조심"},
       {time:"22:00", emoji:"🛏️", title:"숙소", place:"ayajinStay"},
     ]
   },
