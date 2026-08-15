@@ -49,6 +49,7 @@
 
   .wrap{max-width:1160px;margin:0 auto;padding:8px 16px 40px;display:grid;grid-template-columns:1fr;gap:16px}
   @media(min-width:900px){.wrap{grid-template-columns:1.05fr .95fr;align-items:start}.map-col{position:sticky;top:14px}}
+  .wrap.solo{grid-template-columns:1fr !important;max-width:760px}
 
   .map-col{display:flex;flex-direction:column;gap:10px}
   #map{height:52vh;min-height:340px;border-radius:20px;border:3px solid #fff;box-shadow:var(--shadow);background:#dfeef1}
@@ -114,6 +115,49 @@
   .fcard .fmeta .hrs{color:var(--sea);font-weight:500}
   .fcard .closed{color:#C9552F;font-weight:600}
 
+  /* expense tab */
+  .tab.money.active{border-color:#7A6BC4;box-shadow:0 0 0 3px rgba(122,107,196,.16)}
+  .tab.money.active .ddate{color:#7A6BC4}
+  .tab.money.active::before{background:#7A6BC4}
+  .exp-sec{padding:8px 14px 4px}
+  .exp-sum{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+  .exp-card{border:1px solid var(--line);border-radius:14px;padding:11px 13px;background:#fff}
+  .exp-card.total{background:linear-gradient(180deg,#F5F3FC,#fff);border-color:#DFD9F2}
+  .exp-card .el{font-size:11.5px;color:var(--muted);font-weight:500}
+  .exp-card .ev{font-family:"Jua",sans-serif;font-size:23px;color:var(--ink);margin-top:2px;line-height:1.1}
+  .exp-card.total .ev{color:#5B4BA8}
+  .exp-cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .exp-cat{font-size:11.5px;border-radius:999px;padding:3px 10px;font-weight:600;border:1px solid}
+  .cat-교통{background:#EAF3FB;border-color:#CBE0F2;color:#2A5FA8}
+  .cat-숙박{background:#FFF3D6;border-color:#F3DFA6;color:#8a5b00}
+  .cat-식사{background:#FFF0EC;border-color:#F6D9CC;color:#C9552F}
+  .cat-카페{background:#EDF7F1;border-color:#CDE9D8;color:#37795A}
+  .cat-기타{background:#F1F1F4;border-color:#DEDEE5;color:#5B5B6B}
+  .exp-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .exp-table th{text-align:left;font-size:11px;color:var(--muted);font-weight:500;padding:0 6px 6px;border-bottom:1px solid var(--line)}
+  .exp-table td{padding:8px 6px;border-bottom:1px dashed var(--line);vertical-align:top}
+  .exp-table td.amt{text-align:right;font-weight:700;color:var(--ink);white-space:nowrap}
+  .exp-table td.per{text-align:right;color:var(--muted);white-space:nowrap;font-size:11.5px}
+  .exp-table .ename{font-weight:600}
+  .exp-table .ememo{font-size:11px;color:var(--muted);margin-top:2px}
+  .exp-table .edate{color:var(--muted);white-space:nowrap;font-size:11.5px}
+  .exp-del{border:none;background:none;cursor:pointer;color:#C9552F;font-size:13px;padding:2px 4px;opacity:.55}
+  .exp-del:hover{opacity:1}
+  .exp-form{background:#F7F6FC;border:1px solid #E4E0F2;border-radius:14px;padding:11px 12px;margin:14px 0 6px}
+  .exp-form h4{font-family:"Jua",sans-serif;font-size:14px;color:#5B4BA8;margin-bottom:8px}
+  .exp-form .row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+  .exp-form input,.exp-form select{font-family:inherit;font-size:12.5px;padding:7px 9px;border:1px solid #DAD5EC;border-radius:9px;background:#fff;color:var(--text);min-width:0}
+  .exp-form input:focus,.exp-form select:focus{outline:2px solid #C6BDEA;outline-offset:-1px}
+  .exp-form .f-name{flex:1 1 150px}
+  .exp-form .f-amt{flex:1 1 110px}
+  .exp-form .f-date,.exp-form .f-cat,.exp-form .f-basis{flex:0 1 auto}
+  .exp-form .f-memo{flex:1 1 100%}
+  .exp-add{background:#5B4BA8;color:#fff;border:none;border-radius:9px;padding:8px 16px;font-family:"Jua",sans-serif;font-size:13px;cursor:pointer}
+  .exp-add:hover{background:#4b3d90}
+  .exp-tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .exp-tool{font-size:11.5px;color:var(--sea);background:#F1FAFB;border:1px solid #D7EEF1;border-radius:8px;padding:5px 10px;cursor:pointer;font-weight:500}
+  .exp-tool:hover{background:#e4f5f7}
+
   .foot{padding:14px 18px 18px;border-top:1px dashed var(--line);font-size:12px;color:var(--muted);background:#fdfaf1}
   .foot b{color:var(--sea);font-weight:500}
   .foot .links{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
@@ -137,7 +181,7 @@
   <h1>아야진 <span class="sun">☀️</span> 스노클링 2박 3일</h1>
   <div class="trip-meta">
     <span class="chip">🗓️ 8/16 – 8/18</span>
-    <span class="chip">🚌 07:30 출발 · 14:30 귀가</span>
+    <span class="chip">🚌 동서울 07:30 → 속초 10:48 · 14:30 귀가</span>
     <span class="chip">🚗 차 없이</span>
     <span class="chip">🌧️ 8/16 종일 비 · 실내 대안 반영</span>
   </div>
@@ -242,15 +286,15 @@ const DAYS = [
   {
     date:"8/16", dow:"일", title:"고성 도착 · 비 오는 날 실내 코스",
     stay:"하비치펜션 (교암)",
-    move:"속초 도착 후 시내버스/택시로 하비치까지 약 20~30분",
+    move:"동서울 07:30 → 속초 10:48 · 이후 시내버스/택시로 하비치까지 약 20~30분",
     cond:{sunrise:"05:43", sunset:"19:04", golden:"18:10~19:04", rain:"종일 비 · 26.9mm", rainLevel:"heavy",
           wave:"0.4→1.1m (저녁 상승)", water:"약 25.5℃", moon:"가는 초승달", uv:"보통 (흐림)"},
     alert:"<b>종일 비(강수량 약 27mm)</b>입니다. 물놀이·태닝·해변 사진은 <b>8/17·8/18로 이월</b>하고, 첫날은 실내 위주로 짰어요. 비는 <b>17시 이후 약해지고 18시쯤 그칠</b> 전망이라 저녁 해변 산책은 가능합니다(대신 저녁에 바람이 강해져요). 저녁은 <b>셀프 BBQ → 교암길 식당가</b>로 변경.",
     foot:"우비·우산 챙기세요 ☔ 저녁은 <b>셀프 BBQ 대신 교암길 식당가</b>로 바꿨어요 — 비 오는 날 속초에서 장 봐서 들고 오는 게 고생이라. 하비치(교암길 8) 바로 위 <b>교암길 60~80</b>에 식당이 모여 있고 도보 5~7분입니다. 1순위 <b>녹원식당</b>(생선찜·가오리찜, 백반기행 방영 / <b>라스트오더 19:00·웨이팅 있음 → 18시 도착 권장</b>), 대안 <b>고식당</b>(낙지철판, 라스트오더 19:20). 그래도 BBQ 하고 싶으면 숙소에서 <b>고기만 배달·근처 마트</b>로 최소화하세요.",
     items:[
-      {time:"07:30", emoji:"🚌", title:"서울 출발", place:null, note:"동서울/센트럴 → 속초, 약 2시간 20분", rnote:"우비·우산·방수팩 · 젖을 옷 갈아입을 여벌 챙기기"},
-      {time:"10:30", emoji:"📍", title:"속초 도착", place:"sokcho", note:"시내버스 1·1-1 또는 택시로 하비치 이동", rnote:"비 와서 택시가 편해요 · 저녁을 식당으로 바꿔서 장보기 없음(간식·물 정도만)"},
-      {time:"11:00", emoji:"🧳", title:"하비치 짐 맡기기", place:"havichi"},
+      {time:"07:30", emoji:"🚌", title:"동서울 출발", place:null, note:"동서울 → 속초 시외버스 (일반) · 3시간 18분 · 2인 33,400원", dnote:"🎫 예매 완료 · 승차권 07:30 동서울 → 10:48 속초", rnote:"우비·우산·방수팩 · 젖을 옷 갈아입을 여벌 챙기기"},
+      {time:"10:48", emoji:"📍", title:"속초 도착", place:"sokcho", note:"시내버스 1·1-1 또는 택시로 하비치 이동", rnote:"비 와서 택시가 편해요 · 저녁을 식당으로 바꿔서 장보기 없음(간식·물 정도만)"},
+      {time:"11:20", emoji:"🧳", title:"하비치 짐 맡기기", place:"havichi", note:"터미널에서 20~30분"},
       {time:"12:00", emoji:"🍚", title:"점심", place:"sodamjeong", note:"소담정 – 육전·물회냉면", rnote:"실내 · 비 오는 시간대라 여유 있게"},
       {time:"13:30", emoji:"☕", title:"카페 (실내)", place:"onbutton", rnote:"비 피크 시간(13~17시) · 루프탑 대신 창가 바다뷰로. 하비치에서 약 1.9km(도보 30분 이상)라 비 오는 날엔 택시 5분"},
       {time:"15:30", emoji:"🛋️", title:"숙소 휴식", place:"havichi", rnote:"비 피크 시간 · 무리하지 말고 쉬기"},
@@ -291,7 +335,7 @@ const DAYS = [
   {
     date:"8/18", dow:"화", title:"마지막 물놀이 · 14:30 귀가",
     stay:"— (귀가)",
-    move:"14:30 버스 → 아야진에서 13:30쯤 터미널로 출발 (택시 15~20분)",
+    move:"속초 14:30 → 동서울 16:40 (우등·좌석 1·25) · 아야진에서 13:30쯤 터미널로 출발",
     cond:{sunrise:"05:45", sunset:"19:01", golden:"18:05~19:01", rain:"오전 맑음 · 오후 소나기 가능", rainLevel:"",
           wave:"0.4~0.6m (가장 잔잔)", water:"약 26.5℃", moon:"초승달", uv:"매우 높음"},
     alert:"<b>오전이 이번 여행의 베스트 타이밍</b>입니다 — 맑음, 기온 25~28℃, 파고 0.4~0.6m로 3일 중 가장 잔잔해요. 아침 물놀이를 넉넉히 잡으세요. 대신 <b>13시 이후 소나기 확률이 올라가니</b> 짐 정리는 미리, 터미널 이동 때 우산 하나는 손에.",
@@ -304,10 +348,36 @@ const DAYS = [
       {time:"12:00", emoji:"🍚", title:"점심", place:"haenyeo", note:"해녀의집 (9–15시)"},
       {time:"13:00", emoji:"📷", title:"마지막 사진", place:"ayajinBeach", rnote:"13시 이후 소나기 확률 상승 · 짧게"},
       {time:"13:30", emoji:"🚕", title:"버스터미널 이동", place:"sokcho", note:"택시 15~20분"},
-      {time:"14:30", emoji:"🚌", title:"속초 출발", place:"sokcho"},
+      {time:"14:30", emoji:"🚌", title:"속초 출발", place:"sokcho", note:"우등 · 좌석 1·25 · 2시간 10분 → 동서울 16:40 도착", dnote:"🎫 예매 완료 · 2인 42,600원"},
     ]
   }
 ];
+
+/* ───────── 지출 ─────────
+   금액은 모두 '2인 합계' 기준으로 저장하고, 엔빵(1인당)은 화면에서 ÷2로 보여준다.
+   기본 항목(seed)은 코드에 박혀 있고, 여행 중 추가하는 건 localStorage에 쌓인다. */
+const HEADCOUNT = 2;
+const EXP_KEY = 'goseong_expense_v1';
+const EXPENSE_SEED = [
+  {id:"s1", date:"8/16", name:"동서울→속초 시외버스", cat:"교통", amount:33400, memo:"07:30 출발 · 일반 16,700원 × 2인"},
+  {id:"s2", date:"8/16", name:"하비치펜션 1박",       cat:"숙박", amount:150000, memo:"교암길 8"},
+  {id:"s3", date:"8/17", name:"바다별 민박 1박",      cat:"숙박", amount:100000, memo:"아야진해변길 139-7"},
+  {id:"s4", date:"8/18", name:"속초→동서울 시외버스", cat:"교통", amount:42600, memo:"14:30 출발 · 우등 21,300원 × 2인 · 좌석 1·25"},
+];
+const EXP_CATS = ["교통","숙박","식사","카페","기타"];
+
+function expStore(){
+  try{ const o = JSON.parse(localStorage.getItem(EXP_KEY)||'{}');
+       return {added:o.added||[], hidden:o.hidden||[]}; }
+  catch(e){ return {added:[], hidden:[]}; }
+}
+function expSave(o){ try{ localStorage.setItem(EXP_KEY, JSON.stringify(o)); }catch(e){ alert('저장 실패 — 브라우저 저장공간을 확인해주세요.'); } }
+function expAll(){
+  const st = expStore();
+  return EXPENSE_SEED.concat(st.added).filter(e=>st.hidden.indexOf(e.id)<0);
+}
+function won(n){ return n.toLocaleString('ko-KR')+'원'; }
+function dateKey(d){ const m=String(d).match(/(\d+)\/(\d+)/); return m ? (+m[1])*100+(+m[2]) : 9999; }
 
 const TYPE_COLOR = {stay:"#F4A623", beach:"#149AAE", food:"#EE6C56", cafe:"#5FA07A", transport:"#0B3644"};
 const map = L.map('map', {scrollWheelZoom:false, zoomControl:false});
@@ -326,7 +396,12 @@ function pinIcon(color,label){
     html:'<div class="pm" style="background:'+color+'"><span>'+label+'</span></div>',
     iconSize:[30,30], iconAnchor:[8,28], popupAnchor:[6,-26]});
 }
+function showMapCol(){
+  document.querySelector('.wrap').classList.remove('solo');
+  document.querySelector('.map-col').style.display = '';
+}
 function clearMap(){
+  showMapCol();
   layer.clearLayers();
   if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
   Object.keys(markerById).forEach(k=>delete markerById[k]);
@@ -514,6 +589,115 @@ function renderFood(){
   });
 }
 
+function renderExpense(){
+  setActiveTab(4);
+  document.querySelector('.wrap').classList.add('solo');
+  document.querySelector('.map-col').style.display = 'none';
+
+  const list = expAll().slice().sort((a,b)=>dateKey(a.date)-dateKey(b.date));
+  const total = list.reduce((s,e)=>s+e.amount,0);
+  const byCat = {};
+  list.forEach(e=>{ byCat[e.cat] = (byCat[e.cat]||0)+e.amount; });
+
+  document.getElementById('planHead').innerHTML =
+    '<div class="ph-title">💰 여행 지출</div>'
+    +'<div class="ph-sub">2인 합계로 기록하고, 오른쪽에 엔빵(1인당) 금액을 같이 보여줍니다. 여행 중에 아래 폼으로 계속 추가하세요.</div>';
+  document.getElementById('foot').innerHTML =
+    '💡 추가한 항목은 <b>이 브라우저에만 저장</b>돼요(localStorage). 폰에서 넣은 건 폰에만 남으니, 둘이 각자 넣지 말고 <b>한 기기에서 몰아서</b> 기록하세요. '
+    +'여행 끝나고 <b>📋 복사</b> 눌러서 저한테 붙여주시면 위키 지출 표에 합쳐 넣겠습니다.';
+
+  let html = '<div class="exp-sec">';
+  html += '<div class="exp-sum">'
+    +'<div class="exp-card total"><div class="el">합계 (2인)</div><div class="ev">'+won(total)+'</div></div>'
+    +'<div class="exp-card total"><div class="el">엔빵 (1인당)</div><div class="ev">'+won(Math.round(total/HEADCOUNT))+'</div></div>'
+    +'</div>';
+
+  html += '<div class="exp-cats">';
+  EXP_CATS.forEach(c=>{ if(byCat[c]) html += '<span class="exp-cat cat-'+c+'">'+c+' '+won(byCat[c])+'</span>'; });
+  html += '</div>';
+
+  html += '<table class="exp-table"><thead><tr>'
+    +'<th>날짜</th><th>항목</th><th style="text-align:right">2인</th><th style="text-align:right">1인</th><th></th>'
+    +'</tr></thead><tbody>';
+  if(!list.length) html += '<tr><td colspan="5" style="color:var(--muted);padding:14px 6px">아직 기록된 지출이 없어요.</td></tr>';
+  list.forEach(e=>{
+    html += '<tr>'
+      +'<td class="edate">'+e.date+'</td>'
+      +'<td><span class="exp-cat cat-'+e.cat+'" style="margin-right:5px">'+e.cat+'</span>'
+      +'<span class="ename">'+e.name+'</span>'
+      +(e.memo ? '<div class="ememo">'+e.memo+'</div>' : '')+'</td>'
+      +'<td class="amt">'+won(e.amount)+'</td>'
+      +'<td class="per">'+won(Math.round(e.amount/HEADCOUNT))+'</td>'
+      +'<td><button class="exp-del" data-del="'+e.id+'" title="삭제">✕</button></td>'
+      +'</tr>';
+  });
+  html += '</tbody></table>';
+
+  html += '<div class="exp-form">'
+    +'<h4>➕ 지출 추가</h4>'
+    +'<div class="row">'
+    +'<select class="f-date" id="fDate">'+['8/16','8/17','8/18'].map(d=>'<option>'+d+'</option>').join('')+'</select>'
+    +'<select class="f-cat" id="fCat">'+EXP_CATS.map(c=>'<option'+(c==='식사'?' selected':'')+'>'+c+'</option>').join('')+'</select>'
+    +'<input class="f-name" id="fName" placeholder="항목 (예: 녹원식당 저녁)">'
+    +'</div>'
+    +'<div class="row">'
+    +'<input class="f-amt" id="fAmt" inputmode="numeric" placeholder="금액">'
+    +'<select class="f-basis" id="fBasis"><option value="2">2인 합계로</option><option value="1">1인 금액 ×2</option></select>'
+    +'<button class="exp-add" id="fAdd">추가</button>'
+    +'</div>'
+    +'<div class="row"><input class="f-memo" id="fMemo" placeholder="메모 (선택)"></div>'
+    +'</div>';
+
+  html += '<div class="exp-tools">'
+    +'<span class="exp-tool" id="expCopy">📋 복사 (마크다운 표)</span>'
+    +'<span class="exp-tool" id="expReset">↺ 내가 추가한 것 초기화</span>'
+    +'</div></div>';
+
+  const panel = document.getElementById('panel');
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', ()=>{
+    const id = b.getAttribute('data-del');
+    const st = expStore();
+    st.added = st.added.filter(x=>x.id!==id);
+    if(EXPENSE_SEED.some(x=>x.id===id)) st.hidden.push(id);
+    expSave(st); renderExpense();
+  }));
+
+  document.getElementById('fAdd').addEventListener('click', ()=>{
+    const name = document.getElementById('fName').value.trim();
+    const raw  = document.getElementById('fAmt').value.replace(/[^0-9]/g,'');
+    if(!name || !raw){ alert('항목과 금액을 입력해주세요.'); return; }
+    const basis = +document.getElementById('fBasis').value;
+    const st = expStore();
+    st.added.push({
+      id:'u'+Date.now(),
+      date: document.getElementById('fDate').value,
+      cat:  document.getElementById('fCat').value,
+      name: name,
+      amount: (+raw) * (basis===1 ? HEADCOUNT : 1),
+      memo: document.getElementById('fMemo').value.trim()
+    });
+    expSave(st); renderExpense();
+  });
+
+  document.getElementById('expCopy').addEventListener('click', ()=>{
+    let md = '| 날짜 | 분류 | 항목 | 2인 | 1인 |\n|---|---|---|---|---|\n';
+    list.forEach(e=>{ md += '| '+e.date+' | '+e.cat+' | '+e.name+(e.memo?' ('+e.memo+')':'')+' | '+won(e.amount)+' | '+won(Math.round(e.amount/HEADCOUNT))+' |\n'; });
+    md += '| | | **합계** | **'+won(total)+'** | **'+won(Math.round(total/HEADCOUNT))+'** |';
+    navigator.clipboard.writeText(md).then(
+      ()=>{ document.getElementById('expCopy').textContent = '✅ 복사됨'; },
+      ()=>{ alert(md); }
+    );
+  });
+
+  document.getElementById('expReset').addEventListener('click', ()=>{
+    if(confirm('직접 추가한 지출을 모두 지웁니다. 기본 항목(버스·숙소)은 남습니다. 진행할까요?')){
+      expSave({added:[], hidden:[]}); renderExpense();
+    }
+  });
+}
+
 const tabsEl = document.getElementById('tabs');
 DAYS.forEach((d,i)=>{
   const el=document.createElement('div'); el.className='tab';
@@ -526,6 +710,12 @@ foodTab.className='tab food';
 foodTab.innerHTML='<div class="dnum">EAT</div><div class="ddate">🍽️</div><div class="dsub">맛집</div>';
 foodTab.addEventListener('click', renderFood);
 tabsEl.appendChild(foodTab);
+
+const moneyTab = document.createElement('div');
+moneyTab.className='tab money';
+moneyTab.innerHTML='<div class="dnum">₩</div><div class="ddate">💰</div><div class="dsub">지출</div>';
+moneyTab.addEventListener('click', renderExpense);
+tabsEl.appendChild(moneyTab);
 
 document.getElementById('fitAll').addEventListener('click', ()=>{
   if(allLatlngs.length) map.fitBounds(L.latLngBounds(allLatlngs).pad(0.2));
