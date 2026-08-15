@@ -24,7 +24,7 @@
     background:radial-gradient(1200px 400px at 80% -5%, rgba(20,154,174,.10), transparent 60%),
                radial-gradient(900px 380px at -10% 105%, rgba(244,166,35,.10), transparent 60%);}
 
-  header{background:linear-gradient(135deg, var(--sea) 0%, var(--wave) 68%, #29b3c4 100%);color:#fff;position:relative;overflow:hidden;padding:22px 20px 18px}
+  header{background:linear-gradient(135deg, var(--sea) 0%, var(--wave) 68%, #29b3c4 100%);color:#fff;position:relative;overflow:hidden;padding:22px 20px 34px}
   header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:26px;
     background:radial-gradient(14px 14px at 14px 0, var(--sand) 60%, transparent 62%) repeat-x;background-size:28px 26px}
   .eyebrow{font-size:12.5px;letter-spacing:.28em;text-transform:uppercase;opacity:.85;font-weight:500}
@@ -64,6 +64,8 @@
   .plan-head .ph-stay{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;background:#FFF3D6;color:#8a5b00;border:1px solid #F3DFA6;border-radius:999px;padding:3px 11px;font-weight:500}
   .plan-head .ph-move{font-size:12.5px;color:var(--sea);margin-top:8px;display:flex;align-items:flex-start;gap:6px}
   .plan-head .ph-sub{font-size:13px;color:var(--muted);margin-top:6px}
+  .plan-head .ph-alert{margin-top:10px;font-size:12.5px;line-height:1.5;background:#EDF3FB;border:1px solid #CFDEF2;border-left:4px solid #2A5FA8;border-radius:10px;padding:8px 11px;color:#1B4A8C}
+  .plan-head .ph-alert b{font-weight:700}
 
   .cond-bar{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
   .cond{display:inline-flex;align-items:center;gap:6px;background:#F1FAFB;border:1px solid #D7EEF1;border-radius:10px;padding:5px 9px;font-size:12px;line-height:1.3}
@@ -71,6 +73,9 @@
   .cond.moon{background:#F3F1FA;border-color:#E1DCF0}.cond.moon .cv{color:#6A57B0}
   .cond.uv{background:#FFF2EC;border-color:#F6D9CC}.cond.uv .cv{color:#C9552F}
   .cond.sun{background:#FFF7E6;border-color:#F3E2B4}.cond.sun .cv{color:#B57A00}
+  .cond.rain{background:#EDF3FB;border-color:#CFDEF2}.cond.rain .cv{color:#2A5FA8}
+  .cond.rain.heavy{background:#E7EEFA;border-color:#B9CDEC}.cond.rain.heavy .cv{color:#1B4A8C}
+  .cond.wave{background:#EAF7F9;border-color:#C8E7EC}.cond.wave .cv{color:#0E6E86}
 
   .timeline{padding:8px 14px 16px}
   .ti{display:grid;grid-template-columns:52px 1fr;gap:10px;position:relative;padding:9px 8px 9px 4px;border-radius:12px;transition:.15s}
@@ -87,6 +92,7 @@
   .ti .place .pin{font-size:11px}
   .ti .note{font-size:12px;color:var(--muted);margin-top:2px}
   .ti .dnote{font-size:11.5px;color:#0E7C79;background:#E7F7F3;border:1px solid #C9EEE6;border-radius:8px;padding:3px 8px;margin-top:5px;display:inline-flex;gap:5px;align-items:flex-start;line-height:1.4}
+  .ti .rnote{font-size:11.5px;color:#1B4A8C;background:#EDF3FB;border:1px solid #CFDEF2;border-radius:8px;padding:3px 8px;margin-top:5px;display:inline-flex;gap:5px;align-items:flex-start;line-height:1.4}
   .ti .route{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:11.5px;font-weight:600;color:#03875A;background:#EAF8F0;border:1px solid #BFE9D2;border-radius:8px;padding:4px 9px;text-decoration:none;line-height:1.35}
   .ti .route:hover{background:#dbf1e4}
   .ti .route .arr{color:var(--muted);font-weight:500}
@@ -132,7 +138,7 @@
     <span class="chip">🗓️ 8/16 – 8/18</span>
     <span class="chip">🚌 07:30 출발 · 14:30 귀가</span>
     <span class="chip">🚗 차 없이</span>
-    <span class="chip">🍽️ 맛집 탭 추가</span>
+    <span class="chip">🌧️ 8/16 종일 비 · 실내 대안 반영</span>
   </div>
 </header>
 
@@ -148,6 +154,7 @@
       <span class="lg"><i class="dot food"></i>식사·회</span>
       <span class="lg"><i class="dot cafe"></i>카페</span>
       <span class="lg"><i class="dot transport"></i>버스</span>
+      <span class="lg" id="fitAll" style="cursor:pointer;margin-left:auto;color:var(--sea);border:1px solid #D7EEF1;background:#F1FAFB;border-radius:8px;padding:2px 8px">🔎 속초까지 전체 보기</span>
     </div>
   </div>
 
@@ -170,6 +177,8 @@ const PLACES = {
   haenyeo:     {name:"해녀의집", addr:"전복죽·성게비빔밥 (9–15시)", lat:38.275157, lng:128.553161, type:"food", naver:"https://map.naver.com/p/search/아야진 해녀의집"},
   swimmingTurtle:{name:"스위밍터틀", addr:"아야진 대표 오션뷰 카페 · 루프탑", lat:38.279477, lng:128.553200, type:"cafe", naver:"https://map.naver.com/p/search/아야진 스위밍터틀"},
   hoe:         {name:"동해활어자연산전문점", addr:"아야진항 회센터 거리 (매일 10–21:30)", lat:38.272140, lng:128.556052, type:"food", naver:"https://map.naver.com/p/search/아야진 동해활어자연산전문점"},
+  onbutton:    {name:"On the Button", addr:"교암 북쪽 · 루프탑 오션뷰 카페 (주말 10–19시)", lat:38.296272, lng:128.547792, type:"cafe", naver:"https://map.naver.com/p/search/고성 On the Button"},
+  cafeHaebyeon:{name:"카페 해변길", addr:"아야진 숙소 바로 옆 · 10시 오픈, 식사도 가능", lat:38.274964, lng:128.553145, type:"cafe", naver:"https://map.naver.com/p/search/아야진 카페 해변길"},
 };
 
 // 맛집 탭 전용 큐레이션
@@ -217,47 +226,50 @@ const FOODLIST = [
 
 const DAYS = [
   {
-    date:"8/16", dow:"일", title:"고성 도착 · 교암해수욕장",
+    date:"8/16", dow:"일", title:"고성 도착 · 비 오는 날 실내 코스",
     stay:"하비치펜션 (교암)",
     move:"속초 도착 후 시내버스/택시로 하비치까지 약 20~30분",
-    cond:{sunrise:"05:43", sunset:"19:04", golden:"18:10~19:04", water:"약 24℃", moon:"가는 초승달", uv:"매우 높음"},
-    foot:"저녁은 <b>하비치 1층 셀프 바베큐</b>가 편해요(고기·해산물은 속초 하차 때 장보기). 첫날 물놀이는 하비치 바로 옆 <b>교암해수욕장</b>에서! 카페는 근처 <b>On the Button</b> 추천 → 맛집 탭 참고.",
+    cond:{sunrise:"05:43", sunset:"19:04", golden:"18:10~19:04", rain:"종일 비 · 26.9mm", rainLevel:"heavy",
+          wave:"0.4→1.1m (저녁 상승)", water:"약 25.5℃", moon:"가는 초승달", uv:"보통 (흐림)"},
+    alert:"<b>종일 비(강수량 약 27mm)</b>입니다. 물놀이·태닝·해변 사진은 <b>8/17·8/18로 이월</b>하고, 첫날은 실내 위주로 짰어요. 비는 <b>17시 이후 약해지고 18시쯤 그칠</b> 전망이라 저녁 해변 산책과 BBQ는 가능해요(대신 저녁에 바람이 강해집니다).",
+    foot:"우비·우산 챙기세요 ☔ 저녁은 <b>하비치 1층 셀프 바베큐</b>(고기·해산물은 속초 하차 때 장보기) — <b>바베큐장 지붕 유무는 체크인 때 확인</b>하고, 안 되면 실내 조리로 전환하세요. 실내 대안: <b>On the Button</b>(루프탑 카페·창가 바다뷰), 숙소에서 글리터 타투·돌멩이 놀이.",
     items:[
-      {time:"07:30", emoji:"🚌", title:"서울 출발", place:null, note:"동서울/센트럴 → 속초, 약 2시간 20분"},
-      {time:"10:30", emoji:"📍", title:"속초 도착", place:"sokcho", note:"시내버스 1·1-1 또는 택시로 하비치 이동"},
+      {time:"07:30", emoji:"🚌", title:"서울 출발", place:null, note:"동서울/센트럴 → 속초, 약 2시간 20분", rnote:"우비·우산·방수팩 · 젖을 옷 갈아입을 여벌 챙기기"},
+      {time:"10:30", emoji:"📍", title:"속초 도착 · 장보기", place:"sokcho", note:"시내버스 1·1-1 또는 택시로 하비치 이동", rnote:"비 와서 택시가 편해요 · BBQ 재료는 여기서 사서 이동"},
       {time:"11:00", emoji:"🧳", title:"하비치 짐 맡기기", place:"havichi"},
-      {time:"12:00", emoji:"🍚", title:"점심", place:"sodamjeong", note:"소담정 – 육전·물회냉면"},
-      {time:"13:00", emoji:"🪨", title:"돌멩이 동물 만들기", place:"havichiBeach"},
-      {time:"14:00", emoji:"🤿", title:"스노클링", place:"havichiBeach", dnote:"동해는 물때 영향 거의 없음 · 출발 전 파고·수온만 체크(여름 냉수대 주의)"},
-      {time:"15:30", emoji:"☀️", title:"태닝", place:"havichiBeach", dnote:"한낮 자외선 매우 강함 · 선크림 자주 덧바르기"},
-      {time:"16:30", emoji:"✨", title:"글리터 타투", place:"havichiBeach"},
-      {time:"17:30", emoji:"📷", title:"해변 사진", place:"havichiBeach", dnote:"골든아워 18:10~19:04 · 북쪽 능파대(도보 약 10분·BTS 앨범 촬영지 기암 포토스팟)도 추천"},
-      {time:"18:30", emoji:"🚿", title:"샤워·휴식", place:"havichi"},
-      {time:"19:00", emoji:"🍖", title:"저녁 (셀프 BBQ)", place:"havichi", note:"1층 바베큐장 이용"},
-      {time:"21:00", emoji:"🌙", title:"밤바다 산책", place:"havichiBeach", dnote:"초승달이라 하늘 어두워 별 보기 좋음 🌌"},
+      {time:"12:00", emoji:"🍚", title:"점심", place:"sodamjeong", note:"소담정 – 육전·물회냉면", rnote:"실내 · 비 오는 시간대라 여유 있게"},
+      {time:"13:30", emoji:"☕", title:"카페 (실내)", place:"onbutton", rnote:"비 피크 시간(13~17시) · 루프탑 대신 창가 바다뷰로. 하비치에서 약 1.9km(도보 30분 이상)라 비 오는 날엔 택시 5분"},
+      {time:"15:30", emoji:"✨", title:"숙소 휴식 · 글리터 타투", place:"havichi", rnote:"원래 해변에서 하려던 것 → 실내로 이동"},
+      {time:"17:30", emoji:"🚶", title:"교암해변 산책 · 돌멩이 줍기", place:"havichiBeach", dnote:"비 약해지는 시간대 · 파도 높아지니 물가 가까이 X", rnote:"비 계속 오면 생략하고 바로 저녁 준비"},
+      {time:"18:30", emoji:"🪨", title:"돌멩이 동물 만들기", place:"havichi", rnote:"실내 활동 · 주운 돌멩이로"},
+      {time:"19:00", emoji:"🍖", title:"저녁 (셀프 BBQ)", place:"havichi", note:"1층 바베큐장 이용", dnote:"18시 이후 비 그칠 전망 · 다만 바람 강해짐(불 조심)"},
+      {time:"21:00", emoji:"🌙", title:"밤바다 산책", place:"havichiBeach", dnote:"구름 많아 별은 어려울 수 있음 · 파고 1.1m·강풍이라 방파제·물가는 피하기"},
       {time:"22:00", emoji:"🛏️", title:"숙소", place:"havichi"},
     ]
   },
   {
     date:"8/17", dow:"월", title:"아야진 이동 · 스노클링 & 회",
     stay:"아야진 숙소 (해변길 139-7)",
-    move:"하비치 → 아야진 숙소 도보 약 15분 (짐 있으면 택시 5분)",
-    cond:{sunrise:"05:44", sunset:"19:03", golden:"18:10~19:03", water:"약 24℃", moon:"초승달(조금 차오름)", uv:"매우 높음"},
+    move:"하비치 → 아야진 숙소 도보 25분 안팎 (짐 있으면 택시 5분)",
+    cond:{sunrise:"05:44", sunset:"19:03", golden:"18:10~19:03", rain:"오전 그침 · 오후 흐림", rainLevel:"",
+          wave:"0.5~0.9m (오후로 잔잔)", water:"약 26℃", moon:"초승달(조금 차오름)", uv:"높음"},
+    alert:"비는 <b>오전에 그치고</b> 오후는 흐림(강수량 0.6mm)입니다. 파고도 0.5~0.9m로 <b>3일 중 물놀이 하기 가장 무난한 날</b>이에요. 8/16에 못 한 스노클링·태닝을 이날 몰아서 하세요. 오전엔 바람이 조금 있으니 <b>무지개 방파제 안쪽</b>부터 시작하는 걸 추천.",
     foot:"이날은 <b>회 먹는 날</b> 🐟 아야진항 회센터 거리에서 자연산으로(맛집 탭에 후보 3곳). <b>실제 일몰 19:03</b>이라 진짜 해질녘 사진은 저녁 식사 전후 무지개 방파제에서!",
     items:[
       {time:"07:30", emoji:"🌅", title:"기상·아침", place:"havichi", note:"하비치에서 간단히"},
       {time:"09:00", emoji:"🧳", title:"체크아웃", place:"havichi"},
-      {time:"09:30", emoji:"🚶", title:"아야진 숙소로 이동", place:"ayajinStay", note:"도보 15분 · 짐 있으면 택시"},
+      {time:"09:30", emoji:"🚶", title:"아야진 숙소로 이동", place:"ayajinStay", note:"도보 25분 안팎 · 짐 있으면 택시 5분", rnote:"전날 비로 길이 젖어 있으면 캐리어 끌기 힘듦 → 택시"},
+      {time:"10:00", emoji:"☕", title:"카페에서 대기 (얼리 체크인 안 될 때)", place:"cafeHaebyeon", note:"숙소 바로 옆 · 10시 오픈", dnote:"11시 짐 맡기기까지 약 1시간 공백을 여기서 · 피자·파스타도 됨"},
       {time:"11:00", emoji:"🧳", title:"짐 맡기기", place:"ayajinStay"},
       {time:"12:00", emoji:"🍚", title:"점심", place:"haenyeo", note:"해녀의집 – 전복죽·성게비빔밥"},
-      {time:"13:00", emoji:"🤿", title:"스노클링", place:"ayajinBeach", dnote:"물때보다 파고가 관건 · 방파제 안쪽이 잔잔"},
-      {time:"14:00", emoji:"☀️", title:"태닝", place:"ayajinBeach", dnote:"정오~오후 자외선 최고조 · 수분·선크림 챙기기"},
+      {time:"13:00", emoji:"🤿", title:"스노클링", place:"ayajinBeach", dnote:"파고 0.6~0.8m로 잔잔 · 그래도 방파제 안쪽이 시야 좋음"},
+      {time:"14:00", emoji:"☀️", title:"태닝", place:"ayajinBeach", dnote:"흐려도 자외선은 통과 · 선크림 챙기기"},
       {time:"15:30", emoji:"🤿", title:"다시 스노클링", place:"ayajinBeach"},
       {time:"16:30", emoji:"☕", title:"카페·휴식", place:"swimmingTurtle", dnote:"스위밍터틀 오션뷰(월 ~19시) · 숙소 옆 카페 해변길·아야트커피도 굿"},
       {time:"17:30", emoji:"📷", title:"해질녘 사진", place:"ayajinBeach", dnote:"실제 일몰 19:03 · 골든아워 18:10~, 블루아워 ~19:30"},
       {time:"18:30", emoji:"🚿", title:"샤워·휴식", place:"ayajinStay"},
       {time:"19:00", emoji:"🐟", title:"회", place:"hoe", note:"동해활어자연산전문점 (대안: 갈매기·해녀횟집)"},
-      {time:"21:00", emoji:"🌙", title:"밤바다 산책", place:"ayajinBeach", dnote:"달빛 약해 별 잘 보임 · 방파제 조명 조심"},
+      {time:"21:00", emoji:"🌙", title:"밤바다 산책", place:"ayajinBeach", dnote:"달빛 약해 별 잘 보임(구름 걷히면) · 방파제 조명 조심"},
       {time:"22:00", emoji:"🛏️", title:"숙소", place:"ayajinStay"},
     ]
   },
@@ -265,15 +277,17 @@ const DAYS = [
     date:"8/18", dow:"화", title:"마지막 물놀이 · 14:30 귀가",
     stay:"— (귀가)",
     move:"14:30 버스 → 아야진에서 13:30쯤 터미널로 출발 (택시 15~20분)",
-    cond:{sunrise:"05:45", sunset:"19:01", golden:"18:05~19:01", water:"약 24℃", moon:"초승달", uv:"매우 높음"},
+    cond:{sunrise:"05:45", sunset:"19:01", golden:"18:05~19:01", rain:"오전 맑음 · 오후 소나기 가능", rainLevel:"",
+          wave:"0.4~0.6m (가장 잔잔)", water:"약 26.5℃", moon:"초승달", uv:"매우 높음"},
+    alert:"<b>오전이 이번 여행의 베스트 타이밍</b>입니다 — 맑음, 기온 25~28℃, 파고 0.4~0.6m로 3일 중 가장 잔잔해요. 아침 물놀이를 넉넉히 잡으세요. 대신 <b>13시 이후 소나기 확률이 올라가니</b> 짐 정리는 미리, 터미널 이동 때 우산 하나는 손에.",
     foot:"⚠️ <b>섭국집(소담식당)은 화요일 휴무</b>. 아침은 숙소·편의점으로 간단히, 브런치는 9시 이후 해녀의집. 오후 일정은 <b>2:30 버스</b>에 맞춰 앞당겼어요.",
     items:[
-      {time:"07:30", emoji:"🌅", title:"기상·아침", place:"ayajinStay", dnote:"일출 05:45 · 화요일 섭국집 휴무 → 간단히"},
-      {time:"08:30", emoji:"🤿", title:"마지막 스노클링", place:"ayajinBeach", dnote:"오전은 바람 약해 대체로 잔잔 · 파고·수온 체크"},
-      {time:"10:00", emoji:"☀️", title:"마지막 태닝", place:"ayajinBeach", dnote:"자외선 이미 강한 시간대 · 선크림 필수"},
-      {time:"11:00", emoji:"🚿", title:"샤워·짐 정리", place:"ayajinStay"},
+      {time:"07:00", emoji:"🌅", title:"기상·아침", place:"ayajinStay", dnote:"일출 05:45 · 화요일 섭국집 휴무 → 간단히"},
+      {time:"08:00", emoji:"🤿", title:"마지막 스노클링", place:"ayajinBeach", dnote:"맑고 파고 0.5m 안팎 — 3일 중 가장 좋은 조건 · 수온 26℃대라 물도 따뜻"},
+      {time:"10:00", emoji:"☀️", title:"마지막 태닝", place:"ayajinBeach", dnote:"맑아서 자외선 매우 강함 · 선크림 필수"},
+      {time:"11:00", emoji:"🚿", title:"샤워·짐 정리", place:"ayajinStay", rnote:"오후 소나기 대비해 젖은 짐·우산은 꺼내기 쉽게"},
       {time:"12:00", emoji:"🍚", title:"점심", place:"haenyeo", note:"해녀의집 (9–15시)"},
-      {time:"13:00", emoji:"📷", title:"마지막 사진", place:"ayajinBeach"},
+      {time:"13:00", emoji:"📷", title:"마지막 사진", place:"ayajinBeach", rnote:"13시 이후 소나기 확률 상승 · 짧게"},
       {time:"13:30", emoji:"🚕", title:"버스터미널 이동", place:"sokcho", note:"택시 15~20분"},
       {time:"14:30", emoji:"🚌", title:"속초 출발", place:"sokcho"},
     ]
@@ -289,6 +303,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
 
 let layer = L.layerGroup().addTo(map);
 let routeLine = null;
+let allLatlngs = [];
 const markerById = {};
 
 function pinIcon(color,label){
@@ -311,6 +326,8 @@ function dayPlaces(day){
 }
 function condBar(c){
   return '<div class="cond-bar">'
+    +'<span class="cond rain '+(c.rainLevel||'')+'"><span class="ci">☔</span><span class="cl">강수</span> <span class="cv">'+c.rain+'</span></span>'
+    +'<span class="cond wave"><span class="ci">〰️</span><span class="cl">파고</span> <span class="cv">'+c.wave+'</span></span>'
     +'<span class="cond sun"><span class="ci">🌅</span><span class="cl">일출</span> <span class="cv">'+c.sunrise+'</span></span>'
     +'<span class="cond sun"><span class="ci">🌇</span><span class="cl">일몰</span> <span class="cv">'+c.sunset+'</span></span>'
     +'<span class="cond"><span class="ci">🌊</span><span class="cl">수온</span> <span class="cv">'+c.water+'</span></span>'
@@ -318,11 +335,18 @@ function condBar(c){
     +'<span class="cond uv"><span class="ci">🧴</span><span class="cl">자외선</span> <span class="cv">'+c.uv+'</span></span>'
     +'</div>';
 }
+const forecastNote =
+  '<div style="margin-top:9px;font-size:11.5px;line-height:1.5;color:var(--muted)">'
+  +'📌 <b style="color:var(--sea)">파고 판단 기준</b> — 위 파고는 아야진 앞 예보 모델값(기상청 <i>동해중부앞바다</i> 광역 예보는 같은 기간 1~2m로 더 보수적이에요). '
+  +'현장에서 <b style="color:var(--sea)">1.5m를 넘거나 파도가 부서지면</b> 스노클링은 시야가 안 나오고 이안류 위험이 있으니 <b style="color:var(--sea)">무지개 방파제 안쪽</b>으로 옮기거나 그날은 능파대·카페로 돌리세요. '
+  +'수온은 26℃ 안팎(냉수대 해제·고수온 주의보 발효 중)이라 물 온도는 걱정 없어요. <b style="color:var(--sea)">아침마다 아래 링크로 실황 재확인</b>.'
+  +'</div>';
 const liveLinks =
-  '<div class="links"><b style="align-self:center;color:var(--muted);font-weight:500">출발 전 확인:</b>'
+  '<div class="links"><b style="align-self:center;color:var(--muted);font-weight:500">매일 아침 확인:</b>'
   +'<a href="https://www.badatime.com/192/hour-cast" target="_blank" rel="noopener">속초 파고·바다날씨</a>'
+  +'<a href="https://www.windy.com/38.276/128.553?waves,38.276,128.553,11" target="_blank" rel="noopener">파고 지도(Windy)</a>'
   +'<a href="https://www.khoa.go.kr/oceangrid/khoa/koofs.do" target="_blank" rel="noopener">실시간 수온</a>'
-  +'<a href="https://www.weather.go.kr/" target="_blank" rel="noopener">기상청 예보</a></div>';
+  +'<a href="https://www.weather.go.kr/w/weather/forecast/short-term.do" target="_blank" rel="noopener">기상청 단기예보</a></div>';
 
 function haversine(aLat,aLng,bLat,bLng){
   const R=6371,r=Math.PI/180;
@@ -343,7 +367,8 @@ function routeChip(f,t){
   const mode=transit?'transit':'walk';
   const icon=transit?'🚌':'🚶';
   const label=transit?'버스·택시':'도보';
-  const timeTxt = transit ? '' : (' · 약 '+Math.max(1,Math.round(km/4.5*60))+'분');
+  // 직선거리 × 1.3(실제 경로 굴곡) ÷ 4.2km/h. 짐 있으면 더 걸립니다.
+  const timeTxt = transit ? '' : (' · 약 '+Math.max(1,Math.round(km*1.3/4.2*60))+'분');
   return '<a class="route" href="'+naverDir(f,t,mode)+'" target="_blank" rel="noopener">'
         +'🧭 '+f.name+' <span class="arr">→</span> '+t.name+' · '+icon+' '+label+timeTxt+' 길찾기</a>';
 }
@@ -359,12 +384,17 @@ function renderDay(idx){
     '<div class="ph-title">Day '+(idx+1)+' · '+day.date+' ('+day.dow+') — '+day.title+'</div>'
     +'<span class="ph-stay">🏠 '+day.stay+'</span>'
     +'<div class="ph-move">🧭 <span>'+day.move+'</span></div>'
-    + condBar(day.cond);
-  document.getElementById('foot').innerHTML = '💡 '+day.foot+liveLinks;
+    + condBar(day.cond)
+    + (day.alert ? '<div class="ph-alert">☔ '+day.alert+'</div>' : '');
+  document.getElementById('foot').innerHTML = '💡 '+day.foot+forecastNote+liveLinks;
 
   clearMap();
   const places = dayPlaces(day);
   const latlngs = [];
+  const focus = [];   // 지도 축척 기준: 속초터미널처럼 멀리 떨어진 지점은 제외해 현장 디테일을 살림
+  places.forEach(p=>{
+    if(p.type!=='transport') focus.push([p.lat,p.lng]);
+  });
   places.forEach(p=>{
     const color = TYPE_COLOR[p.type] || "#149AAE";
     const mk = L.marker([p.lat,p.lng], {icon:pinIcon(color,p.seq)}).addTo(layer);
@@ -376,7 +406,9 @@ function renderDay(idx){
     latlngs.push([p.lat,p.lng]);
   });
   if(latlngs.length>1) routeLine = L.polyline(latlngs, {color:'#149AAE',weight:3,opacity:.55,dashArray:'2 8',lineCap:'round'}).addTo(map);
-  if(latlngs.length) map.fitBounds(L.latLngBounds(latlngs).pad(0.28), {maxZoom:15});
+  const fitTargets = focus.length ? focus : latlngs;
+  if(fitTargets.length) map.fitBounds(L.latLngBounds(fitTargets).pad(0.25), {maxZoom:16});
+  allLatlngs = latlngs;
   setTimeout(()=>map.invalidateSize(), 60);
 
   const panel = document.getElementById('panel');
@@ -399,6 +431,7 @@ function renderDay(idx){
       +(p ? '<div class="place"><span class="seq">'+seqOf[it.place]+'</span><span class="pin">📍</span>'+p.name+'</div>' : '')
       +(it.note ? '<div class="note">'+it.note+'</div>' : '')
       +(it.dnote ? '<div class="dnote">🗓️ <span>'+it.dnote+'</span></div>' : '')
+      +(it.rnote ? '<div class="rnote">☔ <span>'+it.rnote+'</span></div>' : '')
       + routeHtml
       +'</div></div>';
     if(p) row.addEventListener('click', (e)=>{
@@ -436,7 +469,8 @@ function renderFood(){
     markerById['f'+n]=mk;
     latlngs.push([it.lat,it.lng]);
   }));
-  if(latlngs.length) map.fitBounds(L.latLngBounds(latlngs).pad(0.22), {maxZoom:15});
+  allLatlngs = latlngs;
+  if(latlngs.length) map.fitBounds(L.latLngBounds(latlngs).pad(0.22), {maxZoom:16});
   setTimeout(()=>map.invalidateSize(), 60);
 
   let html='';
@@ -477,6 +511,10 @@ foodTab.className='tab food';
 foodTab.innerHTML='<div class="dnum">EAT</div><div class="ddate">🍽️</div><div class="dsub">맛집</div>';
 foodTab.addEventListener('click', renderFood);
 tabsEl.appendChild(foodTab);
+
+document.getElementById('fitAll').addEventListener('click', ()=>{
+  if(allLatlngs.length) map.fitBounds(L.latLngBounds(allLatlngs).pad(0.2));
+});
 
 renderDay(0);
 window.addEventListener('resize', ()=>map.invalidateSize());
