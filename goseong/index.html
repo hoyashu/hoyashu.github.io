@@ -369,7 +369,7 @@ const EXP_CATS = ["교통","숙박","식사","카페","기타"];
 /* 구글시트 동기화.
    SYNC_URL이 비어 있으면 이 브라우저에만 저장(localStorage)되고, 채워지면 시트와 양방향 동기화된다.
    localStorage는 그대로 '캐시 + 오프라인 대기열' 역할을 한다 — 신호 약한 해변에서 넣어도 안 날아감. */
-const SYNC_URL = '';               // ← Apps Script 웹앱 URL (배포 후 여기에 심음)
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbwLb77Kzw5ITIIOyzL_2UEFX3XBt3O9i7KjIAvcsJH0puuh0971ADBLFzDTJK3_ukrM/exec';
 const SYNC_KEY = 'goseong2026';    // ← expense-sheet.gs의 SECRET과 동일해야 함
 let syncState = SYNC_URL ? 'idle' : 'off';   // off | idle | syncing | error
 
@@ -384,6 +384,15 @@ function expAll(){
   return EXPENSE_SEED.concat(st.added).filter(e=>st.hidden.indexOf(e.id)<0);
 }
 
+/* 구글시트가 "8/16"을 날짜 값으로 바꿔버려서 "Sun Aug 16 2026..."로 돌아온다 → 다시 "8/16"으로 */
+function normDate(d){
+  const s = String(d||'').trim();
+  if(/^\d{1,2}\/\d{1,2}$/.test(s)) return s;
+  const dt = new Date(s);
+  if(!isNaN(dt.getTime())) return (dt.getMonth()+1)+'/'+dt.getDate();
+  return s;
+}
+
 /* 서버 응답(items)을 로컬 상태로 접어 넣는다. 대기열(pending)은 남겨둔다. */
 function foldServerItems(items){
   const st = expStore();
@@ -392,7 +401,7 @@ function foldServerItems(items){
   items.forEach(it=>{
     if(it.deleted){ hidden.push(it.id); return; }
     if(EXPENSE_SEED.some(s=>s.id===it.id)) return;  // 시드는 코드에 있음
-    added.push({id:it.id, date:it.date, cat:it.cat, name:it.name, amount:it.amount, memo:it.memo});
+    added.push({id:it.id, date:normDate(it.date), cat:it.cat, name:it.name, amount:it.amount, memo:it.memo});
   });
   // 아직 서버에 못 올린 건 유지
   st.pending.forEach(op=>{
