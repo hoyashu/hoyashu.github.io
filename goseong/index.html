@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0E6E86">
+<title>고성 아야진 2박 3일 · 스노클링 여행</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --ink:#0B3644; --sea:#0E6E86; --wave:#149AAE; --wave-soft:#8FD3DE;
+    --sun:#F4A623; --coral:#EE6C56; --cafe:#5FA07A;
+    --sand:#FBF3E2; --paper:#FFFDF8; --line:#EADFC8;
+    --text:#14343E; --muted:#71828A; --shadow:0 10px 30px rgba(11,54,68,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:"Noto Sans KR",sans-serif;color:var(--text);background:var(--sand);-webkit-font-smoothing:antialiased;line-height:1.55}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;
+    background:radial-gradient(1200px 400px at 80% -5%, rgba(20,154,174,.10), transparent 60%),
+               radial-gradient(900px 380px at -10% 105%, rgba(244,166,35,.10), transparent 60%);}
+
+  header{background:linear-gradient(135deg, var(--sea) 0%, var(--wave) 68%, #29b3c4 100%);color:#fff;position:relative;overflow:hidden;padding:22px 20px 18px}
+  header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:26px;
+    background:radial-gradient(14px 14px at 14px 0, var(--sand) 60%, transparent 62%) repeat-x;background-size:28px 26px}
+  .eyebrow{font-size:12.5px;letter-spacing:.28em;text-transform:uppercase;opacity:.85;font-weight:500}
+  h1{font-family:"Jua",sans-serif;font-weight:400;font-size:29px;line-height:1.15;margin-top:4px;text-shadow:0 2px 8px rgba(0,0,0,.12)}
+  h1 .sun{color:#FFE08A}
+  .trip-meta{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px;font-size:13px}
+  .chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 11px;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+
+  .tabs{display:flex;gap:7px;padding:16px 16px 4px;max-width:1160px;margin:0 auto}
+  .tab{flex:1;background:var(--paper);border:1.5px solid var(--line);border-radius:16px 16px 6px 6px;padding:10px 6px;cursor:pointer;text-align:center;transition:.18s;box-shadow:0 2px 0 var(--line);position:relative;top:0}
+  .tab .dnum{font-family:"Jua",sans-serif;font-size:12px;color:var(--muted);letter-spacing:.04em}
+  .tab .ddate{font-family:"Jua",sans-serif;font-size:18px;line-height:1.1;color:var(--ink)}
+  .tab .dsub{font-size:11px;color:var(--muted);margin-top:1px}
+  .tab:hover{border-color:var(--wave-soft)}
+  .tab.active{border-color:var(--wave);top:2px;box-shadow:0 0 0 3px rgba(20,154,174,.14)}
+  .tab.active .ddate{color:var(--sea)}
+  .tab.active::before{content:"";position:absolute;left:0;right:0;top:-1.5px;height:4px;border-radius:8px;background:var(--wave)}
+  .tab.food.active{border-color:var(--coral);box-shadow:0 0 0 3px rgba(238,108,86,.16)}
+  .tab.food.active .ddate{color:var(--coral)}
+  .tab.food.active::before{background:var(--coral)}
+
+  .wrap{max-width:1160px;margin:0 auto;padding:8px 16px 40px;display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:900px){.wrap{grid-template-columns:1.05fr .95fr;align-items:start}.map-col{position:sticky;top:14px}}
+
+  .map-col{display:flex;flex-direction:column;gap:10px}
+  #map{height:52vh;min-height:340px;border-radius:20px;border:3px solid #fff;box-shadow:var(--shadow);background:#dfeef1}
+  @media(min-width:900px){#map{height:calc(100vh - 40px);max-height:720px}}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 12px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:9px 13px;font-size:12px;box-shadow:0 2px 8px rgba(11,54,68,.05)}
+  .legend b{font-weight:500;color:var(--muted);margin-right:2px}
+  .lg{display:inline-flex;align-items:center;gap:5px;font-weight:500}
+  .dot{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 2px #fff inset}
+  .dot.stay{background:var(--sun)} .dot.beach{background:var(--wave)} .dot.food{background:var(--coral)} .dot.cafe{background:var(--cafe)} .dot.transport{background:var(--ink)}
+
+  .plan-col{background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+  .plan-head{padding:16px 18px 14px;background:linear-gradient(180deg,#fff,#fdfaf1);border-bottom:1px dashed var(--line)}
+  .plan-head .ph-title{font-family:"Jua",sans-serif;font-size:20px;color:var(--ink)}
+  .plan-head .ph-stay{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;background:#FFF3D6;color:#8a5b00;border:1px solid #F3DFA6;border-radius:999px;padding:3px 11px;font-weight:500}
+  .plan-head .ph-move{font-size:12.5px;color:var(--sea);margin-top:8px;display:flex;align-items:flex-start;gap:6px}
+  .plan-head .ph-sub{font-size:13px;color:var(--muted);margin-top:6px}
+
+  .cond-bar{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .cond{display:inline-flex;align-items:center;gap:6px;background:#F1FAFB;border:1px solid #D7EEF1;border-radius:10px;padding:5px 9px;font-size:12px;line-height:1.3}
+  .cond .ci{font-size:14px}.cond .cl{color:var(--muted)}.cond .cv{font-weight:700;color:var(--sea)}
+  .cond.moon{background:#F3F1FA;border-color:#E1DCF0}.cond.moon .cv{color:#6A57B0}
+  .cond.uv{background:#FFF2EC;border-color:#F6D9CC}.cond.uv .cv{color:#C9552F}
+  .cond.sun{background:#FFF7E6;border-color:#F3E2B4}.cond.sun .cv{color:#B57A00}
+
+  .timeline{padding:8px 14px 16px}
+  .ti{display:grid;grid-template-columns:52px 1fr;gap:10px;position:relative;padding:9px 8px 9px 4px;border-radius:12px;transition:.15s}
+  .ti.clickable{cursor:pointer}.ti.clickable:hover{background:#F3FAFB}
+  .ti.active{background:#EAF7F9;box-shadow:inset 0 0 0 1.5px var(--wave-soft)}
+  .timeline .ti:not(:last-child)::before{content:"";position:absolute;left:26px;top:34px;bottom:-9px;width:2px;background:repeating-linear-gradient(var(--line) 0 5px, transparent 5px 9px)}
+  .ti .time{font-family:"Jua",sans-serif;font-size:13px;color:var(--muted);text-align:right;padding-top:2px;white-space:nowrap}
+  .ti .node{display:flex;gap:9px;align-items:flex-start}
+  .badge{width:30px;height:30px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:15px;background:#fff;box-shadow:0 0 0 2px #fff, 0 3px 8px rgba(11,54,68,.16);position:relative;z-index:1}
+  .badge.stay{outline:2px solid var(--sun)}.badge.beach{outline:2px solid var(--wave)}.badge.food{outline:2px solid var(--coral)}.badge.cafe{outline:2px solid var(--cafe)}.badge.transport{outline:2px solid var(--ink)}.badge.plain{outline:2px solid var(--line)}
+  .ti .body{min-width:0}
+  .ti .title{font-weight:700;font-size:15px;color:var(--text)}
+  .ti .place{font-size:12.5px;color:var(--sea);font-weight:500;margin-top:1px;display:inline-flex;align-items:center;gap:4px}
+  .ti .place .pin{font-size:11px}
+  .ti .note{font-size:12px;color:var(--muted);margin-top:2px}
+  .ti .dnote{font-size:11.5px;color:#0E7C79;background:#E7F7F3;border:1px solid #C9EEE6;border-radius:8px;padding:3px 8px;margin-top:5px;display:inline-flex;gap:5px;align-items:flex-start;line-height:1.4}
+  .ti .route{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:11.5px;font-weight:600;color:#03875A;background:#EAF8F0;border:1px solid #BFE9D2;border-radius:8px;padding:4px 9px;text-decoration:none;line-height:1.35}
+  .ti .route:hover{background:#dbf1e4}
+  .ti .route .arr{color:var(--muted);font-weight:500}
+  .ti .seq{display:inline-block;min-width:17px;height:17px;line-height:17px;text-align:center;background:var(--wave);color:#fff;border-radius:50%;font-size:10.5px;font-weight:700;margin-right:5px;vertical-align:1px}
+
+  /* food tab */
+  .food-sec{padding:6px 16px 4px}
+  .food-sec h3{font-family:"Jua",sans-serif;font-size:15px;color:var(--ink);margin:12px 0 6px;display:flex;align-items:center;gap:7px}
+  .food-sec h3 .tag{font-size:11px;color:var(--muted);font-family:"Noto Sans KR";font-weight:500}
+  .fcard{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:13px;margin-bottom:8px;cursor:pointer;transition:.15s;background:#fff}
+  .fcard:hover{border-color:var(--wave-soft);background:#F7FCFD}
+  .fcard.active{border-color:var(--coral);background:#FFF6F3}
+  .fcard .fnum{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:"Jua";font-size:13px;margin-top:1px}
+  .fcard .fname{font-weight:700;font-size:14.5px;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  .fcard .frate{font-size:11.5px;color:#C9552F;font-weight:700}
+  .fcard .fdesc{font-size:12.5px;color:var(--text);margin-top:2px}
+  .fcard .fmeta{font-size:11.5px;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+  .fcard .fmeta .hrs{color:var(--sea);font-weight:500}
+  .fcard .closed{color:#C9552F;font-weight:600}
+
+  .foot{padding:14px 18px 18px;border-top:1px dashed var(--line);font-size:12px;color:var(--muted);background:#fdfaf1}
+  .foot b{color:var(--sea);font-weight:500}
+  .foot .links{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+  .foot .links a{font-size:11.5px;color:var(--sea);text-decoration:none;border:1px solid #D7EEF1;background:#F1FAFB;border-radius:8px;padding:3px 9px;font-weight:500}
+
+  .pin-marker{background:transparent;border:none}
+  .pin-marker .pm{width:30px;height:30px;border-radius:50% 50% 50% 2px;transform:rotate(45deg);display:grid;place-items:center;box-shadow:0 4px 10px rgba(11,54,68,.35);border:2.5px solid #fff}
+  .pin-marker .pm span{transform:rotate(-45deg);color:#fff;font-weight:700;font-size:13px;font-family:"Jua",sans-serif}
+  .leaflet-popup-content-wrapper{border-radius:14px}
+  .leaflet-popup-content{margin:11px 14px;font-family:"Noto Sans KR",sans-serif}
+  .pop-t{font-family:"Jua",sans-serif;font-size:15px;color:var(--ink)}
+  .pop-a{font-size:12px;color:var(--muted);margin-top:2px}
+  .pop-times{margin-top:7px;display:flex;flex-wrap:wrap;gap:4px}
+  .pop-times span{font-size:11px;background:#EAF7F9;color:var(--sea);border-radius:6px;padding:2px 7px;font-weight:500}
+  .naver-link{display:inline-block;margin-top:8px;font-size:12px;color:#03C75A;font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Gangwon · Goseong · Ayajin</div>
+  <h1>아야진 <span class="sun">☀️</span> 스노클링 2박 3일</h1>
+  <div class="trip-meta">
+    <span class="chip">🗓️ 8/16 – 8/18</span>
+    <span class="chip">🚌 07:30 출발 · 14:30 귀가</span>
+    <span class="chip">🚗 차 없이</span>
+    <span class="chip">🍽️ 맛집 탭 추가</span>
+  </div>
+</header>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="wrap">
+  <div class="map-col">
+    <div id="map"></div>
+    <div class="legend">
+      <b>범례</b>
+      <span class="lg"><i class="dot stay"></i>숙소</span>
+      <span class="lg"><i class="dot beach"></i>해변·물놀이</span>
+      <span class="lg"><i class="dot food"></i>식사·회</span>
+      <span class="lg"><i class="dot cafe"></i>카페</span>
+      <span class="lg"><i class="dot transport"></i>버스</span>
+    </div>
+  </div>
+
+  <div class="plan-col">
+    <div class="plan-head" id="planHead"></div>
+    <div id="panel"></div>
+    <div class="foot" id="foot"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const PLACES = {
+  sokcho:      {name:"속초시외버스터미널", addr:"속초시 장안로 16", lat:38.210961, lng:128.591111, type:"transport", naver:"https://map.naver.com/p/search/속초시외버스터미널"},
+  havichi:     {name:"하비치펜션", addr:"고성군 토성면 교암길 8", lat:38.286198, lng:128.547962, type:"stay", naver:"https://naver.me/FQuFOIrX"},
+  havichiBeach:{name:"교암해수욕장", addr:"고성 토성면 교암리 · 하비치 옆 (동향·일출 명소, 능파대 인접)", lat:38.291059, lng:128.546962, type:"beach", naver:"https://map.naver.com/p/search/교암해수욕장"},
+  sodamjeong:  {name:"소담정", addr:"육전·냉면 · 하비치 근처", lat:38.279648, lng:128.548939, type:"food", naver:"https://map.naver.com/p/search/소담정 고성"},
+  ayajinStay:  {name:"아야진 숙소", addr:"토성면 아야진해변길 139-7 2층", lat:38.274565, lng:128.553234, type:"stay", naver:"https://map.naver.com/p/search/아야진해변길 139-7"},
+  ayajinBeach: {name:"아야진 해수욕장", addr:"토성면 · 무지개 방파제 (일몰 명당)", lat:38.276600, lng:128.553300, type:"beach", naver:"https://map.naver.com/p/search/아야진해수욕장"},
+  haenyeo:     {name:"해녀의집", addr:"전복죽·성게비빔밥 (9–15시)", lat:38.275157, lng:128.553161, type:"food", naver:"https://map.naver.com/p/search/아야진 해녀의집"},
+  swimmingTurtle:{name:"스위밍터틀", addr:"아야진 대표 오션뷰 카페 · 루프탑", lat:38.279477, lng:128.553200, type:"cafe", naver:"https://map.naver.com/p/search/아야진 스위밍터틀"},
+  hoe:         {name:"동해활어자연산전문점", addr:"아야진항 회센터 거리 (매일 10–21:30)", lat:38.272140, lng:128.556052, type:"food", naver:"https://map.naver.com/p/search/아야진 동해활어자연산전문점"},
+};
+
+// 맛집 탭 전용 큐레이션
+const FOODLIST = [
+  {sec:"🐟 회 · 해산물", tag:"저녁·회 먹는 날", items:[
+    {id:"donghae", name:"동해활어자연산전문점", rate:"4.1", hours:"매일 10:00–21:30", type:"food",
+     lat:38.272140, lng:128.556052, desc:"자연산 모둠회 코스가 유명 · 밑반찬·서비스회 알참, 마무리 매운탕 개운. 일정의 ‘회’ 메인 후보.",
+     naver:"https://map.naver.com/p/search/아야진 동해활어자연산전문점"},
+    {id:"gallmaegi", name:"갈매기횟집", rate:"3.4", hours:"매일 11:00–21:00", type:"food",
+     lat:38.272081, lng:128.555958, desc:"가성비·양 많고 친절 · 1인 3.5만원선. 대게도 취급.",
+     naver:"https://map.naver.com/p/search/아야진 갈매기횟집"},
+    {id:"haenyeoHoe", name:"해녀횟집", rate:"4.0", hours:"매일 10:00–21:00", type:"food",
+     lat:38.271836, lng:128.555572, desc:"물회가 별미 · 면·밥 넉넉, 부추전 추천. 매운탕도 깔끔.",
+     naver:"https://map.naver.com/p/search/아야진 해녀횟집"},
+    {id:"yurijip", name:"유리집식당", rate:"4.1", hours:"매일 9:30–20:00", type:"food",
+     lat:38.272823, lng:128.556545, desc:"그날 잡힌 생선 즉석 구이 정식 · 바다뷰. 회 말고 구이 원할 때.",
+     naver:"https://map.naver.com/p/search/아야진 유리집식당"},
+  ]},
+  {sec:"🍚 밥 · 해장 · 점심", tag:"아침·점심", items:[
+    {id:"haenyeoJip", name:"해녀의집", rate:"4.2", hours:"09:00–15:00 (수 휴무)", type:"food",
+     lat:38.275157, lng:128.553161, desc:"전복죽·성게비빔밥·성게미역국 · 아야진 해변 앞 대표 밥집. 브런치·점심에 딱.",
+     naver:"https://map.naver.com/p/search/아야진 해녀의집"},
+    {id:"sodamSik", name:"소담식당", rate:"4.3", hours:"08:00–18:30 (화 휴무)", type:"food",
+     lat:38.271616, lng:128.554913, desc:"아침 섭국(홍합국) 해장 최고 · 아침 일찍 여는 몇 안 되는 집. ※8/18(화) 휴무 주의.",
+     naver:"https://map.naver.com/p/search/아야진 소담식당"},
+    {id:"sodamjeongF", name:"소담정", rate:"4.2", hours:"낮 영업(전화확인)", type:"food",
+     lat:38.279648, lng:128.548939, desc:"육전·물회냉면 · 넓고 깔끔, 주차 편함. 하비치 근처라 첫날 점심에 좋음.",
+     naver:"https://map.naver.com/p/search/소담정 고성"},
+  ]},
+  {sec:"☕ 오션뷰 카페", tag:"휴식·해질녘", items:[
+    {id:"swimming", name:"스위밍터틀", rate:"4.3", hours:"평일 10:30–19 / 금~일 8~9시", type:"cafe",
+     lat:38.279477, lng:128.553200, desc:"아야진 대표 오션뷰 · ‘터널’ 입구와 루프탑 뷰가 시그니처, 바스크치즈케이크. (월요일 19시 마감)",
+     naver:"https://map.naver.com/p/search/아야진 스위밍터틀"},
+    {id:"cafeHaebyeon", name:"카페 해변길", rate:"4.3", hours:"10:00–19:00 (화 16시)", type:"cafe",
+     lat:38.274964, lng:128.553145, desc:"아야진 숙소 바로 옆 · 피자·파스타·돈까스도 되는 뷰맛집. 가볍게 끼니+커피.",
+     naver:"https://map.naver.com/p/search/아야진 카페 해변길"},
+    {id:"ayat", name:"아야트커피", rate:"4.2", hours:"09:00–19:00", type:"cafe",
+     lat:38.274920, lng:128.553429, desc:"해변 바로 앞 · 와플·샌드위치. 물놀이 사이 가볍게.",
+     naver:"https://map.naver.com/p/search/아야진 아야트커피"},
+    {id:"onbutton", name:"On the Button", rate:"4.3", hours:"평일 10:30–18 / 주말 10~19", type:"cafe",
+     lat:38.296272, lng:128.547792, desc:"하비치에서 도보권(교암 북쪽) · 루프탑 바다뷰. 첫날 카페로 좋음.",
+     naver:"https://map.naver.com/p/search/고성 On the Button"},
+  ]},
+];
+
+const DAYS = [
+  {
+    date:"8/16", dow:"일", title:"고성 도착 · 교암해수욕장",
+    stay:"하비치펜션 (교암)",
+    move:"속초 도착 후 시내버스/택시로 하비치까지 약 20~30분",
+    cond:{sunrise:"05:43", sunset:"19:04", golden:"18:10~19:04", water:"약 24℃", moon:"가는 초승달", uv:"매우 높음"},
+    foot:"저녁은 <b>하비치 1층 셀프 바베큐</b>가 편해요(고기·해산물은 속초 하차 때 장보기). 첫날 물놀이는 하비치 바로 옆 <b>교암해수욕장</b>에서! 카페는 근처 <b>On the Button</b> 추천 → 맛집 탭 참고.",
+    items:[
+      {time:"07:30", emoji:"🚌", title:"서울 출발", place:null, note:"동서울/센트럴 → 속초, 약 2시간 20분"},
+      {time:"10:30", emoji:"📍", title:"속초 도착", place:"sokcho", note:"시내버스 1·1-1 또는 택시로 하비치 이동"},
+      {time:"11:00", emoji:"🧳", title:"하비치 짐 맡기기", place:"havichi"},
+      {time:"12:00", emoji:"🍚", title:"점심", place:"sodamjeong", note:"소담정 – 육전·물회냉면"},
+      {time:"13:00", emoji:"🪨", title:"돌멩이 동물 만들기", place:"havichiBeach"},
+      {time:"14:00", emoji:"🤿", title:"스노클링", place:"havichiBeach", dnote:"동해는 물때 영향 거의 없음 · 출발 전 파고·수온만 체크(여름 냉수대 주의)"},
+      {time:"15:30", emoji:"☀️", title:"태닝", place:"havichiBeach", dnote:"한낮 자외선 매우 강함 · 선크림 자주 덧바르기"},
+      {time:"16:30", emoji:"✨", title:"글리터 타투", place:"havichiBeach"},
+      {time:"17:30", emoji:"📷", title:"해변 사진", place:"havichiBeach", dnote:"골든아워 18:10~19:04 · 북쪽 능파대(도보 약 10분·BTS 앨범 촬영지 기암 포토스팟)도 추천"},
+      {time:"18:30", emoji:"🚿", title:"샤워·휴식", place:"havichi"},
+      {time:"19:00", emoji:"🍖", title:"저녁 (셀프 BBQ)", place:"havichi", note:"1층 바베큐장 이용"},
+      {time:"21:00", emoji:"🌙", title:"밤바다 산책", place:"havichiBeach", dnote:"초승달이라 하늘 어두워 별 보기 좋음 🌌"},
+      {time:"22:00", emoji:"🛏️", title:"숙소", place:"havichi"},
+    ]
+  },
+  {
+    date:"8/17", dow:"월", title:"아야진 이동 · 스노클링 & 회",
+    stay:"아야진 숙소 (해변길 139-7)",
+    move:"하비치 → 아야진 숙소 도보 약 15분 (짐 있으면 택시 5분)",
+    cond:{sunrise:"05:44", sunset:"19:03", golden:"18:10~19:03", water:"약 24℃", moon:"초승달(조금 차오름)", uv:"매우 높음"},
+    foot:"이날은 <b>회 먹는 날</b> 🐟 아야진항 회센터 거리에서 자연산으로(맛집 탭에 후보 3곳). <b>실제 일몰 19:03</b>이라 진짜 해질녘 사진은 저녁 식사 전후 무지개 방파제에서!",
+    items:[
+      {time:"07:30", emoji:"🌅", title:"기상·아침", place:"havichi", note:"하비치에서 간단히"},
+      {time:"09:00", emoji:"🧳", title:"체크아웃", place:"havichi"},
+      {time:"09:30", emoji:"🚶", title:"아야진 숙소로 이동", place:"ayajinStay", note:"도보 15분 · 짐 있으면 택시"},
+      {time:"11:00", emoji:"🧳", title:"짐 맡기기", place:"ayajinStay"},
+      {time:"12:00", emoji:"🍚", title:"점심", place:"haenyeo", note:"해녀의집 – 전복죽·성게비빔밥"},
+      {time:"13:00", emoji:"🤿", title:"스노클링", place:"ayajinBeach", dnote:"물때보다 파고가 관건 · 방파제 안쪽이 잔잔"},
+      {time:"14:00", emoji:"☀️", title:"태닝", place:"ayajinBeach", dnote:"정오~오후 자외선 최고조 · 수분·선크림 챙기기"},
+      {time:"15:30", emoji:"🤿", title:"다시 스노클링", place:"ayajinBeach"},
+      {time:"16:30", emoji:"☕", title:"카페·휴식", place:"swimmingTurtle", dnote:"스위밍터틀 오션뷰(월 ~19시) · 숙소 옆 카페 해변길·아야트커피도 굿"},
+      {time:"17:30", emoji:"📷", title:"해질녘 사진", place:"ayajinBeach", dnote:"실제 일몰 19:03 · 골든아워 18:10~, 블루아워 ~19:30"},
+      {time:"18:30", emoji:"🚿", title:"샤워·휴식", place:"ayajinStay"},
+      {time:"19:00", emoji:"🐟", title:"회", place:"hoe", note:"동해활어자연산전문점 (대안: 갈매기·해녀횟집)"},
+      {time:"21:00", emoji:"🌙", title:"밤바다 산책", place:"ayajinBeach", dnote:"달빛 약해 별 잘 보임 · 방파제 조명 조심"},
+      {time:"22:00", emoji:"🛏️", title:"숙소", place:"ayajinStay"},
+    ]
+  },
+  {
+    date:"8/18", dow:"화", title:"마지막 물놀이 · 14:30 귀가",
+    stay:"— (귀가)",
+    move:"14:30 버스 → 아야진에서 13:30쯤 터미널로 출발 (택시 15~20분)",
+    cond:{sunrise:"05:45", sunset:"19:01", golden:"18:05~19:01", water:"약 24℃", moon:"초승달", uv:"매우 높음"},
+    foot:"⚠️ <b>섭국집(소담식당)은 화요일 휴무</b>. 아침은 숙소·편의점으로 간단히, 브런치는 9시 이후 해녀의집. 오후 일정은 <b>2:30 버스</b>에 맞춰 앞당겼어요.",
+    items:[
+      {time:"07:30", emoji:"🌅", title:"기상·아침", place:"ayajinStay", dnote:"일출 05:45 · 화요일 섭국집 휴무 → 간단히"},
+      {time:"08:30", emoji:"🤿", title:"마지막 스노클링", place:"ayajinBeach", dnote:"오전은 바람 약해 대체로 잔잔 · 파고·수온 체크"},
+      {time:"10:00", emoji:"☀️", title:"마지막 태닝", place:"ayajinBeach", dnote:"자외선 이미 강한 시간대 · 선크림 필수"},
+      {time:"11:00", emoji:"🚿", title:"샤워·짐 정리", place:"ayajinStay"},
+      {time:"12:00", emoji:"🍚", title:"점심", place:"haenyeo", note:"해녀의집 (9–15시)"},
+      {time:"13:00", emoji:"📷", title:"마지막 사진", place:"ayajinBeach"},
+      {time:"13:30", emoji:"🚕", title:"버스터미널 이동", place:"sokcho", note:"택시 15~20분"},
+      {time:"14:30", emoji:"🚌", title:"속초 출발", place:"sokcho"},
+    ]
+  }
+];
+
+const TYPE_COLOR = {stay:"#F4A623", beach:"#149AAE", food:"#EE6C56", cafe:"#5FA07A", transport:"#0B3644"};
+const map = L.map('map', {scrollWheelZoom:false, zoomControl:false});
+L.control.zoom({position:'bottomright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19, subdomains:'abcd'
+}).addTo(map);
+
+let layer = L.layerGroup().addTo(map);
+let routeLine = null;
+const markerById = {};
+
+function pinIcon(color,label){
+  return L.divIcon({className:'pin-marker',
+    html:'<div class="pm" style="background:'+color+'"><span>'+label+'</span></div>',
+    iconSize:[30,30], iconAnchor:[8,28], popupAnchor:[6,-26]});
+}
+function clearMap(){
+  layer.clearLayers();
+  if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
+  Object.keys(markerById).forEach(k=>delete markerById[k]);
+}
+function dayPlaces(day){
+  const order=[]; const m={};
+  day.items.forEach(it=>{ if(!it.place) return;
+    if(!m[it.place]){ m[it.place]={id:it.place,times:[]}; order.push(it.place); }
+    m[it.place].times.push({time:it.time,title:it.title,emoji:it.emoji});
+  });
+  return order.map((id,i)=>Object.assign({seq:i+1,id,times:m[id].times}, PLACES[id]));
+}
+function condBar(c){
+  return '<div class="cond-bar">'
+    +'<span class="cond sun"><span class="ci">🌅</span><span class="cl">일출</span> <span class="cv">'+c.sunrise+'</span></span>'
+    +'<span class="cond sun"><span class="ci">🌇</span><span class="cl">일몰</span> <span class="cv">'+c.sunset+'</span></span>'
+    +'<span class="cond"><span class="ci">🌊</span><span class="cl">수온</span> <span class="cv">'+c.water+'</span></span>'
+    +'<span class="cond moon"><span class="ci">🌙</span><span class="cl">달</span> <span class="cv">'+c.moon+'</span></span>'
+    +'<span class="cond uv"><span class="ci">🧴</span><span class="cl">자외선</span> <span class="cv">'+c.uv+'</span></span>'
+    +'</div>';
+}
+const liveLinks =
+  '<div class="links"><b style="align-self:center;color:var(--muted);font-weight:500">출발 전 확인:</b>'
+  +'<a href="https://www.badatime.com/192/hour-cast" target="_blank" rel="noopener">속초 파고·바다날씨</a>'
+  +'<a href="https://www.khoa.go.kr/oceangrid/khoa/koofs.do" target="_blank" rel="noopener">실시간 수온</a>'
+  +'<a href="https://www.weather.go.kr/" target="_blank" rel="noopener">기상청 예보</a></div>';
+
+function haversine(aLat,aLng,bLat,bLng){
+  const R=6371,r=Math.PI/180;
+  const dLat=(bLat-aLat)*r, dLng=(bLng-aLng)*r;
+  const s=Math.sin(dLat/2)**2+Math.cos(aLat*r)*Math.cos(bLat*r)*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+// 네이버 길찾기 딥링크 (좌표는 경도,위도 순)
+function naverDir(f,t,mode){
+  return 'https://map.naver.com/p/directions/'
+    +f.lng+','+f.lat+','+encodeURIComponent(f.name)+',,/'
+    +t.lng+','+t.lat+','+encodeURIComponent(t.name)+',,/-/'+mode;
+}
+function routeChip(f,t){
+  const km=haversine(f.lat,f.lng,t.lat,t.lng);
+  if(km<0.28) return ''; // 같은 구역 초근거리는 생략
+  const transit=(f.type==='transport'||t.type==='transport'||km>1.7);
+  const mode=transit?'transit':'walk';
+  const icon=transit?'🚌':'🚶';
+  const label=transit?'버스·택시':'도보';
+  const timeTxt = transit ? '' : (' · 약 '+Math.max(1,Math.round(km/4.5*60))+'분');
+  return '<a class="route" href="'+naverDir(f,t,mode)+'" target="_blank" rel="noopener">'
+        +'🧭 '+f.name+' <span class="arr">→</span> '+t.name+' · '+icon+' '+label+timeTxt+' 길찾기</a>';
+}
+
+function setActiveTab(idx){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', i===idx));
+}
+
+function renderDay(idx){
+  setActiveTab(idx);
+  const day = DAYS[idx];
+  document.getElementById('planHead').innerHTML =
+    '<div class="ph-title">Day '+(idx+1)+' · '+day.date+' ('+day.dow+') — '+day.title+'</div>'
+    +'<span class="ph-stay">🏠 '+day.stay+'</span>'
+    +'<div class="ph-move">🧭 <span>'+day.move+'</span></div>'
+    + condBar(day.cond);
+  document.getElementById('foot').innerHTML = '💡 '+day.foot+liveLinks;
+
+  clearMap();
+  const places = dayPlaces(day);
+  const latlngs = [];
+  places.forEach(p=>{
+    const color = TYPE_COLOR[p.type] || "#149AAE";
+    const mk = L.marker([p.lat,p.lng], {icon:pinIcon(color,p.seq)}).addTo(layer);
+    const timesHtml = p.times.map(t=>'<span>'+t.emoji+' '+t.time+' '+t.title+'</span>').join('');
+    mk.bindPopup('<div class="pop-t">'+p.seq+'. '+p.name+'</div><div class="pop-a">'+p.addr+'</div>'
+      +'<div class="pop-times">'+timesHtml+'</div>'
+      +'<a class="naver-link" href="'+p.naver+'" target="_blank" rel="noopener">네이버지도에서 열기 →</a>');
+    markerById[p.id]=mk;
+    latlngs.push([p.lat,p.lng]);
+  });
+  if(latlngs.length>1) routeLine = L.polyline(latlngs, {color:'#149AAE',weight:3,opacity:.55,dashArray:'2 8',lineCap:'round'}).addTo(map);
+  if(latlngs.length) map.fitBounds(L.latLngBounds(latlngs).pad(0.28), {maxZoom:15});
+  setTimeout(()=>map.invalidateSize(), 60);
+
+  const panel = document.getElementById('panel');
+  panel.innerHTML = '<div class="timeline" id="timeline"></div>';
+  const tl = document.getElementById('timeline');
+  const seqOf={}; places.forEach(p=>seqOf[p.id]=p.seq);
+  let prevPlace=null;
+  day.items.forEach(it=>{
+    const p = it.place ? PLACES[it.place] : null;
+    const type = p ? p.type : 'plain';
+    let routeHtml='';
+    if(p && prevPlace && it.place!==prevPlace) routeHtml = routeChip(PLACES[prevPlace], p);
+    if(p) prevPlace = it.place;
+    const row = document.createElement('div');
+    row.className = 'ti' + (p ? ' clickable' : '');
+    row.innerHTML =
+      '<div class="time">'+it.time+'</div>'
+      +'<div class="node"><div class="badge '+type+'">'+it.emoji+'</div>'
+      +'<div class="body"><div class="title">'+it.title+'</div>'
+      +(p ? '<div class="place"><span class="seq">'+seqOf[it.place]+'</span><span class="pin">📍</span>'+p.name+'</div>' : '')
+      +(it.note ? '<div class="note">'+it.note+'</div>' : '')
+      +(it.dnote ? '<div class="dnote">🗓️ <span>'+it.dnote+'</span></div>' : '')
+      + routeHtml
+      +'</div></div>';
+    if(p) row.addEventListener('click', (e)=>{
+      if(e.target.closest('.route')) return;
+      document.querySelectorAll('.ti').forEach(x=>x.classList.remove('active'));
+      row.classList.add('active');
+      const mk = markerById[it.place];
+      if(mk){ map.panTo(mk.getLatLng(),{animate:true}); mk.openPopup(); }
+    });
+    tl.appendChild(row);
+  });
+}
+
+function renderFood(){
+  setActiveTab(3);
+  document.getElementById('planHead').innerHTML =
+    '<div class="ph-title">🍽️ 아야진 맛집 지도</div>'
+    +'<div class="ph-sub">회·해장밥·오션뷰 카페를 한 곳에. 카드를 누르면 지도에서 위치를 볼 수 있어요.</div>';
+  document.getElementById('foot').innerHTML =
+    '💡 성수기 저녁 <b>회센터 거리</b>는 대기가 생길 수 있어요(가능하면 이른 저녁). 영업시간·휴무는 변동될 수 있으니 방문 전 <b>전화 확인</b> 추천. ⭐평점은 구글 기준입니다.';
+
+  clearMap();
+  const latlngs=[]; let n=0;
+  FOODLIST.forEach(g=>g.items.forEach(it=>{
+    n++; it._n=n;
+    const color = TYPE_COLOR[it.type];
+    const mk = L.marker([it.lat,it.lng], {icon:pinIcon(color,n)}).addTo(layer);
+    const base = haversine(it.lat,it.lng,PLACES.ayajinStay.lat,PLACES.ayajinStay.lng)
+               <= haversine(it.lat,it.lng,PLACES.havichi.lat,PLACES.havichi.lng)
+               ? PLACES.ayajinStay : PLACES.havichi;
+    mk.bindPopup('<div class="pop-t">'+n+'. '+it.name+'</div>'
+      +'<div class="pop-a">⭐ '+it.rate+' · '+it.hours+'</div>'
+      +'<a class="naver-link" href="'+it.naver+'" target="_blank" rel="noopener">네이버지도에서 열기 →</a>'
+      +'<br><a class="naver-link" style="color:#03875A" href="'+naverDir(base,{lng:it.lng,lat:it.lat,name:it.name},'walk')+'" target="_blank" rel="noopener">🧭 '+base.name+'에서 길찾기 →</a>');
+    markerById['f'+n]=mk;
+    latlngs.push([it.lat,it.lng]);
+  }));
+  if(latlngs.length) map.fitBounds(L.latLngBounds(latlngs).pad(0.22), {maxZoom:15});
+  setTimeout(()=>map.invalidateSize(), 60);
+
+  let html='';
+  FOODLIST.forEach(g=>{
+    html += '<div class="food-sec"><h3>'+g.sec+' <span class="tag">· '+g.tag+'</span></h3>';
+    g.items.forEach(it=>{
+      const color = TYPE_COLOR[it.type];
+      const closed = it.hours.indexOf('휴무')>-1 ? '<span class="closed">'+it.hours+'</span>' : '<span class="hrs">'+it.hours+'</span>';
+      html += '<div class="fcard" data-n="'+it._n+'">'
+        +'<div class="fnum" style="background:'+color+'">'+it._n+'</div>'
+        +'<div><div class="fname">'+it.name+' <span class="frate">⭐ '+it.rate+'</span></div>'
+        +'<div class="fdesc">'+it.desc+'</div>'
+        +'<div class="fmeta">🕒 '+closed+'</div></div></div>';
+    });
+    html += '</div>';
+  });
+  const panel = document.getElementById('panel');
+  panel.innerHTML = html;
+  panel.querySelectorAll('.fcard').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      panel.querySelectorAll('.fcard').forEach(c=>c.classList.remove('active'));
+      card.classList.add('active');
+      const mk = markerById['f'+card.getAttribute('data-n')];
+      if(mk){ map.panTo(mk.getLatLng(),{animate:true}); mk.openPopup(); }
+    });
+  });
+}
+
+const tabsEl = document.getElementById('tabs');
+DAYS.forEach((d,i)=>{
+  const el=document.createElement('div'); el.className='tab';
+  el.innerHTML='<div class="dnum">DAY '+(i+1)+'</div><div class="ddate">'+d.date+'</div><div class="dsub">'+d.dow+'요일</div>';
+  el.addEventListener('click', ()=>renderDay(i));
+  tabsEl.appendChild(el);
+});
+const foodTab = document.createElement('div');
+foodTab.className='tab food';
+foodTab.innerHTML='<div class="dnum">EAT</div><div class="ddate">🍽️</div><div class="dsub">맛집</div>';
+foodTab.addEventListener('click', renderFood);
+tabsEl.appendChild(foodTab);
+
+renderDay(0);
+window.addEventListener('resize', ()=>map.invalidateSize());
+</script>
+</body>
+</html>
