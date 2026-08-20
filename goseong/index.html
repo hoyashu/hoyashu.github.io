@@ -152,6 +152,18 @@
   .exp-form .f-amt{flex:1 1 110px}
   .exp-form .f-date,.exp-form .f-cat,.exp-form .f-basis{flex:0 1 auto}
   .exp-form .f-memo{flex:1 1 100%}
+  .exp-form.editing{background:#FFF7E6;border-color:#F3E2B4}
+  .exp-form.editing h4{color:#B57A00}
+  .exp-cancel{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-family:"Jua",sans-serif;font-size:13px;cursor:pointer}
+  .payer{font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 7px;border:1px solid;white-space:nowrap}
+  .payer-소진{background:#EAF3FB;border-color:#CBE0F2;color:#2A5FA8}
+  .payer-희윤{background:#FDEEF4;border-color:#F3CFDF;color:#B03A6B}
+  .payer-공동{background:#F1F1F4;border-color:#DEDEE5;color:#5B5B6B}
+  .exp-edit{border:none;background:none;cursor:pointer;font-size:13px;padding:2px 4px;opacity:.5}
+  .exp-edit:hover{opacity:1}
+  .exp-settle{border:1px solid #E4E0F2;background:linear-gradient(180deg,#F7F6FC,#fff);border-radius:14px;padding:11px 13px;margin-bottom:12px;font-size:12.5px;line-height:1.6}
+  .exp-settle .st{font-family:"Jua",sans-serif;font-size:16px;color:#5B4BA8}
+  .exp-settle .sub{color:var(--muted);font-size:11.5px;margin-top:3px}
   .exp-add{background:#5B4BA8;color:#fff;border:none;border-radius:9px;padding:8px 16px;font-family:"Jua",sans-serif;font-size:13px;cursor:pointer}
   .exp-add:hover{background:#4b3d90}
   .exp-tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
@@ -367,6 +379,20 @@ const EXP_KEY = 'goseong_expense_v1';
 // localStorage는 마지막으로 받아온 목록의 캐시 역할이라, 신호 없어도 화면은 뜬다.
 const EXPENSE_SEED = [];
 const EXP_CATS = ["교통","숙박","식사","카페","기타"];
+const PAYERS = ["소진","희윤","공동"];
+/* 구글시트 컬럼을 못 늘리니(백엔드 재배포 필요) 메모 끝에 "지출자:소진"으로 붙여 저장한다.
+   시트에서 눈으로 봐도 읽히고, 화면에서는 배지로 떼어 보여준다. */
+const PAYER_RE = /\s*·?\s*지출자\s*:\s*(소진|희윤|공동)\s*$/;
+function splitPayer(memo){
+  const raw = String(memo||'');
+  const m = raw.match(PAYER_RE);
+  return { memo: raw.replace(PAYER_RE,'').trim(), payer: m ? m[1] : '공동' };
+}
+function joinPayer(memo, payer){
+  const base = String(memo||'').replace(PAYER_RE,'').trim();
+  return base ? (base + ' · 지출자:' + payer) : ('지출자:' + payer);
+}
+let expEditId = null;   // 지금 수정 중인 항목
 
 /* 구글시트 동기화.
    SYNC_URL이 비어 있으면 이 브라우저에만 저장(localStorage)되고, 채워지면 시트와 양방향 동기화된다.
@@ -794,24 +820,45 @@ function renderExpense(){
   document.querySelector('.wrap').classList.add('solo');
   document.querySelector('.map-col').style.display = 'none';
 
-  const list = expAll().slice().sort((a,b)=>dateKey(a.date)-dateKey(b.date));
+  // 시트에 쌓인 순서 그대로 = 최근에 추가한 게 맨 아래
+  const list = expAll().map(e=>{
+    const sp = splitPayer(e.memo);
+    return Object.assign({}, e, {memo: sp.memo, payer: sp.payer});
+  });
   const total = list.reduce((s,e)=>s+e.amount,0);
   const byCat = {};
-  list.forEach(e=>{ byCat[e.cat] = (byCat[e.cat]||0)+e.amount; });
+  const paid  = {"소진":0, "희윤":0};
+  list.forEach(e=>{
+    byCat[e.cat] = (byCat[e.cat]||0)+e.amount;
+    if(e.payer === '공동'){ paid["소진"] += e.amount/2; paid["희윤"] += e.amount/2; }
+    else paid[e.payer] += e.amount;
+  });
+  const share = total / HEADCOUNT;
+  const diff  = Math.round(paid["소진"] - share);   // >0 이면 소진이 더 냈다
 
   document.getElementById('planHead').innerHTML =
     '<div class="ph-title">💰 여행 지출</div>'
-    +'<div class="ph-sub">2인 합계로 기록하고, 오른쪽에 엔빵(1인당) 금액을 같이 보여줍니다. 여행 중에 아래 폼으로 계속 추가하세요.</div>';
+    +'<div class="ph-sub">2인 합계로 기록하고, 엔빵(1인당)과 <b>누가 냈는지</b>를 같이 봅니다. 항목을 누르면 수정할 수 있어요.</div>';
   document.getElementById('foot').innerHTML = SYNC_URL
     ? '💡 모든 지출은 <b>구글시트에 저장</b>됩니다. 폰·노트북 어디서 넣어도 같은 목록이고, <b>구글시트 앱에서 직접 고쳐도</b> 됩니다(다음에 열 때 반영). '
-      +'신호가 없으면 입력이 잠시 대기했다가 자동으로 올라가요.'
-    : '💡 추가한 항목은 <b>이 브라우저에만 저장</b>돼요(localStorage). 여행 끝나고 <b>📋 복사</b> 눌러서 저한테 붙여주시면 위키 지출 표에 합쳐 넣겠습니다.';
+      +'지출자는 시트 메모 칸에 <b>지출자:소진</b> 형태로 같이 들어갑니다.'
+    : '💡 추가한 항목은 <b>이 브라우저에만 저장</b>돼요(localStorage).';
 
   let html = '<div class="exp-sec">';
   html += '<div class="exp-sum">'
     +'<div class="exp-card total"><div class="el">합계 (2인)</div><div class="ev">'+won(total)+'</div></div>'
-    +'<div class="exp-card total"><div class="el">엔빵 (1인당)</div><div class="ev">'+won(Math.round(total/HEADCOUNT))+'</div></div>'
+    +'<div class="exp-card total"><div class="el">엔빵 (1인당)</div><div class="ev">'+won(Math.round(share))+'</div></div>'
     +'</div>';
+
+  // 정산
+  html += '<div class="exp-settle">'
+    + (diff === 0
+        ? '<div class="st">✅ 정산 끝 — 딱 맞아요</div>'
+        : '<div class="st">💸 '+(diff>0 ? '희윤 → 소진' : '소진 → 희윤')+' <b>'+won(Math.abs(diff))+'</b></div>')
+    + '<div class="sub">소진이 낸 돈 '+won(Math.round(paid["소진"]))+' · 희윤이 낸 돈 '+won(Math.round(paid["희윤"]))
+    + ' · 각자 부담해야 할 몫 '+won(Math.round(share))+'</div>'
+    + '<div class="sub">※ 지출자가 <b>공동</b>인 항목은 반씩 낸 것으로 계산합니다.</div>'
+    + '</div>';
 
   html += '<div class="exp-cats">';
   EXP_CATS.forEach(c=>{ if(byCat[c]) html += '<span class="exp-cat cat-'+c+'">'+c+' '+won(byCat[c])+'</span>'; });
@@ -827,28 +874,38 @@ function renderExpense(){
     html += '<tr>'
       +'<td class="edate">'+e.date+'</td>'
       +'<td><span class="exp-cat cat-'+e.cat+'" style="margin-right:5px">'+e.cat+'</span>'
+      +'<span class="payer payer-'+e.payer+'" style="margin-right:5px">'+e.payer+'</span>'
       +'<span class="ename">'+e.name+'</span>'
       +(e.memo ? '<div class="ememo">'+e.memo+'</div>' : '')+'</td>'
       +'<td class="amt">'+won(e.amount)+'</td>'
       +'<td class="per">'+won(Math.round(e.amount/HEADCOUNT))+'</td>'
-      +'<td><button class="exp-del" data-del="'+e.id+'" title="삭제">✕</button></td>'
+      +'<td style="white-space:nowrap">'
+      +'<button class="exp-edit" data-edit="'+e.id+'" title="수정">✏️</button>'
+      +'<button class="exp-del" data-del="'+e.id+'" title="삭제">✕</button></td>'
       +'</tr>';
   });
   html += '</tbody></table>';
 
-  html += '<div class="exp-form">'
-    +'<h4>➕ 지출 추가</h4>'
+  const ed = expEditId ? list.filter(function(x){return x.id===expEditId;})[0] : null;
+  const cur = ed || {date:'8/16', cat:'식사', name:'', amount:'', memo:'', payer:(localStorage.getItem('goseong_last_payer')||'소진')};
+  const dateOpts = ['8/16','8/17','8/18','8/19','8/20'];
+  if(dateOpts.indexOf(cur.date)<0) dateOpts.push(cur.date);
+
+  html += '<div class="exp-form'+(ed?' editing':'')+'">'
+    +'<h4>'+(ed ? '✏️ 항목 수정' : '➕ 지출 추가')+'</h4>'
     +'<div class="row">'
-    +'<select class="f-date" id="fDate">'+['8/16','8/17','8/18'].map(d=>'<option>'+d+'</option>').join('')+'</select>'
-    +'<select class="f-cat" id="fCat">'+EXP_CATS.map(c=>'<option'+(c==='식사'?' selected':'')+'>'+c+'</option>').join('')+'</select>'
-    +'<input class="f-name" id="fName" placeholder="항목 (예: 녹원식당 저녁)">'
+    +'<select class="f-date" id="fDate">'+dateOpts.map(function(d){return '<option'+(d===cur.date?' selected':'')+'>'+d+'</option>';}).join('')+'</select>'
+    +'<select class="f-cat" id="fCat">'+EXP_CATS.map(function(c){return '<option'+(c===cur.cat?' selected':'')+'>'+c+'</option>';}).join('')+'</select>'
+    +'<select class="f-cat" id="fPayer">'+PAYERS.map(function(x){return '<option'+(x===cur.payer?' selected':'')+'>'+x+'</option>';}).join('')+'</select>'
+    +'<input class="f-name" id="fName" placeholder="항목 (예: 교암삼겹살)" value="'+String(cur.name).replace(/"/g,'&quot;')+'">'
     +'</div>'
     +'<div class="row">'
-    +'<input class="f-amt" id="fAmt" inputmode="numeric" placeholder="금액">'
+    +'<input class="f-amt" id="fAmt" inputmode="numeric" placeholder="금액" value="'+(cur.amount||'')+'">'
     +'<select class="f-basis" id="fBasis"><option value="2">2인 합계로</option><option value="1">1인 금액 ×2</option></select>'
-    +'<button class="exp-add" id="fAdd">추가</button>'
+    +'<button class="exp-add" id="fAdd">'+(ed ? '저장' : '추가')+'</button>'
+    +(ed ? '<button class="exp-cancel" id="fCancel">취소</button>' : '')
     +'</div>'
-    +'<div class="row"><input class="f-memo" id="fMemo" placeholder="메모 (선택)"></div>'
+    +'<div class="row"><input class="f-memo" id="fMemo" placeholder="메모 (선택)" value="'+String(cur.memo||'').replace(/"/g,'&quot;')+'"></div>'
     +'</div>';
 
   html += '<div class="exp-tools">'
@@ -861,43 +918,73 @@ function renderExpense(){
   const panel = document.getElementById('panel');
   panel.innerHTML = html;
 
-  panel.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', ()=>{
-    const id = b.getAttribute('data-del');
-    const st = expStore();
-    st.added = st.added.filter(x=>x.id!==id);
+  /* 삭제: 로컬에서 빼고 시트에도 삭제 표시 */
+  function removeItem(id, st){
+    st.added = st.added.filter(function(x){return x.id!==id;});
     if(st.hidden.indexOf(id)<0) st.hidden.push(id);
-    // 아직 안 올라간 추가라면 대기열에서도 빼고, 아니면 삭제를 대기열에
-    const wasPending = st.pending.some(op=>op.action==='add' && op.item.id===id);
-    st.pending = st.pending.filter(op=>!(op.action==='add' && op.item.id===id));
+    const wasPending = st.pending.some(function(op){return op.action==='add' && op.item.id===id;});
+    st.pending = st.pending.filter(function(op){return !(op.action==='add' && op.item.id===id);});
     if(SYNC_URL && !wasPending) st.pending.push({action:'delete', id:id});
-    expSave(st); renderExpense();
-    if(SYNC_URL) syncFlush();
-  }));
+  }
 
-  document.getElementById('fAdd').addEventListener('click', ()=>{
+  panel.querySelectorAll('[data-del]').forEach(function(b){
+    b.addEventListener('click', function(){
+      const id = b.getAttribute('data-del');
+      const st = expStore();
+      removeItem(id, st);
+      expSave(st);
+      if(expEditId === id) expEditId = null;
+      renderExpense();
+      if(SYNC_URL) syncFlush();
+    });
+  });
+
+  panel.querySelectorAll('[data-edit]').forEach(function(b){
+    b.addEventListener('click', function(){
+      expEditId = b.getAttribute('data-edit');
+      renderExpense();
+      const f = document.getElementById('fName');
+      if(f) f.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+  });
+
+  const cancelBtn = document.getElementById('fCancel');
+  if(cancelBtn) cancelBtn.addEventListener('click', function(){ expEditId = null; renderExpense(); });
+
+  document.getElementById('fAdd').addEventListener('click', function(){
     const name = document.getElementById('fName').value.trim();
     const raw  = document.getElementById('fAmt').value.replace(/[^0-9]/g,'');
     if(!name || !raw){ alert('항목과 금액을 입력해주세요.'); return; }
     const basis = +document.getElementById('fBasis').value;
+    const payer = document.getElementById('fPayer').value;
+    try{ localStorage.setItem('goseong_last_payer', payer); }catch(e){}
+
     const st = expStore();
+    // 수정은 "기존 삭제 + 새로 추가"로 처리한다 (시트 백엔드에 update가 없어서)
+    if(expEditId) removeItem(expEditId, st);
+
     const item = {
       id:'u'+Date.now(),
       date: document.getElementById('fDate').value,
       cat:  document.getElementById('fCat').value,
       name: name,
       amount: (+raw) * (basis===1 ? HEADCOUNT : 1),
-      memo: document.getElementById('fMemo').value.trim()
+      memo: joinPayer(document.getElementById('fMemo').value.trim(), payer)
     };
     st.added.push(item);
     if(SYNC_URL) st.pending.push({action:'add', item:item});
-    expSave(st); renderExpense();
+    expSave(st);
+    expEditId = null;
+    renderExpense();
     if(SYNC_URL) syncFlush();
   });
 
   document.getElementById('expCopy').addEventListener('click', ()=>{
-    let md = '| 날짜 | 분류 | 항목 | 2인 | 1인 |\n|---|---|---|---|---|\n';
-    list.forEach(e=>{ md += '| '+e.date+' | '+e.cat+' | '+e.name+(e.memo?' ('+e.memo+')':'')+' | '+won(e.amount)+' | '+won(Math.round(e.amount/HEADCOUNT))+' |\n'; });
-    md += '| | | **합계** | **'+won(total)+'** | **'+won(Math.round(total/HEADCOUNT))+'** |';
+    let md = '| 날짜 | 분류 | 지출자 | 항목 | 2인 | 1인 |\n|---|---|---|---|---|---|\n';
+    list.forEach(e=>{ md += '| '+e.date+' | '+e.cat+' | '+e.payer+' | '+e.name+(e.memo?' ('+e.memo+')':'')+' | '+won(e.amount)+' | '+won(Math.round(e.amount/HEADCOUNT))+' |\n'; });
+    md += '| | | | **합계** | **'+won(total)+'** | **'+won(Math.round(share))+'** |\n\n';
+    md += '소진이 낸 돈 '+won(Math.round(paid['소진']))+' / 희윤이 낸 돈 '+won(Math.round(paid['희윤']))
+       + ' → ' + (diff===0 ? '정산 끝' : (diff>0 ? '희윤 → 소진 ' : '소진 → 희윤 ') + won(Math.abs(diff)));
     navigator.clipboard.writeText(md).then(
       ()=>{ document.getElementById('expCopy').textContent = '✅ 복사됨'; },
       ()=>{ alert(md); }
