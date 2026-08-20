@@ -383,14 +383,26 @@ const PAYERS = ["소진","희윤","공동"];
 /* 구글시트 컬럼을 못 늘리니(백엔드 재배포 필요) 메모 끝에 "지출자:소진"으로 붙여 저장한다.
    시트에서 눈으로 봐도 읽히고, 화면에서는 배지로 떼어 보여준다. */
 const PAYER_RE = /\s*·?\s*지출자\s*:\s*(소진|희윤|공동)\s*$/;
+/* "개인 몫" — 반띵하기 전에 한 사람이 통째로 부담할 금액.
+   예) 희윤이 52,000원 결제 · 그중 5,000원은 소진 몫
+       → 47,000원만 반씩 나누고, 5,000원은 소진이 전부 부담 */
+const SOLO_RE  = /\s*·?\s*개인\s*:\s*(소진|희윤)\s+(\d+)\s*$/;
+
 function splitPayer(memo){
-  const raw = String(memo||'');
-  const m = raw.match(PAYER_RE);
-  return { memo: raw.replace(PAYER_RE,'').trim(), payer: m ? m[1] : '공동' };
+  let raw = String(memo||'');
+  let soloWho = '소진', soloAmt = 0;
+  const ms = raw.match(SOLO_RE);
+  if(ms){ soloWho = ms[1]; soloAmt = +ms[2]; raw = raw.replace(SOLO_RE,''); }
+  const mp = raw.match(PAYER_RE);
+  const payer = mp ? mp[1] : '공동';
+  raw = raw.replace(PAYER_RE,'');
+  return { memo: raw.trim(), payer: payer, soloWho: soloWho, soloAmt: soloAmt };
 }
-function joinPayer(memo, payer){
-  const base = String(memo||'').replace(PAYER_RE,'').trim();
-  return base ? (base + ' · 지출자:' + payer) : ('지출자:' + payer);
+function joinPayer(memo, payer, soloWho, soloAmt){
+  let out = String(memo||'').replace(SOLO_RE,'').replace(PAYER_RE,'').trim();
+  out = out ? (out + ' · 지출자:' + payer) : ('지출자:' + payer);
+  if(soloAmt > 0) out += ' · 개인:' + soloWho + ' ' + soloAmt;
+  return out;
 }
 let expEditId = null;   // 지금 수정 중인 항목
 
@@ -429,6 +441,7 @@ function foldServerItems(items){
   items.forEach(it=>{
     if(it.deleted){ hidden.push(it.id); return; }
     if(EXPENSE_SEED.some(s=>s.id===it.id)) return;  // 시드는 코드에 있음
+    if(added.some(a=>a.id===it.id)) return;        // 같은 id가 두 줄이면 첫 줄만
     added.push({id:it.id, date:normDate(it.date), cat:it.cat, name:it.name, amount:it.amount, memo:it.memo});
   });
   // 아직 서버에 못 올린 건 유지
@@ -450,8 +463,10 @@ function syncCall(payload){
 }
 
 /* 대기열을 순서대로 밀어 넣고, 마지막 응답으로 로컬을 갱신 */
+let syncInFlight = null;   // 같은 대기열이 두 번 전송돼 시트에 중복 행이 생기던 문제 방지
 function syncFlush(){
   if(!SYNC_URL) return Promise.resolve();
+  if(syncInFlight) return syncInFlight;
   const st = expStore();
   syncState = 'syncing'; paintSyncBadge();
   let chain = Promise.resolve(null);
@@ -460,7 +475,7 @@ function syncFlush(){
       ? syncCall(Object.assign({action:'add'}, op.item))
       : syncCall({action:'delete', id:op.id}));
   });
-  return chain
+  syncInFlight = chain
     .then(()=> syncCall({action:'list'}))
     .then(res=>{
       if(!res || !res.ok) throw new Error(res && res.error || 'sync failed');
@@ -472,7 +487,9 @@ function syncFlush(){
     .catch(err=>{
       syncState = 'error';
       paintSyncBadge(String(err.message||err));
-    });
+    })
+    .then(()=>{ syncInFlight = null; }, ()=>{ syncInFlight = null; });
+  return syncInFlight;
 }
 
 function paintSyncBadge(msg){
@@ -820,21 +837,28 @@ function renderExpense(){
   document.querySelector('.wrap').classList.add('solo');
   document.querySelector('.map-col').style.display = 'none';
 
-  // 시트에 쌓인 순서 그대로 = 최근에 추가한 게 맨 아래
-  const list = expAll().map(e=>{
+  // 날짜 오름차순(오래된 것 → 최신). 같은 날짜 안에서는 시트에 쌓인 순서를 지킨다.
+  const list = expAll().slice().sort((a,b)=>dateKey(a.date)-dateKey(b.date)).map(e=>{
     const sp = splitPayer(e.memo);
-    return Object.assign({}, e, {memo: sp.memo, payer: sp.payer});
+    return Object.assign({}, e, {memo: sp.memo, payer: sp.payer, soloWho: sp.soloWho, soloAmt: sp.soloAmt});
   });
   const total = list.reduce((s,e)=>s+e.amount,0);
   const byCat = {};
-  const paid  = {"소진":0, "희윤":0};
+  const paid  = {"소진":0, "희윤":0};   // 실제로 낸 돈
+  const bear  = {"소진":0, "희윤":0};   // 부담해야 할 몫
   list.forEach(e=>{
     byCat[e.cat] = (byCat[e.cat]||0)+e.amount;
     if(e.payer === '공동'){ paid["소진"] += e.amount/2; paid["희윤"] += e.amount/2; }
     else paid[e.payer] += e.amount;
+
+    const solo   = Math.min(e.soloAmt||0, e.amount);   // 한 사람이 통째로 지는 몫
+    const shared = (e.amount - solo) / HEADCOUNT;      // 나머지는 반띵
+    bear["소진"] += shared; bear["희윤"] += shared;
+    if(solo > 0) bear[e.soloWho] += solo;
   });
   const share = total / HEADCOUNT;
-  const diff  = Math.round(paid["소진"] - share);   // >0 이면 소진이 더 냈다
+  const soloTotal = list.reduce((s,e)=>s+Math.min(e.soloAmt||0, e.amount), 0);
+  const diff  = Math.round(paid["소진"] - bear["소진"]);   // >0 이면 소진이 더 냈다
 
   document.getElementById('planHead').innerHTML =
     '<div class="ph-title">💰 여행 지출</div>'
@@ -855,8 +879,11 @@ function renderExpense(){
     + (diff === 0
         ? '<div class="st">✅ 정산 끝 — 딱 맞아요</div>'
         : '<div class="st">💸 '+(diff>0 ? '희윤 → 소진' : '소진 → 희윤')+' <b>'+won(Math.abs(diff))+'</b></div>')
-    + '<div class="sub">소진이 낸 돈 '+won(Math.round(paid["소진"]))+' · 희윤이 낸 돈 '+won(Math.round(paid["희윤"]))
-    + ' · 각자 부담해야 할 몫 '+won(Math.round(share))+'</div>'
+    + '<div class="sub">낸 돈 — 소진 '+won(Math.round(paid["소진"]))+' · 희윤 '+won(Math.round(paid["희윤"]))+'</div>'
+    + '<div class="sub">부담할 몫 — 소진 '+won(Math.round(bear["소진"]))+' · 희윤 '+won(Math.round(bear["희윤"]))+'</div>'
+    + (soloTotal > 0
+        ? '<div class="sub">※ <b>개인 몫 '+won(soloTotal)+'</b>은 반띵에서 빼고 해당하는 사람이 전부 부담합니다.</div>'
+        : '')
     + '<div class="sub">※ 지출자가 <b>공동</b>인 항목은 반씩 낸 것으로 계산합니다.</div>'
     + '</div>';
 
@@ -876,9 +903,11 @@ function renderExpense(){
       +'<td><span class="exp-cat cat-'+e.cat+'" style="margin-right:5px">'+e.cat+'</span>'
       +'<span class="payer payer-'+e.payer+'" style="margin-right:5px">'+e.payer+'</span>'
       +'<span class="ename">'+e.name+'</span>'
-      +(e.memo ? '<div class="ememo">'+e.memo+'</div>' : '')+'</td>'
+      +(e.memo ? '<div class="ememo">'+e.memo+'</div>' : '')
+      +(e.soloAmt>0 ? '<div class="ememo" style="color:#B03A6B">↳ 그중 '+won(Math.min(e.soloAmt,e.amount))+'은 '+e.soloWho+' 개인 몫 (반띵 제외)</div>' : '')
+      +'</td>'
       +'<td class="amt">'+won(e.amount)+'</td>'
-      +'<td class="per">'+won(Math.round(e.amount/HEADCOUNT))+'</td>'
+      +'<td class="per">'+won(Math.round((e.amount-Math.min(e.soloAmt||0,e.amount))/HEADCOUNT))+'</td>'
       +'<td style="white-space:nowrap">'
       +'<button class="exp-edit" data-edit="'+e.id+'" title="수정">✏️</button>'
       +'<button class="exp-del" data-del="'+e.id+'" title="삭제">✕</button></td>'
@@ -887,7 +916,7 @@ function renderExpense(){
   html += '</tbody></table>';
 
   const ed = expEditId ? list.filter(function(x){return x.id===expEditId;})[0] : null;
-  const cur = ed || {date:'8/16', cat:'식사', name:'', amount:'', memo:'', payer:(localStorage.getItem('goseong_last_payer')||'소진')};
+  const cur = ed || {date:'8/16', cat:'식사', name:'', amount:'', memo:'', payer:(localStorage.getItem('goseong_last_payer')||'소진'), soloWho:'소진', soloAmt:0};
   const dateOpts = ['8/16','8/17','8/18','8/19','8/20'];
   if(dateOpts.indexOf(cur.date)<0) dateOpts.push(cur.date);
 
@@ -906,6 +935,13 @@ function renderExpense(){
     +(ed ? '<button class="exp-cancel" id="fCancel">취소</button>' : '')
     +'</div>'
     +'<div class="row"><input class="f-memo" id="fMemo" placeholder="메모 (선택)" value="'+String(cur.memo||'').replace(/"/g,'&quot;')+'"></div>'
+    +'<div class="row" style="align-items:center">'
+    +'<span style="font-size:11.5px;color:var(--muted);align-self:center">반띵 전에 뺄 개인 몫 (선택)</span>'
+    +'<input class="f-amt" id="fSolo" inputmode="numeric" placeholder="0" value="'+(cur.soloAmt||'')+'" style="flex:0 1 90px">'
+    +'<span style="font-size:11.5px;color:var(--muted);align-self:center">원은</span>'
+    +'<select class="f-cat" id="fSoloWho">'+['소진','희윤'].map(function(x){return '<option'+(x===(cur.soloWho||'소진')?' selected':'')+'>'+x+'</option>';}).join('')+'</select>'
+    +'<span style="font-size:11.5px;color:var(--muted);align-self:center">이 전부 부담</span>'
+    +'</div>'
     +'</div>';
 
   html += '<div class="exp-tools">'
@@ -969,7 +1005,9 @@ function renderExpense(){
       cat:  document.getElementById('fCat').value,
       name: name,
       amount: (+raw) * (basis===1 ? HEADCOUNT : 1),
-      memo: joinPayer(document.getElementById('fMemo').value.trim(), payer)
+      memo: joinPayer(document.getElementById('fMemo').value.trim(), payer,
+                      document.getElementById('fSoloWho').value,
+                      +(document.getElementById('fSolo').value.replace(/[^0-9]/g,'') || 0))
     };
     st.added.push(item);
     if(SYNC_URL) st.pending.push({action:'add', item:item});
