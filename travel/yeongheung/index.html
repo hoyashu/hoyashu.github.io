@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2A6F8E">
+<title>영흥도 스테이담소 풀빌라 1박 2일 · 조동아리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --ink:#1B2A41; --sea:#2A6F8E; --wave:#3E9EBC; --wave-soft:#A6DCE9;
+    --sun:#F2A65A; --coral:#E8664F; --cafe:#6FA98A; --plum:#8A6BB1;
+    --sand:#FAF4EC; --paper:#FFFDF9; --line:#EADFD0;
+    --text:#22323D; --muted:#77848C; --shadow:0 10px 30px rgba(27,42,65,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:"Noto Sans KR",sans-serif;color:var(--text);background:var(--sand);-webkit-font-smoothing:antialiased;line-height:1.55}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;
+    background:radial-gradient(1200px 400px at 80% -5%, rgba(62,158,188,.10), transparent 60%),
+               radial-gradient(900px 380px at -10% 105%, rgba(232,102,79,.10), transparent 60%);}
+
+  header{background:linear-gradient(135deg, var(--ink) 0%, var(--sea) 46%, #E8834F 100%);color:#fff;position:relative;overflow:hidden;padding:22px 20px 34px}
+  header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:12px;
+    background:radial-gradient(14px 14px at 14px 0, var(--sand) 60%, transparent 62%) repeat-x;background-size:28px 26px;
+    transform:rotate(180deg)}
+  .eyebrow{font-size:12.5px;letter-spacing:.28em;text-transform:uppercase;opacity:.85;font-weight:500}
+  h1{font-family:"Jua",sans-serif;font-weight:400;font-size:29px;line-height:1.15;margin-top:4px;text-shadow:0 2px 8px rgba(0,0,0,.14)}
+  h1 .sun{color:#FFE08A}
+  .trip-meta{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px;font-size:13px}
+  .chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 11px;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+
+  .tabs{display:flex;gap:6px;padding:16px 12px 4px;max-width:1160px;margin:0 auto}
+  .tab{flex:1;background:var(--paper);border:1.5px solid var(--line);border-radius:16px 16px 6px 6px;padding:10px 4px;cursor:pointer;text-align:center;transition:.18s;box-shadow:0 2px 0 var(--line);position:relative;top:0}
+  .tab .dnum{font-family:"Jua",sans-serif;font-size:11.5px;color:var(--muted);letter-spacing:.04em}
+  .tab .ddate{font-family:"Jua",sans-serif;font-size:17px;line-height:1.1;color:var(--ink)}
+  .tab .dsub{font-size:10.5px;color:var(--muted);margin-top:1px}
+  .tab:hover{border-color:var(--wave-soft)}
+  .tab.active{border-color:var(--wave);top:2px;box-shadow:0 0 0 3px rgba(62,158,188,.14)}
+  .tab.active .ddate{color:var(--sea)}
+  .tab.active::before{content:"";position:absolute;left:0;right:0;top:-1.5px;height:4px;border-radius:8px;background:var(--wave)}
+  .tab.prep.active{border-color:var(--cafe);box-shadow:0 0 0 3px rgba(111,169,138,.18)}
+  .tab.prep.active .ddate{color:var(--cafe)} .tab.prep.active::before{background:var(--cafe)}
+  .tab.food.active{border-color:var(--coral);box-shadow:0 0 0 3px rgba(232,102,79,.16)}
+  .tab.food.active .ddate{color:var(--coral)} .tab.food.active::before{background:var(--coral)}
+  .tab.money.active{border-color:var(--plum);box-shadow:0 0 0 3px rgba(138,107,177,.16)}
+  .tab.money.active .ddate{color:var(--plum)} .tab.money.active::before{background:var(--plum)}
+
+  .wrap{max-width:1160px;margin:0 auto;padding:8px 16px 40px;display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:900px){.wrap{grid-template-columns:1.05fr .95fr;align-items:start}.map-col{position:sticky;top:14px}}
+  .wrap.solo{grid-template-columns:1fr !important;max-width:780px}
+
+  .map-col{display:flex;flex-direction:column;gap:10px}
+  #map{height:50vh;min-height:320px;border-radius:20px;border:3px solid #fff;box-shadow:var(--shadow);background:#dfeef1}
+  @media(min-width:900px){#map{height:calc(100vh - 40px);max-height:720px}}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 12px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:9px 13px;font-size:12px;box-shadow:0 2px 8px rgba(27,42,65,.05)}
+  .legend b{font-weight:500;color:var(--muted);margin-right:2px}
+  .lg{display:inline-flex;align-items:center;gap:5px;font-weight:500}
+  .dot{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 2px #fff inset}
+  .dot.stay{background:var(--sun)} .dot.beach{background:var(--wave)} .dot.food{background:var(--coral)}
+  .dot.cafe{background:var(--cafe)} .dot.transport{background:var(--ink)} .dot.mart{background:var(--plum)}
+
+  .plan-col{background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+  .plan-head{padding:16px 18px 14px;background:linear-gradient(180deg,#fff,#fdfaf3);border-bottom:1px dashed var(--line)}
+  .plan-head .ph-title{font-family:"Jua",sans-serif;font-size:20px;color:var(--ink)}
+  .plan-head .ph-stay{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;background:#FFF3D6;color:#8a5b00;border:1px solid #F3DFA6;border-radius:999px;padding:3px 11px;font-weight:500}
+  .plan-head .ph-move{font-size:12.5px;color:var(--sea);margin-top:8px;display:flex;align-items:flex-start;gap:6px}
+  .plan-head .ph-sub{font-size:13px;color:var(--muted);margin-top:6px}
+  .plan-head .ph-alert{margin-top:10px;font-size:12.5px;line-height:1.55;background:#FFF4EC;border:1px solid #F6DCC9;border-left:4px solid var(--coral);border-radius:10px;padding:9px 11px;color:#8f4327}
+  .plan-head .ph-alert b{font-weight:700}
+
+  .cond-bar{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .cond{display:inline-flex;align-items:center;gap:6px;background:#F1FAFB;border:1px solid #D7EEF1;border-radius:10px;padding:5px 9px;font-size:12px;line-height:1.3}
+  .cond .ci{font-size:14px}.cond .cl{color:var(--muted)}.cond .cv{font-weight:700;color:var(--sea)}
+  .cond.moon{background:#F4F1FA;border-color:#E3DCF0}.cond.moon .cv{color:#6A57B0}
+  .cond.tide{background:#EAF7F9;border-color:#C8E7EC}.cond.tide .cv{color:#0E6E86}
+  .cond.sun{background:#FFF7E6;border-color:#F3E2B4}.cond.sun .cv{color:#B57A00}
+  .cond.rain{background:#EDF3FB;border-color:#CFDEF2}.cond.rain .cv{color:#2A5FA8}
+  .cond.rain.heavy{background:#E7EEFA;border-color:#B9CDEC}.cond.rain.heavy .cv{color:#1B4A8C}
+  .cond.temp{background:#FFF2EC;border-color:#F6D9CC}.cond.temp .cv{color:#C9552F}
+
+  .timeline{padding:8px 14px 16px}
+  .ti{display:grid;grid-template-columns:52px 1fr;gap:10px;position:relative;padding:9px 8px 9px 4px;border-radius:12px;transition:.15s}
+  .ti.clickable{cursor:pointer}.ti.clickable:hover{background:#F3FAFB}
+  .ti.active{background:#EAF7F9;box-shadow:inset 0 0 0 1.5px var(--wave-soft)}
+  .ti.hl{background:#FFF6EC;box-shadow:inset 0 0 0 1.5px #F3D0A8}
+  .timeline .ti:not(:last-child)::before{content:"";position:absolute;left:26px;top:34px;bottom:-9px;width:2px;background:repeating-linear-gradient(var(--line) 0 5px, transparent 5px 9px)}
+  .ti .time{font-family:"Jua",sans-serif;font-size:13px;color:var(--muted);text-align:right;padding-top:2px;white-space:nowrap}
+  .ti .node{display:flex;gap:9px;align-items:flex-start}
+  .badge{width:30px;height:30px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:15px;background:#fff;box-shadow:0 0 0 2px #fff, 0 3px 8px rgba(27,42,65,.16);position:relative;z-index:1}
+  .badge.stay{outline:2px solid var(--sun)}.badge.beach{outline:2px solid var(--wave)}.badge.food{outline:2px solid var(--coral)}
+  .badge.cafe{outline:2px solid var(--cafe)}.badge.transport{outline:2px solid var(--ink)}.badge.mart{outline:2px solid var(--plum)}.badge.plain{outline:2px solid var(--line)}
+  .ti .body{min-width:0}
+  .ti .title{font-weight:700;font-size:15px;color:var(--text)}
+  .ti .title .star{color:var(--sun)}
+  .ti .place{font-size:12.5px;color:var(--sea);font-weight:500;margin-top:1px;display:inline-flex;align-items:center;gap:4px}
+  .ti .place .pin{font-size:11px}
+  .ti .note{font-size:12px;color:var(--muted);margin-top:2px}
+  .ti .dnote{font-size:11.5px;color:#0E7C79;background:#E7F7F3;border:1px solid #C9EEE6;border-radius:8px;padding:3px 8px;margin-top:5px;display:inline-flex;gap:5px;align-items:flex-start;line-height:1.45}
+  .ti .rnote{font-size:11.5px;color:#8f4327;background:#FFF4EC;border:1px solid #F6DCC9;border-radius:8px;padding:3px 8px;margin-top:5px;display:inline-flex;gap:5px;align-items:flex-start;line-height:1.45}
+  .ti .route{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:11.5px;font-weight:600;color:#03875A;background:#EAF8F0;border:1px solid #BFE9D2;border-radius:8px;padding:4px 9px;text-decoration:none;line-height:1.35}
+  .ti .route:hover{background:#dbf1e4}
+  .ti .route .arr{color:var(--muted);font-weight:500}
+  .ti .seq{display:inline-block;min-width:17px;height:17px;line-height:17px;text-align:center;background:var(--wave);color:#fff;border-radius:50%;font-size:10.5px;font-weight:700;margin-right:5px;vertical-align:1px}
+
+  /* 준비물 */
+  .prep-sec{padding:6px 16px 4px}
+  .prep-sec h3{font-family:"Jua",sans-serif;font-size:15px;color:var(--ink);margin:14px 0 6px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .prep-sec h3 .tag{font-size:11px;color:var(--muted);font-family:"Noto Sans KR";font-weight:500}
+  .pitem{display:flex;gap:9px;align-items:flex-start;padding:7px 9px;border:1px solid var(--line);border-radius:11px;margin-bottom:6px;background:#fff;cursor:pointer;transition:.14s}
+  .pitem:hover{border-color:var(--wave-soft);background:#F8FCFD}
+  .pitem.done{background:#F3F6F4;border-color:#DDE6E0;opacity:.62}
+  .pitem.done .pname{text-decoration:line-through}
+  .pbox{width:19px;height:19px;flex:none;border-radius:6px;border:1.8px solid #CBD5D8;display:grid;place-items:center;font-size:12px;color:#fff;margin-top:1px;background:#fff}
+  .pitem.done .pbox{background:var(--cafe);border-color:var(--cafe)}
+  .pname{font-weight:600;font-size:14px}
+  .pnote{font-size:11.5px;color:var(--muted);margin-top:1px;line-height:1.45}
+  .pnote b{color:var(--coral);font-weight:700}
+  .prep-bar{display:flex;align-items:center;gap:10px;padding:10px 16px 0;flex-wrap:wrap}
+  .prep-prog{flex:1 1 160px;height:9px;background:#EDE7DD;border-radius:99px;overflow:hidden;min-width:120px}
+  .prep-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--cafe),var(--wave));border-radius:99px;transition:.3s}
+  .prep-cnt{font-family:"Jua",sans-serif;font-size:13px;color:var(--cafe)}
+
+  /* 맛집 */
+  .food-sec{padding:6px 16px 4px}
+  .food-sec h3{font-family:"Jua",sans-serif;font-size:15px;color:var(--ink);margin:12px 0 6px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .food-sec h3 .tag{font-size:11px;color:var(--muted);font-family:"Noto Sans KR";font-weight:500}
+  .fcard{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:13px;margin-bottom:8px;cursor:pointer;transition:.15s;background:#fff}
+  .fcard:hover{border-color:var(--wave-soft);background:#F8FCFD}
+  .fcard.active{border-color:var(--coral);background:#FFF6F3}
+  .fcard .fnum{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:"Jua";font-size:13px;margin-top:1px}
+  .fcard .fname{font-weight:700;font-size:14.5px;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  .fcard .fdesc{font-size:12.5px;color:var(--text);margin-top:2px}
+  .fcard .fmeta{font-size:11.5px;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+  .fcard .fmeta .hrs{color:var(--sea);font-weight:500}
+  .fcard .closed{color:#C9552F;font-weight:600}
+
+  /* 지출 */
+  .exp-sec{padding:8px 14px 4px}
+  .exp-sum{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+  .exp-card{border:1px solid var(--line);border-radius:14px;padding:11px 13px;background:#fff}
+  .exp-card.total{background:linear-gradient(180deg,#F6F3FC,#fff);border-color:#E2DBF2}
+  .exp-card .el{font-size:11.5px;color:var(--muted);font-weight:500}
+  .exp-card .ev{font-family:"Jua",sans-serif;font-size:23px;color:var(--ink);margin-top:2px;line-height:1.1}
+  .exp-card.total .ev{color:#5B4BA8}
+  .exp-cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .exp-cat{font-size:11.5px;border-radius:999px;padding:3px 10px;font-weight:600;border:1px solid}
+  .cat-숙박{background:#FFF3D6;border-color:#F3DFA6;color:#8a5b00}
+  .cat-옵션{background:#EDF7F1;border-color:#CDE9D8;color:#37795A}
+  .cat-장보기{background:#F3EEFB;border-color:#DED2F0;color:#5B4BA8}
+  .cat-식사{background:#FFF0EC;border-color:#F6D9CC;color:#C9552F}
+  .cat-교통{background:#EAF3FB;border-color:#CBE0F2;color:#2A5FA8}
+  .cat-기타{background:#F1F1F4;border-color:#DEDEE5;color:#5B5B6B}
+  .exp-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .exp-table th{text-align:left;font-size:11px;color:var(--muted);font-weight:500;padding:0 6px 6px;border-bottom:1px solid var(--line)}
+  .exp-table td{padding:8px 6px;border-bottom:1px dashed var(--line);vertical-align:top}
+  .exp-table td.amt{text-align:right;font-weight:700;color:var(--ink);white-space:nowrap}
+  .exp-table td.per{text-align:right;color:var(--muted);white-space:nowrap;font-size:11.5px}
+  .exp-table .ename{font-weight:600}
+  .exp-table .ememo{font-size:11px;color:var(--muted);margin-top:2px}
+  .exp-table .edate{color:var(--muted);white-space:nowrap;font-size:11.5px}
+  .exp-del,.exp-edit{border:none;background:none;cursor:pointer;font-size:13px;padding:2px 4px;opacity:.55}
+  .exp-del{color:#C9552F}
+  .exp-del:hover,.exp-edit:hover{opacity:1}
+  .exp-form{background:#F8F6FC;border:1px solid #E4E0F2;border-radius:14px;padding:11px 12px;margin:14px 0 6px}
+  .exp-form h4{font-family:"Jua",sans-serif;font-size:14px;color:#5B4BA8;margin-bottom:8px}
+  .exp-form .row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;align-items:center}
+  .exp-form input,.exp-form select{font-family:inherit;font-size:12.5px;padding:7px 9px;border:1px solid #DAD5EC;border-radius:9px;background:#fff;color:var(--text);min-width:0}
+  .exp-form input:focus,.exp-form select:focus{outline:2px solid #C6BDEA;outline-offset:-1px}
+  .exp-form .f-name{flex:1 1 150px}
+  .exp-form .f-amt{flex:0 1 120px}
+  .exp-form .f-memo{flex:1 1 100%}
+  .exp-form.editing{background:#FFF7E6;border-color:#F3E2B4}
+  .exp-form.editing h4{color:#B57A00}
+  .who{font-size:11.5px;border:1px solid #DAD5EC;background:#fff;border-radius:999px;padding:4px 10px;cursor:pointer;font-weight:600;color:var(--muted);user-select:none}
+  .who.on{background:#EFEAFB;border-color:#BFB2E4;color:#5B4BA8}
+  .payer{font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 7px;border:1px solid;white-space:nowrap}
+  .payer-소진{background:#EAF3FB;border-color:#CBE0F2;color:#2A5FA8}
+  .payer-은정{background:#FDEEF4;border-color:#F3CFDF;color:#B03A6B}
+  .payer-주희{background:#EAF8F0;border-color:#BFE9D2;color:#03875A}
+  .payer-채아{background:#FFF3D6;border-color:#F3DFA6;color:#8a5b00}
+  .payer-공동{background:#F1F1F4;border-color:#DEDEE5;color:#5B5B6B}
+  .exp-settle{border:1px solid #E4E0F2;background:linear-gradient(180deg,#F8F6FC,#fff);border-radius:14px;padding:11px 13px;margin-bottom:12px;font-size:12.5px;line-height:1.6}
+  .exp-settle .st{font-family:"Jua",sans-serif;font-size:16px;color:#5B4BA8}
+  .exp-settle .sub{color:var(--muted);font-size:11.5px;margin-top:3px}
+  .exp-settle .pay-line{margin-top:5px;font-size:13px;font-weight:600;color:var(--ink)}
+  .exp-add{background:#5B4BA8;color:#fff;border:none;border-radius:9px;padding:8px 16px;font-family:"Jua",sans-serif;font-size:13px;cursor:pointer}
+  .exp-add:hover{background:#4b3d90}
+  .exp-cancel{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-family:"Jua",sans-serif;font-size:13px;cursor:pointer}
+  .exp-tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .exp-tool{font-size:11.5px;color:var(--sea);background:#F1FAFB;border:1px solid #D7EEF1;border-radius:8px;padding:5px 10px;cursor:pointer;font-weight:500}
+  .exp-tool:hover{background:#e4f5f7}
+
+  .foot{padding:14px 18px 18px;border-top:1px dashed var(--line);font-size:12px;color:var(--muted);background:#fdfaf3;line-height:1.6}
+  .foot b{color:var(--sea);font-weight:500}
+  .foot .links{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+  .foot .links a{font-size:11.5px;color:var(--sea);text-decoration:none;border:1px solid #D7EEF1;background:#F1FAFB;border-radius:8px;padding:3px 9px;font-weight:500}
+
+  .pin-marker{background:transparent;border:none}
+  .pin-marker .pm{width:30px;height:30px;border-radius:50% 50% 50% 2px;transform:rotate(45deg);display:grid;place-items:center;box-shadow:0 4px 10px rgba(27,42,65,.35);border:2.5px solid #fff}
+  .pin-marker .pm span{transform:rotate(-45deg);color:#fff;font-weight:700;font-size:13px;font-family:"Jua",sans-serif}
+  .leaflet-popup-content-wrapper{border-radius:14px}
+  .leaflet-popup-content{margin:11px 14px;font-family:"Noto Sans KR",sans-serif}
+  .pop-t{font-family:"Jua",sans-serif;font-size:15px;color:var(--ink)}
+  .pop-a{font-size:12px;color:var(--muted);margin-top:2px}
+  .pop-times{margin-top:7px;display:flex;flex-wrap:wrap;gap:4px}
+  .pop-times span{font-size:11px;background:#EAF7F9;color:var(--sea);border-radius:6px;padding:2px 7px;font-weight:500}
+  .naver-link{display:inline-block;margin-top:8px;font-size:12px;color:#03C75A;font-weight:700;text-decoration:none}
+  .backlink{display:inline-block;margin-top:10px;font-size:11.5px;color:rgba(255,255,255,.8);text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.5)}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Incheon · Ongjin · Yeongheungdo</div>
+  <h1>스테이담소 풀빌라 <span class="sun">🌅</span> 조동아리 1박 2일</h1>
+  <div class="trip-meta">
+    <span class="chip">🗓️ 9/13(일) – 9/14(월)</span>
+    <span class="chip">👯 은정 · 주희 · 채아 · 소진 (4인)</span>
+    <span class="chip">🏊 개인풀 + 자쿠지 + 바베큐</span>
+    <span class="chip">🌇 일몰 18:46 · 만조 18:10</span>
+  </div>
+  <a class="backlink" href="../">← 다른 여행 보기</a>
+</header>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="wrap">
+  <div class="map-col">
+    <div id="map"></div>
+    <div class="legend">
+      <b>범례</b>
+      <span class="lg"><i class="dot stay"></i>숙소</span>
+      <span class="lg"><i class="dot mart"></i>마트·장보기</span>
+      <span class="lg"><i class="dot beach"></i>해변·명소</span>
+      <span class="lg"><i class="dot food"></i>식사</span>
+      <span class="lg"><i class="dot cafe"></i>카페</span>
+      <span class="lg"><i class="dot transport"></i>역·다리</span>
+      <span class="lg" id="fitAll" style="cursor:pointer;margin-left:auto;color:var(--sea);border:1px solid #D7EEF1;background:#F1FAFB;border-radius:8px;padding:2px 8px">🔎 안산까지 전체 보기</span>
+    </div>
+  </div>
+
+  <div class="plan-col">
+    <div class="plan-head" id="planHead"></div>
+    <div id="panel"></div>
+    <div class="foot" id="foot"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ──────────────────────────────────────────────────────────────
+   영흥도 스테이담소 풀빌라 · 2026-09-13 ~ 09-14 · 4인
+   좌표는 OpenStreetMap에서 확인한 값. 길찾기는 네이버 딥링크로 넘긴다.
+   ────────────────────────────────────────────────────────────── */
+
+const PLACES = {
+  gojan:    {name:"고잔역", addr:"안산시 단원구 · 4호선/수인분당선 · 집결지", lat:37.316861, lng:126.823022, type:"transport",
+             naver:"https://map.naver.com/p/search/고잔역"},
+  emart:    {name:"이마트 안산고잔점", addr:"안산시 단원구 고잔로1길 46 · 10:00–23:00 · 휴무 매월 10·23일", lat:37.318700, lng:126.827200, type:"mart",
+             naver:"https://map.naver.com/p/search/이마트 안산고잔점"},
+  bridge:   {name:"영흥대교", addr:"선재도 → 영흥도 · 여기 지나면 숙소까지 약 10분", lat:37.254744, lng:126.504581, type:"transport",
+             naver:"https://map.naver.com/p/search/영흥대교"},
+  damso:    {name:"스테이담소 풀빌라", addr:"옹진군 영흥면 영흥남로9번길 221-50 · 010-3089-3369", lat:37.243962, lng:126.480355, type:"stay",
+             naver:"https://map.naver.com/p/search/스테이담소 풀빌라"},
+  osung:    {name:"오성매점", addr:"숙소에서 도보 3분 · 깜빡한 거 사러", lat:37.245590, lng:126.480040, type:"mart",
+             naver:"https://map.naver.com/p/search/영흥도 오성매점"},
+  yongdam:  {name:"용담리 회마을", addr:"오성회집·성난파도·창수네식당 · 숙소 도보 5~10분", lat:37.246160, lng:126.479590, type:"food",
+             naver:"https://map.naver.com/p/search/영흥도 용담리 회마을"},
+  mudforest:{name:"머드포레스트", addr:"숙소 바로 아래 카페 · 도보 2분", lat:37.243630, lng:126.481110, type:"cafe",
+             naver:"https://map.naver.com/p/search/영흥도 머드포레스트"},
+  catcafe:  {name:"고양이역 카페", addr:"영흥남로 · 숙소에서 차 5분 · 폐역 컨셉 감성카페", lat:37.255000, lng:126.485700, type:"cafe",
+             naver:"https://map.naver.com/p/search/영흥도 고양이역 카페"},
+  jindu:    {name:"영흥 진두 시내", addr:"CU·GS25·식당가·수협 · 차 8분 · 섬에서 제일 큰 상권", lat:37.256000, lng:126.498400, type:"mart",
+             naver:"https://map.naver.com/p/search/영흥면 진두"},
+  kalguksu: {name:"영흥도 바지락해물칼국수", addr:"영흥북로 · 퇴실 후 점심 1순위", lat:37.267950, lng:126.495020, type:"food",
+             naver:"https://map.naver.com/p/search/영흥도 바지락해물칼국수"},
+  simnipo:  {name:"십리포해수욕장", addr:"서어나무(소사나무) 군락지 · 자갈해변", lat:37.281465, lng:126.485855, type:"beach",
+             naver:"https://map.naver.com/p/search/십리포해수욕장"},
+  janggyeong:{name:"장경리해수욕장", addr:"100년 노송지대 · 영흥도 최고 낙조 명소", lat:37.272880, lng:126.450780, type:"beach",
+             naver:"https://map.naver.com/p/search/장경리해수욕장"},
+  guksabong:{name:"국사봉", addr:"영흥도 최고봉(123m) · 정상까지 30~40분", lat:37.268240, lng:126.467110, type:"beach",
+             naver:"https://map.naver.com/p/search/영흥도 국사봉"},
+};
+
+/* ───────── 물때 · 해/달 (국립해양조사원 자료, 바다타임 영흥도 관측소) ─────────
+   조석은 예보가 아니라 계산값이라 바뀌지 않는다 → 코드에 박아둔다. */
+const TIDE = {
+  "9/13": {mul:"9물", high:["05:50 (843cm)","18:10 (828cm)"], low:["12:09 (39cm)"],
+           sunrise:"06:14", sunset:"18:46", moonrise:"08:15", moonset:"19:34", lunar:"음력 8.3 · 초승달"},
+  "9/14": {mul:"10물", high:["06:19 (819cm)","18:41 (816cm)"], low:["00:24 (55cm)","12:38 (46cm)"],
+           sunrise:"06:15", sunset:"18:44", moonrise:"09:20", moonset:"20:01", lunar:"음력 8.4 · 초승달"},
+};
+
+const DAYS = [
+  {
+    date:"9/13", dow:"일", title:"입실 · 바베큐 & 노을 수영",
+    stay:"스테이담소 풀빌라 (영흥남로9번길 221-50)",
+    move:"고잔역 집결 → 이마트 안산고잔점 장보기 → 영흥대교 → 숙소 (차로 약 50분~1시간)",
+    cond:{rain:"—", rainLevel:"", temp:"—"},
+    alert:"오늘의 <b>골든타임은 17:30~19:00</b>입니다. 만조가 <b>18:10</b>, 일몰이 <b>18:46</b>이라 "
+        +"물이 가득 찬 바다 위로 해가 떨어지는 시간과 <b>바베큐 이용시간(17~21시)</b>이 정확히 겹쳐요. "
+        +"고기는 <b>17시쯤 굽기 시작</b>해서 노을 볼 때 손 비어 있게 하는 걸 추천. "
+        +"입실할 때(15시)는 아직 물이 차오르는 중이라 갯벌이 조금 보일 수 있어요.",
+    foot:"🧂 <b>숙소에 양념이 하나도 없습니다</b> — 소금·후추·기름·쌈장·간장 전부 챙겨가야 해요(후기 확인). "
+        +"대신 <b>식기·수저·와인잔·소주잔·와인오프너·집게·가위는 완비</b>라 일회용품은 안 사도 됩니다. "
+        +"<b>비치타올과 튜브도 없으니</b> 각자 큰 수건 하나씩. 인덕션이 <b>1구뿐</b>이라 국·찌개는 한 번에 하나씩만 돼요.",
+    items:[
+      {time:"11:00", emoji:"🚇", title:"고잔역 집결", place:"gojan", note:"4호선·수인분당선 고잔역",
+       rnote:"차 태워줄 사람 기준으로 시간 맞추기 · 짐 실을 공간 미리 확인"},
+      {time:"11:00", emoji:"🛒", title:"장보기", place:"emart", note:"이마트 안산고잔점 (10:00–23:00)",
+       dnote:"🗓️ 9월 휴무는 10일·23일 → <b>9/13(일)은 정상영업</b>. 자세한 목록은 <b>🛒 준비물 탭</b> 참고",
+       rnote:"섬 안에도 마트가 있지만 작고 비싸요 → 고기·양념·술은 여기서 다 사기"},
+      {time:"13:00", emoji:"🚗", title:"영흥도로 출발", place:"bridge", note:"이마트 → 영흥대교 약 40~50분",
+       dnote:"🌉 <b>영흥대교 지나면 숙소까지 10분</b> · 다리 위 뷰 예쁨"},
+      {time:"15:00", emoji:"🔑", title:"입실 (체크인 15:00)", place:"damso", note:"010-3089-3369",
+       dnote:"🧊 <b>도착하자마자</b> 냉장고에 고기·술 넣고, 사장님께 자쿠지·바베큐 신청분 확인",
+       rnote:"얼리 체크인은 14시 5만원 / 13시 10만원 (선착순 전화예약) — 신청 안 했으면 15시 이전 도착해도 못 들어감"},
+      {time:"15:15", emoji:"🧳", title:"짐 풀고 쉬기", place:"damso",
+       dnote:"🩱 수영복은 이때 갈아입기 · 수영장 앞 바닥이 젖으면 미끄러우니 슬리퍼 필수"},
+      {time:"16:00", emoji:"🔥", title:"바베큐 준비", place:"damso", note:"가스그릴(숯 아님) · 이용시간 17:00–21:00",
+       dnote:"🥩 고기 실온에 미리 꺼내두기 · 채소 씻고 자르기 · 양념 세팅",
+       rnote:"후기상 <b>가스가 중간에 떨어질 수 있음</b> → 사장님께 요청하면 바로 교체해주심"},
+      {time:"17:00", emoji:"🍖", title:"바베큐 시작", place:"damso", hl:true,
+       dnote:"🌊 <b>만조 18:10</b> — 물이 차오르면서 수영장이 바다에 이어진 것처럼 보이는 시간"},
+      {time:"18:10", emoji:"🌅", title:"만조 + 노을 ★ 오늘의 하이라이트", place:"damso", hl:true,
+       note:"일몰 18:46 · 골든아워 17:50~18:46 · 블루아워 ~19:15",
+       dnote:"📷 <b>여기가 사진 시간</b> — 물 가득 찬 인피니티풀 + 서해 낙조. 4명 다 물에 들어가 있기 좋은 타이밍"},
+      {time:"19:00", emoji:"🏊", title:"수영 + 자쿠지", place:"damso", note:"개인 수영장 + 노천 자쿠지(45℃, 신청 완료)",
+       rnote:"⚠️ <b>수영장 온수는 신청 안 했어요</b> — 9월 중순 야외 풀은 20~23℃라 5~10분이면 추워집니다. "
+            +"<b>수영장 ↔ 자쿠지 번갈아</b> 쓰는 게 정답. 추우면 자쿠지에서 버티기",
+       dnote:"💨 풀 옆에 <b>바디드라이기</b>가 있어서 물 뚝뚝 안 흘리고 들어갈 수 있음"},
+      {time:"21:00", emoji:"🧽", title:"정리 + 돌아가며 샤워", place:"damso", note:"바베큐 이용시간 21시 종료",
+       rnote:"욕조 쪽은 커튼이 없고, 사장님이 예고 없이 오실 수 있다는 후기 → 욕조 스파는 기대 안 하는 게 마음 편함"},
+      {time:"22:00", emoji:"🍷", title:"술·수다 타임", place:"damso",
+       dnote:"🌙 <b>초승달(음력 8.3)이라 19:34에 달이 짐</b> → 밤엔 하늘 어두워서 별 보기 좋아요. 실내 전기그릴로 마시멜로 구워도 됨"},
+      {time:"24:00", emoji:"🛏️", title:"취침", place:"damso", note:"방마다 개별 냉난방 · 퀸 침대"},
+    ]
+  },
+  {
+    date:"9/14", dow:"월", title:"퇴실 · 갯벌과 점심",
+    stay:"— (11시 퇴실)",
+    move:"숙소 11:00 퇴실 → (선택) 점심·해변 → 고잔역 · 차로 약 1시간",
+    cond:{rain:"—", rainLevel:"", temp:"—"},
+    alert:"퇴실은 <b>11:00</b>입니다(연장은 12시까지 5만원 / 13시까지 10만원, 현장결제). "
+        +"아침 만조가 <b>06:19</b>라 <b>이른 아침 수영이 뷰가 제일 좋고</b>, 그 뒤로는 물이 계속 빠져서 "
+        +"9~11시엔 <b>갯벌</b>이 드러납니다 — 갯벌 산책할 거면 그때. 간조는 12:38이에요.",
+    foot:"🚗 11시에 나와서 바로 고잔역으로 가면 12시쯤 도착이라 시간이 남아요. "
+        +"<b>칼국수 점심 → 십리포/장경리 잠깐</b> 코스를 넣으면 딱 좋습니다(아래 타임라인 선택 항목). "
+        +"장경리해수욕장은 노송 사이 낙조로 유명한데 <b>낮에 가면 그냥 조용한 백사장</b>이라, 시간 없으면 십리포가 가깝고 무난해요.",
+    items:[
+      {time:"07:00", emoji:"🌅", title:"기상 (일출 06:14)", place:"damso",
+       dnote:"🌊 <b>만조 06:19</b> — 일어나자마자가 물이 제일 많이 찬 시간. 아침 수영 각"},
+      {time:"08:00", emoji:"🍳", title:"아침 (남은 재료 처리)", place:"damso",
+       rnote:"인덕션 1구 + 실내 전기그릴 + 오븐겸 에어프라이어 있음 · 어제 남은 고기·라면·햇반으로 해결"},
+      {time:"09:00", emoji:"🦀", title:"갯벌 산책 or 마지막 수영", place:"damso",
+       dnote:"🐚 물 빠지는 중(간조 12:38) → <b>숙소 앞이 바로 갯벌</b>. 젖어도 되는 신발 필요"},
+      {time:"10:00", emoji:"🧳", title:"짐 정리 + 청소", place:"damso",
+       rnote:"쓰레기 분리수거 · 그릴 잔반 정리 · 잊고 두기 쉬운 것: 충전기, 수영복, 널어둔 수건"},
+      {time:"11:00", emoji:"🚪", title:"퇴실", place:"damso", note:"기본 퇴실 11:00",
+       dnote:"⏰ 더 놀고 싶으면 <b>12시 퇴실 5만원 / 13시 퇴실 10만원</b> · 전화로 미리 (010-3089-3369)"},
+      {time:"11:30", emoji:"🍜", title:"(선택) 점심 — 바지락칼국수", place:"kalguksu", note:"영흥 오면 이건 먹고 가야",
+       dnote:"🐚 진두 쪽엔 조개구이·회 집도 많음 — 🍽️ 주변 탭 참고"},
+      {time:"12:40", emoji:"🌲", title:"(선택) 십리포해수욕장", place:"simnipo", note:"서어나무 군락 + 자갈해변 · 15~20분이면 충분",
+       dnote:"🌊 장경리(차 15분)는 낙조 명소라 낮엔 십리포가 더 나아요"},
+      {time:"13:30", emoji:"🌉", title:"영흥대교 건너 육지로", place:"bridge"},
+      {time:"14:30", emoji:"🚇", title:"고잔역 해산", place:"gojan", note:"숙소에서 약 1시간",
+       rnote:"일요일 밤/월요일 낮이라 정체는 크지 않지만 여유 30분은 두기"},
+    ]
+  }
+];
+
+/* ───────── 준비물 · 장보기 ───────── */
+const PREP = [
+  {sec:"🧂 이건 숙소에 없어요 — 안 사면 곤란", tag:"후기 기준 · 최우선", items:[
+    {id:"salt", name:"소금 · 후추 · 식용유", note:"<b>기본 양념이 전혀 제공되지 않습니다.</b> 고기 구울 거면 필수"},
+    {id:"sauce", name:"쌈장 · 간장 · 참기름", note:"쌈장 없으면 삼겹살이 서럽습니다"},
+    {id:"towel", name:"비치타올 / 큰 수건 (1인 1개)", note:"수건은 있지만 <b>비치타올은 없음</b> · 자쿠지·수영장용으로 별도"},
+    {id:"tube", name:"튜브 · 물놀이 용품", note:"<b>대여 없음</b> · 필요하면 직접 가져가기"},
+    {id:"slipper", name:"슬리퍼 (미끄럼 방지)", note:"후기: <b>수영장 앞 바닥이 젖으면 미끄러움</b>"},
+    {id:"swim", name:"수영복 · 래시가드 · 방수팩", note:"9월 중순이라 <b>가운이나 후드 한 장</b> 있으면 든든"},
+  ]},
+  {sec:"🥩 바베큐 (4인 기준)", tag:"가스그릴 · 17~21시", items:[
+    {id:"pork", name:"삼겹살 + 목살 1.2~1.6kg", note:"4명이면 1인 300~400g · 두툼한 걸로"},
+    {id:"seafood", name:"새우 · 가리비 · 소시지", note:"바다 앞이니까 새우 굽기 좋아요"},
+    {id:"veg", name:"상추 · 깻잎 · 마늘 · 쌈무", note:""},
+    {id:"veg2", name:"버섯 · 양파 · 파채", note:"고기 사이 빈틈 채우기"},
+    {id:"foil", name:"호일 · 키친타월 · 물티슈", note:"호일 깔면 그릴 청소가 훨씬 쉬움"},
+    {id:"marsh", name:"마시멜로 (선택)", note:"<b>가스그릴이라 굽기 어렵다는 후기</b> · 실내 전기그릴이 오히려 나음"},
+  ]},
+  {sec:"🍚 식사 · 술", tag:"저녁 마무리 + 아침", items:[
+    {id:"rice", name:"햇반 · 즉석 된장찌개/국", note:"인덕션이 <b>1구</b>라 복잡한 요리는 비추"},
+    {id:"ramen", name:"라면 · 김치", note:"밤에도 아침에도 정답"},
+    {id:"alcohol", name:"맥주 · 소주 · 와인", note:"<b>와인잔·소주잔·와인오프너 다 있음</b> 🍷"},
+    {id:"drink", name:"음료 · 탄산 · 이온음료", note:"정수기 있어서 생수는 조금만"},
+    {id:"ice", name:"얼음", note:"수영하다 마실 것용"},
+    {id:"snack", name:"과일 · 과자 · 안주", note:"수박·포도 챙기면 풀사이드 각"},
+  ]},
+  {sec:"🎒 개인 짐", tag:"각자 챙기기", items:[
+    {id:"charger", name:"충전기 · 보조배터리", note:""},
+    {id:"speaker", name:"블루투스 스피커", note:"독채라 눈치 덜 봐도 됨(단 밤늦게는 매너)"},
+    {id:"med", name:"상비약 · 모기약 · 선크림", note:"9월에도 서해 모기 있습니다"},
+    {id:"camera", name:"카메라 / 삼각대", note:"일몰 18:46 · 4명 다 나오는 사진 찍으려면 삼각대"},
+    {id:"cash", name:"현금 or 계좌이체 준비", note:"<b>현장결제 10만원</b>(자쿠지 5만 + 바베큐 5만)"},
+    {id:"shoes", name:"젖어도 되는 신발", note:"9/14 오전 갯벌용"},
+  ]},
+  {sec:"🚫 안 사도 되는 것", tag:"숙소에 이미 있음", items:[
+    {id:"no1", name:"일회용 접시 · 수저 · 컵", note:"식기·수저·집게·가위·국자 <b>전부 완비</b>"},
+    {id:"no2", name:"숯 · 토치 · 그릴망", note:"가스그릴이 설치돼 있음"},
+    {id:"no3", name:"생수 (많이)", note:"정수기 있음"},
+    {id:"no4", name:"이불 · 베개", note:"기준 4인분 침구 제공 (추가 필요 시 현장 3~5만원)"},
+  ]},
+];
+
+/* ───────── 주변 (퇴실 후 / 급할 때) ───────── */
+const FOODLIST = [
+  {sec:"🐚 퇴실하고 점심", tag:"9/14 · 차 8~15분", items:[
+    {id:"kal", name:"영흥도 바지락해물칼국수", hours:"영흥북로 · 진두 방면", type:"food",
+     lat:37.267950, lng:126.495020, desc:"영흥도 하면 바지락칼국수. 퇴실 후 점심 1순위 코스.",
+     naver:"https://map.naver.com/p/search/영흥도 바지락해물칼국수"},
+    {id:"jindu", name:"진두 식당가 (조개구이·회)", hours:"영흥수협 회센터 주변", type:"food",
+     lat:37.256000, lng:126.498400, desc:"섬에서 제일 큰 상권. 조개구이·활어회·백반이 모여 있어요. 미진상회조개구이·만수네회센터 등.",
+     naver:"https://map.naver.com/p/search/영흥도 조개구이"},
+    {id:"yongdamF", name:"용담리 회마을", hours:"숙소 도보 5~10분", type:"food",
+     lat:37.246160, lng:126.479590, desc:"오성회집·성난파도·창수네식당. <b>숙소에서 걸어갈 수 있는 유일한 식당가</b> — 차 안 움직이고 싶을 때.",
+     naver:"https://map.naver.com/p/search/영흥도 용담리 회마을"},
+  ]},
+  {sec:"☕ 카페", tag:"쉬어갈 때", items:[
+    {id:"mud", name:"머드포레스트", hours:"숙소 도보 2분", type:"cafe",
+     lat:37.243630, lng:126.481110, desc:"숙소 바로 아래. 커피 급할 때 제일 가까움.",
+     naver:"https://map.naver.com/p/search/영흥도 머드포레스트"},
+    {id:"cat", name:"고양이역 카페", hours:"차 5분", type:"cafe",
+     lat:37.255000, lng:126.485700, desc:"폐역 컨셉 감성 카페. 영흥도 오면 다들 들르는 곳.",
+     naver:"https://map.naver.com/p/search/영흥도 고양이역 카페"},
+  ]},
+  {sec:"🌲 잠깐 들르기 좋은 곳", tag:"퇴실 후 30분~1시간", items:[
+    {id:"sim", name:"십리포해수욕장", hours:"숙소에서 차 12분", type:"beach",
+     lat:37.281465, lng:126.485855, desc:"국내 최대 <b>서어나무(소사나무) 군락</b>이 방풍림처럼 서 있는 자갈해변. 짧게 산책하기 딱.",
+     naver:"https://map.naver.com/p/search/십리포해수욕장"},
+    {id:"jang", name:"장경리해수욕장", hours:"숙소에서 차 15분", type:"beach",
+     lat:37.272880, lng:126.450780, desc:"100년 노송지대 사이로 보는 낙조가 영흥도 최고. <b>다만 해질녘에 가야 값어치</b>가 있어요.",
+     naver:"https://map.naver.com/p/search/장경리해수욕장"},
+    {id:"guksa", name:"국사봉", hours:"정상까지 30~40분", type:"beach",
+     lat:37.268240, lng:126.467110, desc:"영흥도 최고봉 123m. 섬 전체와 서해가 내려다보임. 등산 의욕 있을 때만.",
+     naver:"https://map.naver.com/p/search/영흥도 국사봉"},
+  ]},
+  {sec:"🏪 급할 때", tag:"깜빡한 거 사러", items:[
+    {id:"osungF", name:"오성매점", hours:"숙소 도보 3분", type:"mart",
+     lat:37.245590, lng:126.480040, desc:"제일 가까운 구멍가게. 얼음·라면·음료 정도.",
+     naver:"https://map.naver.com/p/search/영흥도 오성매점"},
+    {id:"cu", name:"진두 CU / GS25", hours:"차 8분 · 24시간", type:"mart",
+     lat:37.256020, lng:126.498430, desc:"제대로 된 편의점은 진두까지 나가야 해요.",
+     naver:"https://map.naver.com/p/search/영흥면 CU"},
+  ]},
+];
+
+/* ───────── 지출 ─────────
+   금액은 '전체 합계'로 저장하고, 각 항목마다 누가 냈는지(payer)와 누가 나눠 낼지(who)를 기록한다.
+   메모 칸 뒤에 "지출자:소진 · 분담:은정,주희" 형태로 붙여 저장해서 복사해도 뜻이 통하게 했다. */
+const MEMBERS = ["소진","은정","주희","채아"];
+const EXP_KEY = 'yeongheung_expense_v1';
+const EXP_CATS = ["숙박","옵션","장보기","식사","교통","기타"];
+const PAYERS = MEMBERS.concat(["공동"]);
+
+const EXPENSE_SEED = [
+  {id:'s1', date:'9/13', cat:'숙박', name:'스테이담소 풀빌라 1박 (기준 4인)', amount:550000,
+   memo:'정상가 · 추가인원 없음 · 지출자:공동'},
+  {id:'s2', date:'9/13', cat:'옵션', name:'감성 노천 자쿠지 (45℃)', amount:50000,
+   memo:'현장결제 · 지출자:공동'},
+  {id:'s3', date:'9/13', cat:'옵션', name:'개별테라스 가스그릴 바베큐 (2–4인)', amount:50000,
+   memo:'현장결제 · 17~21시 1회 · 지출자:공동'},
+];
+
+const PAYER_RE = /\s*·?\s*지출자\s*:\s*([^\s·]+)\s*$/;
+const WHO_RE   = /\s*·?\s*분담\s*:\s*([^·]+?)\s*(?=·\s*지출자|$)/;
+
+function splitMeta(memo){
+  let raw = String(memo||'');
+  let payer = '공동', who = MEMBERS.slice();
+  const mp = raw.match(PAYER_RE);
+  if(mp && PAYERS.indexOf(mp[1])>=0){ payer = mp[1]; raw = raw.replace(PAYER_RE,''); }
+  const mw = raw.match(WHO_RE);
+  if(mw){
+    const list = mw[1].split(',').map(s=>s.trim()).filter(s=>MEMBERS.indexOf(s)>=0);
+    if(list.length) who = list;
+    raw = raw.replace(WHO_RE,'');
+  }
+  return {memo: raw.replace(/^\s*·\s*/,'').trim(), payer: payer, who: who};
+}
+function joinMeta(memo, payer, who){
+  let out = String(memo||'').replace(WHO_RE,'').replace(PAYER_RE,'').trim();
+  if(who.length && who.length < MEMBERS.length) out = (out ? out+' · ' : '') + '분담:' + who.join(',');
+  out = (out ? out+' · ' : '') + '지출자:' + payer;
+  return out;
+}
+let expEditId = null;
+
+function expStore(){
+  try{ const o = JSON.parse(localStorage.getItem(EXP_KEY)||'{}');
+       return {added:o.added||[], hidden:o.hidden||[]}; }
+  catch(e){ return {added:[], hidden:[]}; }
+}
+function expSave(o){ try{ localStorage.setItem(EXP_KEY, JSON.stringify(o)); }catch(e){ alert('저장 실패 — 브라우저 저장공간을 확인해주세요.'); } }
+function expAll(){
+  const st = expStore();
+  return EXPENSE_SEED.concat(st.added).filter(e=>st.hidden.indexOf(e.id)<0);
+}
+function won(n){ return Math.round(n).toLocaleString('ko-KR')+'원'; }
+function dateKey(d){ const m=String(d).match(/(\d+)\/(\d+)/); return m ? (+m[1])*100+(+m[2]) : 9999; }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+/* 최소 횟수 송금 계산 — 많이 낸 사람과 덜 낸 사람을 큰 금액부터 짝지어 상계 */
+function settle(net){
+  const cred = [], debt = [];
+  Object.keys(net).forEach(k=>{
+    const v = Math.round(net[k]);
+    if(v > 0) cred.push({who:k, amt:v});
+    else if(v < 0) debt.push({who:k, amt:-v});
+  });
+  cred.sort((a,b)=>b.amt-a.amt); debt.sort((a,b)=>b.amt-a.amt);
+  const out = [];
+  let i=0, j=0;
+  while(i<debt.length && j<cred.length){
+    const m = Math.min(debt[i].amt, cred[j].amt);
+    if(m > 0) out.push({from:debt[i].who, to:cred[j].who, amt:m});
+    debt[i].amt -= m; cred[j].amt -= m;
+    if(debt[i].amt <= 0) i++;
+    if(cred[j].amt <= 0) j++;
+  }
+  return out;
+}
+
+/* ───────── 실시간 예보 ─────────
+   Open-Meteo는 약 16일 앞까지만 준다. 여행이 그 밖이면 조용히 "아직 예보 범위 밖"으로 표시한다. */
+const FC_KEY = 'yeongheung_forecast_v1';
+const FC_LAT = 37.2440, FC_LNG = 126.4804;
+const FC_DATES = {'9/13':'2026-09-13', '9/14':'2026-09-14'};
+let fcStamp = null, fcOutOfRange = false;
+
+function round1(x){ return Math.round(x*10)/10; }
+function rainLabel(mm, prob){
+  if(mm >= 3)   return '비';
+  if(mm >= 0.5) return '약한 비';
+  if(prob >= 60) return '흐림(비 가능)';
+  if(prob >= 30) return '구름많음';
+  return '맑음';
+}
+function sliceHours(times, vals, iso, from, to){
+  const out = [];
+  for(let i=0;i<times.length;i++){
+    if(times[i].slice(0,10) !== iso) continue;
+    const h = +times[i].slice(11,13);
+    if(h >= from && h < to) out.push(vals[i]);
+  }
+  return out.filter(v=>v!==null && v!==undefined);
+}
+const sum = a => a.reduce((s,x)=>s+x,0);
+const maxOf = a => a.length ? Math.max.apply(null,a) : null;
+const minOf = a => a.length ? Math.min.apply(null,a) : null;
+
+function buildCond(iso, land){
+  const lt = land.hourly.time;
+  const mMM = sum(sliceHours(lt, land.hourly.precipitation, iso, 6, 12));
+  const aMM = sum(sliceHours(lt, land.hourly.precipitation, iso, 12, 18));
+  const mP  = maxOf(sliceHours(lt, land.hourly.precipitation_probability, iso, 6, 12)) || 0;
+  const aP  = maxOf(sliceHours(lt, land.hourly.precipitation_probability, iso, 12, 18)) || 0;
+  const di  = land.daily.time.indexOf(iso);
+  const dayMM = di >= 0 ? (land.daily.precipitation_sum[di] || 0) : (mMM + aMM);
+
+  let rain = '오전 ' + rainLabel(mMM, mP) + ' · 오후 ' + rainLabel(aMM, aP);
+  if(dayMM >= 1) rain += ' · ' + round1(dayMM) + 'mm';
+
+  const out = { rain: rain, rainLevel: dayMM >= 10 ? 'heavy' : '' };
+  if(di >= 0 && land.daily.temperature_2m_min){
+    out.temp = Math.round(land.daily.temperature_2m_min[di]) + '~' + Math.round(land.daily.temperature_2m_max[di]) + '℃';
+  }
+  const ev = sliceHours(lt, land.hourly.temperature_2m, iso, 17, 21);
+  if(ev.length) out.evening = '저녁 ' + Math.round(minOf(ev)) + '~' + Math.round(maxOf(ev)) + '℃';
+  return out;
+}
+function applyForecast(land){
+  DAYS.forEach(d=>{
+    const iso = FC_DATES[d.date];
+    if(!iso || land.daily.time.indexOf(iso) < 0) return;
+    try{ Object.assign(d.cond, buildCond(iso, land)); }catch(e){}
+  });
+}
+function loadForecast(){
+  const url = 'https://api.open-meteo.com/v1/forecast?latitude='+FC_LAT+'&longitude='+FC_LNG
+    +'&hourly=precipitation_probability,precipitation,temperature_2m'
+    +'&daily=precipitation_sum,temperature_2m_max,temperature_2m_min'
+    +'&timezone=Asia%2FSeoul&forecast_days=16';
+  try{
+    const c = JSON.parse(localStorage.getItem(FC_KEY)||'null');
+    if(c && c.land){ applyForecast(c.land); fcStamp = c.ts; repaintCurrent(); }
+  }catch(e){}
+  fetch(url).then(r=>r.json()).then(land=>{
+    if(!land || !land.hourly) throw new Error('bad forecast');
+    const has = land.daily.time.indexOf(FC_DATES['9/13']) >= 0;
+    fcOutOfRange = !has;
+    if(has){
+      fcStamp = new Date().toISOString();
+      try{ localStorage.setItem(FC_KEY, JSON.stringify({ts:fcStamp, land:land})); }catch(e){}
+      applyForecast(land);
+    }
+    repaintCurrent();
+  }).catch(()=>{});
+}
+function daysLeft(){
+  const t = new Date(); t.setHours(0,0,0,0);
+  return Math.round((new Date('2026-09-13T00:00:00+09:00') - t) / 86400000);
+}
+function fcStampText(){
+  if(fcStamp){
+    const d = new Date(fcStamp), p = n => String(n).padStart(2,'0');
+    return '<span style="color:var(--muted)">🔄 예보 갱신: '+(d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes())+' 기준 (Open-Meteo)</span>';
+  }
+  const dl = daysLeft();
+  if(dl > 15) return '<span style="color:var(--muted)">⏳ D-'+dl+' — 날씨 예보는 <b>여행 15일 전(8/29쯤)</b>부터 이 자리에 자동으로 뜹니다. 물때·해·달은 이미 확정값이에요.</span>';
+  return '<span style="color:var(--muted)">📡 예보를 못 받아왔어요 — 아래 링크로 확인해주세요.</span>';
+}
+
+const TYPE_COLOR = {stay:"#F2A65A", beach:"#3E9EBC", food:"#E8664F", cafe:"#6FA98A", transport:"#1B2A41", mart:"#8A6BB1"};
+const map = L.map('map', {scrollWheelZoom:false, zoomControl:false});
+L.control.zoom({position:'bottomright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19, subdomains:'abcd'
+}).addTo(map);
+
+let layer = L.layerGroup().addTo(map);
+let routeLine = null;
+let allLatlngs = [];
+const markerById = {};
+
+function pinIcon(color,label){
+  return L.divIcon({className:'pin-marker',
+    html:'<div class="pm" style="background:'+color+'"><span>'+label+'</span></div>',
+    iconSize:[30,30], iconAnchor:[8,28], popupAnchor:[6,-26]});
+}
+function showMapCol(){
+  document.querySelector('.wrap').classList.remove('solo');
+  document.querySelector('.map-col').style.display = '';
+}
+function hideMapCol(){
+  document.querySelector('.wrap').classList.add('solo');
+  document.querySelector('.map-col').style.display = 'none';
+}
+function clearMap(){
+  showMapCol();
+  layer.clearLayers();
+  if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
+  Object.keys(markerById).forEach(k=>delete markerById[k]);
+}
+function dayPlaces(day){
+  const order=[]; const m={};
+  day.items.forEach(it=>{ if(!it.place) return;
+    if(!m[it.place]){ m[it.place]={id:it.place,times:[]}; order.push(it.place); }
+    m[it.place].times.push({time:it.time,title:it.title,emoji:it.emoji});
+  });
+  return order.map((id,i)=>Object.assign({seq:i+1,id,times:m[id].times}, PLACES[id]));
+}
+function condBar(dateKeyStr, c){
+  const t = TIDE[dateKeyStr];
+  let h = '<div class="cond-bar">';
+  h += '<span class="cond rain '+(c.rainLevel||'')+'"><span class="ci">☔</span><span class="cl">강수</span> <span class="cv">'+(c.rain||'—')+'</span></span>';
+  if(c.temp) h += '<span class="cond temp"><span class="ci">🌡️</span><span class="cl">기온</span> <span class="cv">'+c.temp+'</span></span>';
+  if(c.evening) h += '<span class="cond temp"><span class="ci">🌆</span><span class="cl">밤</span> <span class="cv">'+c.evening+'</span></span>';
+  h += '<span class="cond tide"><span class="ci">🌊</span><span class="cl">만조</span> <span class="cv">'+t.high.join(' / ')+'</span></span>';
+  h += '<span class="cond tide"><span class="ci">🏖️</span><span class="cl">간조</span> <span class="cv">'+t.low.join(' / ')+'</span></span>';
+  h += '<span class="cond tide"><span class="ci">〰️</span><span class="cl">물때</span> <span class="cv">'+t.mul+'</span></span>';
+  h += '<span class="cond sun"><span class="ci">🌅</span><span class="cl">일출</span> <span class="cv">'+t.sunrise+'</span></span>';
+  h += '<span class="cond sun"><span class="ci">🌇</span><span class="cl">일몰</span> <span class="cv">'+t.sunset+'</span></span>';
+  h += '<span class="cond moon"><span class="ci">🌙</span><span class="cl">달</span> <span class="cv">'+t.lunar+' · '+t.moonset+' 짐</span></span>';
+  return h + '</div>';
+}
+const tideNote =
+  '<div style="margin-top:9px;font-size:11.5px;line-height:1.55;color:var(--muted)">'
+  +'📌 <b style="color:var(--sea)">물때를 보는 이유</b> — 스테이담소 앞은 갯벌이라 <b style="color:var(--sea)">물이 차야 수영장이 바다에 이어진 것처럼</b> 보입니다. '
+  +'물이 빠지면 풀 너머가 온통 갯벌이에요. 이번 9·10물은 조차가 <b style="color:var(--sea)">8m 가까이</b> 되는 큰 물때라 차이가 확실합니다. '
+  +'만조·간조는 국립해양조사원 영흥도 관측소 예보값이라 <b style="color:var(--sea)">날씨와 달리 바뀌지 않아요</b>.'
+  +'</div>';
+const liveLinks =
+  '<div class="links"><b style="align-self:center;color:var(--muted);font-weight:500">확인용 링크:</b>'
+  +'<a href="https://www.badatime.com/151-2026-09-13.html" target="_blank" rel="noopener">영흥도 물때표</a>'
+  +'<a href="https://www.weather.go.kr/w/weather/forecast/short-term.do" target="_blank" rel="noopener">기상청 단기예보</a>'
+  +'<a href="https://www.staydamso.com/" target="_blank" rel="noopener">스테이담소 홈페이지</a>'
+  +'<a href="tel:010-3089-3369">📞 숙소 010-3089-3369</a></div>';
+
+function haversine(aLat,aLng,bLat,bLng){
+  const R=6371,r=Math.PI/180;
+  const dLat=(bLat-aLat)*r, dLng=(bLng-aLng)*r;
+  const s=Math.sin(dLat/2)**2+Math.cos(aLat*r)*Math.cos(bLat*r)*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function naverDir(f,t,mode){
+  return 'https://map.naver.com/p/directions/'
+    +f.lng+','+f.lat+','+encodeURIComponent(f.name)+',,/'
+    +t.lng+','+t.lat+','+encodeURIComponent(t.name)+',,/-/'+mode;
+}
+function routeChip(f,t){
+  const km=haversine(f.lat,f.lng,t.lat,t.lng);
+  if(km<0.25) return '';
+  const drive = km > 1.2;
+  const mode = drive ? 'car' : 'walk';
+  const icon = drive ? '🚗' : '🚶';
+  const label = drive ? '차' : '도보';
+  const timeTxt = drive ? '' : (' · 약 '+Math.max(1,Math.round(km*1.3/4.2*60))+'분');
+  return '<a class="route" href="'+naverDir(f,t,mode)+'" target="_blank" rel="noopener">'
+        +'🧭 '+f.name+' <span class="arr">→</span> '+t.name+' · '+icon+' '+label+timeTxt+' 길찾기</a>';
+}
+
+let currentView = {type:'day', idx:0};
+function setActiveTab(idx){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', i===idx));
+}
+function repaintCurrent(){
+  if(currentView.type === 'day') renderDay(currentView.idx);
+}
+
+function renderDay(idx){
+  setActiveTab(idx);
+  currentView = {type:'day', idx:idx};
+  const day = DAYS[idx];
+  document.getElementById('planHead').innerHTML =
+    '<div class="ph-title">Day '+(idx+1)+' · '+day.date+' ('+day.dow+') — '+day.title+'</div>'
+    +'<span class="ph-stay">🏠 '+day.stay+'</span>'
+    +'<div class="ph-move">🧭 <span>'+day.move+'</span></div>'
+    + condBar(day.date, day.cond)
+    + '<div style="margin-top:7px;font-size:11px">'+fcStampText()+'</div>'
+    + (day.alert ? '<div class="ph-alert">🌊 '+day.alert+'</div>' : '');
+  document.getElementById('foot').innerHTML = '💡 '+day.foot+tideNote+liveLinks;
+
+  clearMap();
+  const places = dayPlaces(day);
+  const latlngs = [];
+  const focus = [];   // 안산(고잔역·이마트)은 축척에서 빼서 섬 안 디테일을 살린다
+  places.forEach(p=>{ if(p.lng < 126.6) focus.push([p.lat,p.lng]); });
+  places.forEach(p=>{
+    const color = TYPE_COLOR[p.type] || "#3E9EBC";
+    const mk = L.marker([p.lat,p.lng], {icon:pinIcon(color,p.seq)}).addTo(layer);
+    const timesHtml = p.times.map(t=>'<span>'+t.emoji+' '+t.time+' '+t.title+'</span>').join('');
+    mk.bindPopup('<div class="pop-t">'+p.seq+'. '+p.name+'</div><div class="pop-a">'+p.addr+'</div>'
+      +'<div class="pop-times">'+timesHtml+'</div>'
+      +'<a class="naver-link" href="'+p.naver+'" target="_blank" rel="noopener">네이버지도에서 열기 →</a>');
+    markerById[p.id]=mk;
+    latlngs.push([p.lat,p.lng]);
+  });
+  if(latlngs.length>1) routeLine = L.polyline(latlngs, {color:'#3E9EBC',weight:3,opacity:.55,dashArray:'2 8',lineCap:'round'}).addTo(map);
+  const fitTargets = focus.length ? focus : latlngs;
+  if(fitTargets.length) map.fitBounds(L.latLngBounds(fitTargets).pad(0.25), {maxZoom:15});
+  allLatlngs = latlngs;
+  setTimeout(()=>map.invalidateSize(), 60);
+
+  const panel = document.getElementById('panel');
+  panel.innerHTML = '<div class="timeline" id="timeline"></div>';
+  const tl = document.getElementById('timeline');
+  const seqOf={}; places.forEach(p=>seqOf[p.id]=p.seq);
+  let prevPlace=null;
+  day.items.forEach(it=>{
+    const p = it.place ? PLACES[it.place] : null;
+    const type = p ? p.type : 'plain';
+    let routeHtml='';
+    if(p && prevPlace && it.place!==prevPlace) routeHtml = routeChip(PLACES[prevPlace], p);
+    if(p) prevPlace = it.place;
+    const row = document.createElement('div');
+    row.className = 'ti' + (p ? ' clickable' : '') + (it.hl ? ' hl' : '');
+    row.innerHTML =
+      '<div class="time">'+it.time+'</div>'
+      +'<div class="node"><div class="badge '+type+'">'+it.emoji+'</div>'
+      +'<div class="body"><div class="title">'+it.title+'</div>'
+      +(p ? '<div class="place"><span class="seq">'+seqOf[it.place]+'</span><span class="pin">📍</span>'+p.name+'</div>' : '')
+      +(it.note ? '<div class="note">'+it.note+'</div>' : '')
+      +(it.dnote ? '<div class="dnote">🗓️ <span>'+it.dnote+'</span></div>' : '')
+      +(it.rnote ? '<div class="rnote">⚠️ <span>'+it.rnote+'</span></div>' : '')
+      + routeHtml
+      +'</div></div>';
+    if(p) row.addEventListener('click', (e)=>{
+      if(e.target.closest('.route')) return;
+      document.querySelectorAll('.ti').forEach(x=>x.classList.remove('active'));
+      row.classList.add('active');
+      const mk = markerById[it.place];
+      if(mk){ map.panTo(mk.getLatLng(),{animate:true}); mk.openPopup(); }
+    });
+    tl.appendChild(row);
+  });
+}
+
+/* ───────── 준비물 탭 ───────── */
+const PREP_KEY = 'yeongheung_prep_v1';
+function prepDone(){
+  try{ return JSON.parse(localStorage.getItem(PREP_KEY)||'[]'); }catch(e){ return []; }
+}
+function prepToggle(id){
+  const d = prepDone();
+  const i = d.indexOf(id);
+  if(i<0) d.push(id); else d.splice(i,1);
+  try{ localStorage.setItem(PREP_KEY, JSON.stringify(d)); }catch(e){}
+}
+function renderPrep(){
+  setActiveTab(2);
+  currentView = {type:'prep'};
+  hideMapCol();
+  const done = prepDone();
+  let total = 0, hit = 0;
+  PREP.forEach(g=>g.items.forEach(it=>{ total++; if(done.indexOf(it.id)>=0) hit++; }));
+
+  document.getElementById('planHead').innerHTML =
+    '<div class="ph-title">🛒 준비물 · 장보기</div>'
+    +'<div class="ph-sub">누르면 체크됩니다(이 브라우저에 저장). 이마트에서 카트 끌면서 그대로 훑으면 돼요.</div>'
+    +'<div class="prep-bar"><div class="prep-prog"><i style="width:'+(total?Math.round(hit/total*100):0)+'%"></i></div>'
+    +'<span class="prep-cnt">'+hit+' / '+total+'</span></div>';
+  document.getElementById('foot').innerHTML =
+    '💡 목록의 근거는 스테이담소 <b>실제 후기 2건</b>입니다 — "기본 양념이 전혀 제공되지 않는다", "비치타올·튜브는 직접 지참", '
+    +'"식기·와인잔·오프너는 완비", "인덕션은 1구", "수영장 앞 바닥이 미끄럽다". '
+    +'<b>현장결제 10만원</b>(자쿠지 5만 + 바베큐 5만)도 잊지 마세요.'+liveLinks;
+
+  let html = '';
+  PREP.forEach(g=>{
+    html += '<div class="prep-sec"><h3>'+g.sec+' <span class="tag">· '+g.tag+'</span></h3>';
+    g.items.forEach(it=>{
+      const on = done.indexOf(it.id)>=0;
+      html += '<div class="pitem'+(on?' done':'')+'" data-pid="'+it.id+'">'
+        +'<div class="pbox">'+(on?'✓':'')+'</div>'
+        +'<div><div class="pname">'+it.name+'</div>'
+        +(it.note ? '<div class="pnote">'+it.note+'</div>' : '')+'</div></div>';
+    });
+    html += '</div>';
+  });
+  html += '<div class="prep-sec"><div class="exp-tools">'
+    +'<span class="exp-tool" id="prepCopy">📋 남은 것만 복사 (카톡용)</span>'
+    +'<span class="exp-tool" id="prepReset">↺ 체크 전부 지우기</span>'
+    +'</div></div>';
+
+  const panel = document.getElementById('panel');
+  panel.innerHTML = html;
+  panel.querySelectorAll('[data-pid]').forEach(el=>{
+    el.addEventListener('click', ()=>{ prepToggle(el.getAttribute('data-pid')); renderPrep(); });
+  });
+  document.getElementById('prepCopy').addEventListener('click', ()=>{
+    const d = prepDone();
+    let txt = '🛒 영흥도 장보기 (남은 것)\n';
+    PREP.forEach(g=>{
+      const rest = g.items.filter(it=>d.indexOf(it.id)<0);
+      if(!rest.length || g.sec.indexOf('안 사도') >= 0) return;
+      txt += '\n'+g.sec+'\n' + rest.map(it=>'· '+it.name).join('\n') + '\n';
+    });
+    navigator.clipboard.writeText(txt).then(
+      ()=>{ document.getElementById('prepCopy').textContent = '✅ 복사됨'; },
+      ()=>{ alert(txt); });
+  });
+  document.getElementById('prepReset').addEventListener('click', ()=>{
+    if(confirm('체크를 전부 지울까요?')){ try{ localStorage.removeItem(PREP_KEY); }catch(e){} renderPrep(); }
+  });
+}
+
+/* ───────── 주변 탭 ───────── */
+function renderFood(){
+  setActiveTab(3);
+  currentView = {type:'food'};
+  document.getElementById('planHead').innerHTML =
+    '<div class="ph-title">🍽️ 영흥도 주변</div>'
+    +'<div class="ph-sub">숙소가 섬 남쪽 끝이라 걸어갈 수 있는 곳은 많지 않아요. 카드를 누르면 지도에서 위치가 보입니다.</div>';
+  document.getElementById('foot').innerHTML =
+    '💡 <b>섬 안 상권은 진두(영흥면 소재지)에 몰려 있고</b> 숙소에서 차로 8분입니다. 걸어서 갈 수 있는 건 '
+    +'<b>용담리 회마을</b>(도보 5~10분)과 <b>오성매점</b>(도보 3분) 정도예요. '
+    +'영업시간·휴무는 바뀌니 방문 전 네이버지도에서 한 번 확인하세요.'+liveLinks;
+
+  clearMap();
+  const latlngs=[]; let n=0;
+  FOODLIST.forEach(g=>g.items.forEach(it=>{
+    n++; it._n=n;
+    const color = TYPE_COLOR[it.type];
+    const mk = L.marker([it.lat,it.lng], {icon:pinIcon(color,n)}).addTo(layer);
+    mk.bindPopup('<div class="pop-t">'+n+'. '+it.name+'</div>'
+      +'<div class="pop-a">'+it.hours+'</div>'
+      +'<a class="naver-link" href="'+it.naver+'" target="_blank" rel="noopener">네이버지도에서 열기 →</a>'
+      +'<br><a class="naver-link" style="color:#03875A" href="'+naverDir(PLACES.damso,{lng:it.lng,lat:it.lat,name:it.name},'car')+'" target="_blank" rel="noopener">🧭 숙소에서 길찾기 →</a>');
+    markerById['f'+n]=mk;
+    latlngs.push([it.lat,it.lng]);
+  }));
+  latlngs.push([PLACES.damso.lat, PLACES.damso.lng]);
+  const dmk = L.marker([PLACES.damso.lat,PLACES.damso.lng], {icon:pinIcon(TYPE_COLOR.stay,'🏠')}).addTo(layer);
+  dmk.bindPopup('<div class="pop-t">스테이담소 풀빌라</div><div class="pop-a">'+PLACES.damso.addr+'</div>');
+  allLatlngs = latlngs;
+  if(latlngs.length) map.fitBounds(L.latLngBounds(latlngs).pad(0.2), {maxZoom:15});
+  setTimeout(()=>map.invalidateSize(), 60);
+
+  let html='';
+  FOODLIST.forEach(g=>{
+    html += '<div class="food-sec"><h3>'+g.sec+' <span class="tag">· '+g.tag+'</span></h3>';
+    g.items.forEach(it=>{
+      const color = TYPE_COLOR[it.type];
+      html += '<div class="fcard" data-n="'+it._n+'">'
+        +'<div class="fnum" style="background:'+color+'">'+it._n+'</div>'
+        +'<div><div class="fname">'+it.name+'</div>'
+        +'<div class="fdesc">'+it.desc+'</div>'
+        +'<div class="fmeta">📍 <span class="hrs">'+it.hours+'</span></div></div></div>';
+    });
+    html += '</div>';
+  });
+  const panel = document.getElementById('panel');
+  panel.innerHTML = html;
+  panel.querySelectorAll('.fcard').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      panel.querySelectorAll('.fcard').forEach(c=>c.classList.remove('active'));
+      card.classList.add('active');
+      const mk = markerById['f'+card.getAttribute('data-n')];
+      if(mk){ map.panTo(mk.getLatLng(),{animate:true}); mk.openPopup(); }
+    });
+  });
+}
+
+/* ───────── 지출 탭 ───────── */
+let formWho = MEMBERS.slice();
+function renderExpense(){
+  setActiveTab(4);
+  currentView = {type:'expense'};
+  hideMapCol();
+
+  const list = expAll().slice().sort((a,b)=>dateKey(a.date)-dateKey(b.date)).map(e=>{
+    const m = splitMeta(e.memo);
+    return Object.assign({}, e, {memo:m.memo, payer:m.payer, who:m.who});
+  });
+  const total = list.reduce((s,e)=>s+e.amount,0);
+  const byCat = {};
+  const paid = {}, bear = {};
+  MEMBERS.forEach(m=>{ paid[m]=0; bear[m]=0; });
+  list.forEach(e=>{
+    byCat[e.cat] = (byCat[e.cat]||0)+e.amount;
+    if(e.payer === '공동') MEMBERS.forEach(m=>paid[m] += e.amount/MEMBERS.length);
+    else if(paid[e.payer] !== undefined) paid[e.payer] += e.amount;
+    const who = (e.who && e.who.length) ? e.who : MEMBERS;
+    who.forEach(m=>{ if(bear[m]!==undefined) bear[m] += e.amount/who.length; });
+  });
+  const net = {};
+  MEMBERS.forEach(m=>net[m] = paid[m]-bear[m]);
+  const transfers = settle(net);
+
+  document.getElementById('planHead').innerHTML =
+    '<div class="ph-title">💰 여행 지출</div>'
+    +'<div class="ph-sub">'+MEMBERS.join(' · ')+' 4명 기준. 누가 냈는지와 <b>누가 나눠 낼지</b>를 따로 잡을 수 있어요 '
+    +'(예: 셋만 먹은 점심). 항목을 누르면 수정됩니다.</div>';
+  document.getElementById('foot').innerHTML =
+    '💡 여기 기록은 <b>이 브라우저에만 저장</b>돼요(localStorage). 다 같이 보려면 <b>📋 복사</b>로 카톡에 붙여넣는 게 제일 빠릅니다. '
+    +'미리 넣어둔 3건(숙박 55만 + 자쿠지 5만 + 바베큐 5만 = <b>65만원, 1인 162,500원</b>)은 지출자가 <b>공동</b>으로 잡혀 있으니 '
+    +'실제로 결제한 사람으로 바꿔주세요.'+liveLinks;
+
+  let html = '<div class="exp-sec">';
+  html += '<div class="exp-sum">'
+    +'<div class="exp-card total"><div class="el">합계</div><div class="ev">'+won(total)+'</div></div>'
+    +'<div class="exp-card total"><div class="el">엔빵 (1인당 평균)</div><div class="ev">'+won(total/MEMBERS.length)+'</div></div>'
+    +'</div>';
+
+  html += '<div class="exp-settle">'
+    + (transfers.length
+        ? '<div class="st">💸 이렇게 보내면 끝</div>'
+          + transfers.map(t=>'<div class="pay-line">'+t.from+' → '+t.to+' <b>'+won(t.amt)+'</b></div>').join('')
+        : '<div class="st">✅ 정산 끝 — 딱 맞아요</div>')
+    + '<div class="sub" style="margin-top:7px">낸 돈 — '+MEMBERS.map(m=>m+' '+won(paid[m])).join(' · ')+'</div>'
+    + '<div class="sub">부담할 몫 — '+MEMBERS.map(m=>m+' '+won(bear[m])).join(' · ')+'</div>'
+    + '<div class="sub">※ 지출자가 <b>공동</b>인 항목은 4명이 똑같이 낸 것으로 봅니다.</div>'
+    + '</div>';
+
+  html += '<div class="exp-cats">';
+  EXP_CATS.forEach(c=>{ if(byCat[c]) html += '<span class="exp-cat cat-'+c+'">'+c+' '+won(byCat[c])+'</span>'; });
+  html += '</div>';
+
+  html += '<table class="exp-table"><thead><tr>'
+    +'<th>날짜</th><th>항목</th><th style="text-align:right">금액</th><th style="text-align:right">1인</th><th></th>'
+    +'</tr></thead><tbody>';
+  if(!list.length) html += '<tr><td colspan="5" style="color:var(--muted);padding:14px 6px">아직 기록된 지출이 없어요.</td></tr>';
+  list.forEach(e=>{
+    const who = (e.who && e.who.length) ? e.who : MEMBERS;
+    html += '<tr>'
+      +'<td class="edate">'+esc(e.date)+'</td>'
+      +'<td><span class="exp-cat cat-'+esc(e.cat)+'" style="margin-right:5px">'+esc(e.cat)+'</span>'
+      +'<span class="payer payer-'+esc(e.payer)+'" style="margin-right:5px">'+esc(e.payer)+'</span>'
+      +'<span class="ename">'+esc(e.name)+'</span>'
+      +(e.memo ? '<div class="ememo">'+esc(e.memo)+'</div>' : '')
+      +(who.length < MEMBERS.length ? '<div class="ememo" style="color:#B03A6B">↳ '+who.join('·')+' '+who.length+'명이 나눔</div>' : '')
+      +'</td>'
+      +'<td class="amt">'+won(e.amount)+'</td>'
+      +'<td class="per">'+won(e.amount/who.length)+'</td>'
+      +'<td style="white-space:nowrap">'
+      +'<button class="exp-edit" data-edit="'+esc(e.id)+'" title="수정">✏️</button>'
+      +'<button class="exp-del" data-del="'+esc(e.id)+'" title="삭제">✕</button></td>'
+      +'</tr>';
+  });
+  html += '</tbody></table>';
+
+  const ed = expEditId ? list.filter(x=>x.id===expEditId)[0] : null;
+  let lastPayer = '소진';
+  try{ lastPayer = localStorage.getItem('yeongheung_last_payer') || '소진'; }catch(e){}
+  const cur = ed || {date:'9/13', cat:'장보기', name:'', amount:'', memo:'', payer:lastPayer, who:MEMBERS.slice()};
+  if(ed) formWho = cur.who.slice();
+  const dateOpts = ['9/13','9/14'];
+  if(dateOpts.indexOf(cur.date)<0) dateOpts.push(cur.date);
+
+  html += '<div class="exp-form'+(ed?' editing':'')+'">'
+    +'<h4>'+(ed ? '✏️ 항목 수정' : '➕ 지출 추가')+'</h4>'
+    +'<div class="row">'
+    +'<select id="fDate">'+dateOpts.map(d=>'<option'+(d===cur.date?' selected':'')+'>'+d+'</option>').join('')+'</select>'
+    +'<select id="fCat">'+EXP_CATS.map(c=>'<option'+(c===cur.cat?' selected':'')+'>'+c+'</option>').join('')+'</select>'
+    +'<input class="f-name" id="fName" placeholder="항목 (예: 이마트 장보기)" value="'+esc(cur.name)+'">'
+    +'</div>'
+    +'<div class="row">'
+    +'<span style="font-size:11.5px;color:var(--muted)">낸 사람</span>'
+    +'<select id="fPayer">'+PAYERS.map(x=>'<option'+(x===cur.payer?' selected':'')+'>'+x+'</option>').join('')+'</select>'
+    +'<input class="f-amt" id="fAmt" inputmode="numeric" placeholder="금액" value="'+esc(cur.amount||'')+'">'
+    +'<button class="exp-add" id="fAdd">'+(ed ? '저장' : '추가')+'</button>'
+    +(ed ? '<button class="exp-cancel" id="fCancel">취소</button>' : '')
+    +'</div>'
+    +'<div class="row"><span style="font-size:11.5px;color:var(--muted)">나눠 낼 사람</span>'
+    + MEMBERS.map(m=>'<span class="who'+(formWho.indexOf(m)>=0?' on':'')+'" data-who="'+m+'">'+m+'</span>').join('')
+    +'</div>'
+    +'<div class="row"><input class="f-memo" id="fMemo" placeholder="메모 (선택)" value="'+esc(cur.memo||'')+'"></div>'
+    +'</div>';
+
+  html += '<div class="exp-tools">'
+    +'<span class="exp-tool" id="expCopy">📋 복사 (카톡용)</span>'
+    +'<span class="exp-tool" id="expReset">↺ 내가 추가한 것 모두 지우기</span>'
+    +'</div></div>';
+
+  const panel = document.getElementById('panel');
+  panel.innerHTML = html;
+
+  function removeItem(id, st){
+    st.added = st.added.filter(x=>x.id!==id);
+    if(st.hidden.indexOf(id)<0) st.hidden.push(id);
+  }
+  panel.querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const id = b.getAttribute('data-del');
+      if(!confirm('이 항목을 지울까요?')) return;
+      const st = expStore(); removeItem(id, st); expSave(st);
+      if(expEditId === id) expEditId = null;
+      renderExpense();
+    });
+  });
+  panel.querySelectorAll('[data-edit]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      expEditId = b.getAttribute('data-edit');
+      renderExpense();
+      const f = document.getElementById('fName');
+      if(f) f.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+  });
+  panel.querySelectorAll('[data-who]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const m = el.getAttribute('data-who');
+      const i = formWho.indexOf(m);
+      if(i<0) formWho.push(m); else if(formWho.length>1) formWho.splice(i,1);
+      el.classList.toggle('on', formWho.indexOf(m)>=0);
+    });
+  });
+  const cancelBtn = document.getElementById('fCancel');
+  if(cancelBtn) cancelBtn.addEventListener('click', ()=>{ expEditId=null; formWho=MEMBERS.slice(); renderExpense(); });
+
+  document.getElementById('fAdd').addEventListener('click', ()=>{
+    const name = document.getElementById('fName').value.trim();
+    const raw  = document.getElementById('fAmt').value.replace(/[^0-9]/g,'');
+    if(!name || !raw){ alert('항목과 금액을 입력해주세요.'); return; }
+    const payer = document.getElementById('fPayer').value;
+    try{ localStorage.setItem('yeongheung_last_payer', payer); }catch(e){}
+    const st = expStore();
+    if(expEditId) removeItem(expEditId, st);
+    st.added.push({
+      id: 'u'+Date.now(),
+      date: document.getElementById('fDate').value,
+      cat:  document.getElementById('fCat').value,
+      name: name,
+      amount: +raw,
+      memo: joinMeta(document.getElementById('fMemo').value.trim(), payer, formWho.slice())
+    });
+    expSave(st);
+    expEditId = null; formWho = MEMBERS.slice();
+    renderExpense();
+  });
+
+  document.getElementById('expCopy').addEventListener('click', ()=>{
+    let txt = '💰 영흥도 여행 지출 (9/13~14)\n\n';
+    list.forEach(e=>{
+      const who = (e.who && e.who.length) ? e.who : MEMBERS;
+      txt += '· '+e.date+' ['+e.cat+'] '+e.name+' — '+won(e.amount)+' (낸 사람: '+e.payer
+           + (who.length<MEMBERS.length ? ' / '+who.join('·')+' 분담' : '') + ')\n';
+    });
+    txt += '\n합계 '+won(total)+' · 1인 평균 '+won(total/MEMBERS.length)+'\n\n';
+    txt += '낸 돈 — '+MEMBERS.map(m=>m+' '+won(paid[m])).join(' / ')+'\n';
+    txt += '부담 몫 — '+MEMBERS.map(m=>m+' '+won(bear[m])).join(' / ')+'\n\n';
+    txt += transfers.length ? transfers.map(t=>'💸 '+t.from+' → '+t.to+' '+won(t.amt)).join('\n') : '✅ 정산 끝';
+    navigator.clipboard.writeText(txt).then(
+      ()=>{ document.getElementById('expCopy').textContent = '✅ 복사됨'; },
+      ()=>{ alert(txt); });
+  });
+  document.getElementById('expReset').addEventListener('click', ()=>{
+    if(confirm('이 브라우저에 추가·삭제한 내용을 모두 되돌립니다. 진행할까요?')){
+      expSave({added:[], hidden:[]});
+      renderExpense();
+    }
+  });
+}
+
+/* ───────── 탭 ───────── */
+const tabsEl = document.getElementById('tabs');
+DAYS.forEach((d,i)=>{
+  const el=document.createElement('div'); el.className='tab';
+  el.innerHTML='<div class="dnum">DAY '+(i+1)+'</div><div class="ddate">'+d.date+'</div><div class="dsub">'+d.dow+'요일</div>';
+  el.addEventListener('click', ()=>renderDay(i));
+  tabsEl.appendChild(el);
+});
+[['prep','BUY','🛒','준비물',renderPrep],
+ ['food','EAT','🍽️','주변',renderFood],
+ ['money','₩','💰','지출',renderExpense]].forEach(t=>{
+  const el=document.createElement('div'); el.className='tab '+t[0];
+  el.innerHTML='<div class="dnum">'+t[1]+'</div><div class="ddate">'+t[2]+'</div><div class="dsub">'+t[3]+'</div>';
+  el.addEventListener('click', t[4]);
+  tabsEl.appendChild(el);
+});
+
+document.getElementById('fitAll').addEventListener('click', ()=>{
+  const all = allLatlngs.concat([[PLACES.gojan.lat,PLACES.gojan.lng],[PLACES.damso.lat,PLACES.damso.lng]]);
+  map.fitBounds(L.latLngBounds(all).pad(0.2));
+});
+
+renderDay(0);
+loadForecast();
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) loadForecast(); });
+window.addEventListener('resize', ()=>map.invalidateSize());
+</script>
+</body>
+</html>
