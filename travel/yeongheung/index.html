@@ -465,7 +465,18 @@ const EXP_KEY = 'yeongheung_expense_v1';
 const EXP_CATS = ["숙박","옵션","장보기","식사","교통","기타"];
 const PAYERS = MEMBERS.concat(["공동"]);
 
-const EXPENSE_SEED = [
+/* 구글시트 동기화.
+   고성 여행 때 만든 Apps Script를 '여행별 시트' 버전으로 바꿔 재배포한 것 → URL은 그대로.
+   trip 값이 시트 탭 이름이 된다("지출-yeongheung"). SYNC_URL을 비우면 이 브라우저에만 저장된다.
+   localStorage는 캐시 + 오프라인 대기열 역할이라, 섬에서 신호 약해도 넣은 게 안 날아간다. */
+const SYNC_URL  = 'https://script.google.com/macros/s/AKfycbwLb77Kzw5ITIIOyzL_2UEFX3XBt3O9i7KjIAvcsJH0puuh0971ADBLFzDTJK3_ukrM/exec';
+const SYNC_KEY  = 'goseong2026';     // ← expense-sheet.gs의 SECRET과 동일해야 함
+const SYNC_TRIP = 'yeongheung';
+let syncState = SYNC_URL ? 'idle' : 'off';   // off | idle | syncing | error
+
+/* 예약분 3건. 시트가 비어 있을 때 딱 한 번 시트로 밀어 넣고,
+   그 뒤로는 시트가 유일한 원장이 된다(시트에서 고친 게 그대로 반영되도록). */
+const BOOTSTRAP = [
   {id:'s1', date:'9/13', cat:'숙박', name:'스테이담소 풀빌라 1박 (기준 4인)', amount:550000,
    memo:'정상가 · 추가인원 없음 · 지출자:공동'},
   {id:'s2', date:'9/13', cat:'옵션', name:'감성 노천 자쿠지 (45℃)', amount:50000,
@@ -473,6 +484,7 @@ const EXPENSE_SEED = [
   {id:'s3', date:'9/13', cat:'옵션', name:'개별테라스 가스그릴 바베큐 (2–4인)', amount:50000,
    memo:'현장결제 · 17~21시 1회 · 지출자:공동'},
 ];
+const EXPENSE_SEED = SYNC_URL ? [] : BOOTSTRAP;
 
 const PAYER_RE = /\s*·?\s*지출자\s*:\s*([^\s·]+)\s*$/;
 const WHO_RE   = /\s*·?\s*분담\s*:\s*([^·]+?)\s*(?=·\s*지출자|$)/;
@@ -500,13 +512,119 @@ let expEditId = null;
 
 function expStore(){
   try{ const o = JSON.parse(localStorage.getItem(EXP_KEY)||'{}');
-       return {added:o.added||[], hidden:o.hidden||[]}; }
-  catch(e){ return {added:[], hidden:[]}; }
+       return {added:o.added||[], hidden:o.hidden||[], pending:o.pending||[]}; }
+  catch(e){ return {added:[], hidden:[], pending:[]}; }
 }
 function expSave(o){ try{ localStorage.setItem(EXP_KEY, JSON.stringify(o)); }catch(e){ alert('저장 실패 — 브라우저 저장공간을 확인해주세요.'); } }
 function expAll(){
   const st = expStore();
-  return EXPENSE_SEED.concat(st.added).filter(e=>st.hidden.indexOf(e.id)<0);
+  // 시트와 아직 한 번도 못 맞췄으면(초기 로딩·구버전 백엔드) 예약 3건이라도 보여준다
+  const seed = (st.added.length || syncState === 'idle') ? EXPENSE_SEED : BOOTSTRAP;
+  return seed.concat(st.added.filter(a=>!seed.some(x=>x.id===a.id)))
+             .filter(e=>st.hidden.indexOf(e.id)<0);
+}
+/* 구글시트가 "9/13"을 날짜 값으로 바꿔버려서 "Sun Sep 13 2026..."로 돌아온다 → 다시 "9/13"으로 */
+function normDate(d){
+  const s = String(d||'').trim();
+  if(/^\d{1,2}\/\d{1,2}$/.test(s)) return s;
+  const dt = new Date(s);
+  if(!isNaN(dt.getTime())) return (dt.getMonth()+1)+'/'+dt.getDate();
+  return s;
+}
+/* 서버 응답(items)을 로컬 상태로 접어 넣는다. 아직 못 올린 대기열은 남겨둔다. */
+function foldServerItems(items){
+  const st = expStore();
+  const hidden = [], added = [];
+  items.forEach(it=>{
+    if(it.deleted){ hidden.push(it.id); return; }
+    if(added.some(a=>a.id===it.id)) return;   // 같은 id가 두 줄이면 첫 줄만
+    added.push({id:it.id, date:normDate(it.date), cat:it.cat, name:it.name, amount:it.amount, memo:it.memo});
+  });
+  st.pending.forEach(op=>{
+    if(op.action==='add' && !added.some(a=>a.id===op.item.id)) added.push(op.item);
+    if(op.action==='delete' && hidden.indexOf(op.id)<0) hidden.push(op.id);
+  });
+  st.added = added; st.hidden = hidden;
+  expSave(st);
+}
+function syncCall(payload){
+  return fetch(SYNC_URL, {
+    // text/plain 이어야 preflight(OPTIONS) 없이 Apps Script로 바로 간다
+    method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(Object.assign({key:SYNC_KEY, trip:SYNC_TRIP}, payload))
+  }).then(r=>r.json());
+}
+/* 시트가 완전히 비어 있을 때만 예약분 3건을 한 번 밀어 넣는다 */
+const BOOT_FLAG = 'yeongheung_bootstrapped_v1';
+function maybeBootstrap(items){
+  if(items && items.length) return false;
+  try{ if(localStorage.getItem(BOOT_FLAG)) return false; }catch(e){}
+  const st = expStore();
+  BOOTSTRAP.forEach(it=>{
+    if(st.added.some(a=>a.id===it.id)) return;
+    st.added.push(it);
+    st.pending.push({action:'add', item:it});
+  });
+  expSave(st);
+  try{ localStorage.setItem(BOOT_FLAG,'1'); }catch(e){}
+  return true;
+}
+/* 대기열을 순서대로 밀어 넣고, 마지막 목록으로 로컬을 갱신.
+
+   ⚠️ 먼저 list를 한 번 불러 **백엔드가 여행별 시트 버전인지** 확인한다.
+   구버전 Apps Script는 trip 값을 무시하고 고성 여행 시트("지출")에 그대로 쓰기 때문에,
+   확인 없이 보내면 남의 여행 장부를 오염시킨다. 아니면 쓰지 않고 대기열에 그대로 둔다. */
+const EXPECT_SHEET = '지출-' + SYNC_TRIP;
+let syncInFlight = null;   // 같은 대기열을 두 번 보내 시트에 중복 행이 생기는 걸 막는다
+function syncFlush(){
+  if(!SYNC_URL) return Promise.resolve();
+  if(syncInFlight) return syncInFlight;
+  syncState = 'syncing'; paintSyncBadge();
+
+  syncInFlight = syncCall({action:'list'})
+    .then(res=>{
+      if(!res || !res.ok) throw new Error(res && res.error || 'sync failed');
+      if(res.trip !== EXPECT_SHEET){
+        // 구버전 백엔드 — 아무것도 쓰지 않고 로컬에 그대로 둔다
+        syncState = 'stale'; paintSyncBadge();
+        return null;
+      }
+      const st = expStore();
+      let chain = Promise.resolve(null);
+      st.pending.forEach(op=>{
+        chain = chain.then(()=> op.action==='add'
+          ? syncCall(Object.assign({action:'add'}, op.item))
+          : syncCall({action:'delete', id:op.id}));
+      });
+      return chain.then(()=> st.pending.length ? syncCall({action:'list'}) : res)
+        .then(fin=>{
+          if(!fin || !fin.ok) throw new Error(fin && fin.error || 'sync failed');
+          const s2 = expStore(); s2.pending = []; expSave(s2);
+          foldServerItems(fin.items||[]);
+          syncState = 'idle';
+          if(maybeBootstrap(fin.items||[])){ syncInFlight = null; return syncFlush(); }
+          if(currentView.type === 'expense') renderExpense();
+        });
+    })
+    .catch(err=>{
+      syncState = 'error';
+      paintSyncBadge(String(err.message||err));
+    })
+    .then(()=>{ syncInFlight = null; }, ()=>{ syncInFlight = null; });
+  return syncInFlight;
+}
+function paintSyncBadge(){
+  const el = document.getElementById('syncBadge');
+  if(!el) return;
+  const n = expStore().pending.length;
+  if(syncState==='off'){     el.innerHTML = '<span style="color:var(--muted)">📴 이 기기에만 저장</span>'; return; }
+  if(syncState==='syncing'){ el.innerHTML = '<span style="color:var(--sea)">⏳ 시트와 동기화 중…</span>'; return; }
+  if(syncState==='stale'){   el.innerHTML = '<span style="color:#B57A00">🛠️ 시트 백엔드가 아직 구버전이라 저장을 보류했어요 — '
+                                          +'Apps Script를 새 코드로 <b>재배포(배포 관리 → 편집 → 새 버전)</b>하면 자동으로 올라갑니다'
+                                          +(n?' · 대기 '+n+'건':'')+'</span>'; return; }
+  if(syncState==='error'){   el.innerHTML = '<span style="color:#C9552F">⚠️ 동기화 실패'+(n?' · 대기 '+n+'건':'')+' — 신호 잡히면 자동 재시도</span>'; return; }
+  el.innerHTML = n ? '<span style="color:#B57A00">📶 대기 '+n+'건</span>'
+                   : '<span style="color:#37795A">✅ 구글시트와 동기화됨</span>';
 }
 function won(n){ return Math.round(n).toLocaleString('ko-KR')+'원'; }
 function dateKey(d){ const m=String(d).match(/(\d+)\/(\d+)/); return m ? (+m[1])*100+(+m[2]) : 9999; }
@@ -943,9 +1061,12 @@ function renderExpense(){
     '<div class="ph-title">💰 여행 지출</div>'
     +'<div class="ph-sub">'+MEMBERS.join(' · ')+' 4명 기준. 누가 냈는지와 <b>누가 나눠 낼지</b>를 따로 잡을 수 있어요 '
     +'(예: 셋만 먹은 점심). 항목을 누르면 수정됩니다.</div>';
-  document.getElementById('foot').innerHTML =
-    '💡 여기 기록은 <b>이 브라우저에만 저장</b>돼요(localStorage). 다 같이 보려면 <b>📋 복사</b>로 카톡에 붙여넣는 게 제일 빠릅니다. '
-    +'미리 넣어둔 3건(숙박 55만 + 자쿠지 5만 + 바베큐 5만 = <b>65만원, 1인 162,500원</b>)은 지출자가 <b>공동</b>으로 잡혀 있으니 '
+  document.getElementById('foot').innerHTML = (SYNC_URL
+    ? '💡 모든 지출은 <b>구글시트에 저장</b>됩니다 — 넷이 각자 폰에서 넣어도 같은 목록이고, <b>구글시트 앱에서 직접 고쳐도</b> 돼요(다음에 열 때 반영). '
+      +'신호가 약하면 일단 폰에 쌓아뒀다가 <b>연결되면 자동으로</b> 올라갑니다. '
+      +'낸 사람·분담은 시트 메모 칸에 <b>지출자:소진 · 분담:은정,주희</b> 형태로 같이 들어가요.'
+    : '💡 여기 기록은 <b>이 브라우저에만 저장</b>돼요(localStorage). 다 같이 보려면 <b>📋 복사</b>로 카톡에 붙여넣으세요.')
+    +' 미리 넣어둔 3건(숙박 55만 + 자쿠지 5만 + 바베큐 5만 = <b>65만원, 1인 162,500원</b>)은 지출자가 <b>공동</b>으로 잡혀 있으니 '
     +'실제로 결제한 사람으로 바꿔주세요.'+liveLinks;
 
   let html = '<div class="exp-sec">';
@@ -971,7 +1092,9 @@ function renderExpense(){
   html += '<table class="exp-table"><thead><tr>'
     +'<th>날짜</th><th>항목</th><th style="text-align:right">금액</th><th style="text-align:right">1인</th><th></th>'
     +'</tr></thead><tbody>';
-  if(!list.length) html += '<tr><td colspan="5" style="color:var(--muted);padding:14px 6px">아직 기록된 지출이 없어요.</td></tr>';
+  if(!list.length) html += '<tr><td colspan="5" style="color:var(--muted);padding:14px 6px">'
+    +(SYNC_URL ? '아직 목록을 못 받아왔어요. 신호를 확인하고 🔄 새로고침을 눌러주세요.' : '아직 기록된 지출이 없어요.')
+    +'</td></tr>';
   list.forEach(e=>{
     const who = (e.who && e.who.length) ? e.who : MEMBERS;
     html += '<tr>'
@@ -1021,7 +1144,9 @@ function renderExpense(){
 
   html += '<div class="exp-tools">'
     +'<span class="exp-tool" id="expCopy">📋 복사 (카톡용)</span>'
-    +'<span class="exp-tool" id="expReset">↺ 내가 추가한 것 모두 지우기</span>'
+    +(SYNC_URL ? '<span class="exp-tool" id="expSync">🔄 새로고침</span>' : '')
+    +'<span class="exp-tool" id="expReset">'+(SYNC_URL ? '↺ 이 기기 캐시 비우기' : '↺ 내가 추가한 것 모두 지우기')+'</span>'
+    +'<span id="syncBadge" style="align-self:center;font-size:11.5px;font-weight:500"></span>'
     +'</div></div>';
 
   const panel = document.getElementById('panel');
@@ -1030,6 +1155,10 @@ function renderExpense(){
   function removeItem(id, st){
     st.added = st.added.filter(x=>x.id!==id);
     if(st.hidden.indexOf(id)<0) st.hidden.push(id);
+    // 아직 시트에 못 올린 항목이면 대기열에서 빼기만 하면 된다
+    const wasPending = st.pending.some(op=>op.action==='add' && op.item.id===id);
+    st.pending = st.pending.filter(op=>!(op.action==='add' && op.item.id===id));
+    if(SYNC_URL && !wasPending) st.pending.push({action:'delete', id:id});
   }
   panel.querySelectorAll('[data-del]').forEach(b=>{
     b.addEventListener('click', ()=>{
@@ -1038,6 +1167,7 @@ function renderExpense(){
       const st = expStore(); removeItem(id, st); expSave(st);
       if(expEditId === id) expEditId = null;
       renderExpense();
+      if(SYNC_URL) syncFlush();
     });
   });
   panel.querySelectorAll('[data-edit]').forEach(b=>{
@@ -1066,18 +1196,22 @@ function renderExpense(){
     const payer = document.getElementById('fPayer').value;
     try{ localStorage.setItem('yeongheung_last_payer', payer); }catch(e){}
     const st = expStore();
+    // 수정은 "기존 삭제 + 새로 추가"로 처리한다 (시트 백엔드에 update가 없어서)
     if(expEditId) removeItem(expEditId, st);
-    st.added.push({
+    const item = {
       id: 'u'+Date.now(),
       date: document.getElementById('fDate').value,
       cat:  document.getElementById('fCat').value,
       name: name,
       amount: +raw,
       memo: joinMeta(document.getElementById('fMemo').value.trim(), payer, formWho.slice())
-    });
+    };
+    st.added.push(item);
+    if(SYNC_URL) st.pending.push({action:'add', item:item});
     expSave(st);
     expEditId = null; formWho = MEMBERS.slice();
     renderExpense();
+    if(SYNC_URL) syncFlush();
   });
 
   document.getElementById('expCopy').addEventListener('click', ()=>{
@@ -1096,11 +1230,18 @@ function renderExpense(){
       ()=>{ alert(txt); });
   });
   document.getElementById('expReset').addEventListener('click', ()=>{
-    if(confirm('이 브라우저에 추가·삭제한 내용을 모두 되돌립니다. 진행할까요?')){
-      expSave({added:[], hidden:[]});
+    if(confirm(SYNC_URL
+        ? '이 기기에 캐시된 목록만 비웁니다. 구글시트의 기록은 그대로이고 바로 다시 내려받아요. 진행할까요?'
+        : '이 브라우저에 추가·삭제한 내용을 모두 되돌립니다. 진행할까요?')){
+      expSave({added:[], hidden:[], pending:[]});
       renderExpense();
+      if(SYNC_URL) syncFlush();
     }
   });
+
+  const syncBtn = document.getElementById('expSync');
+  if(syncBtn) syncBtn.addEventListener('click', ()=>syncFlush());
+  paintSyncBadge();
 }
 
 /* ───────── 탭 ───────── */
@@ -1113,7 +1254,7 @@ DAYS.forEach((d,i)=>{
 });
 [['prep','BUY','🛒','준비물',renderPrep],
  ['food','EAT','🍽️','주변',renderFood],
- ['money','₩','💰','지출',renderExpense]].forEach(t=>{
+ ['money','₩','💰','지출',()=>{ renderExpense(); if(SYNC_URL) syncFlush(); }]].forEach(t=>{
   const el=document.createElement('div'); el.className='tab '+t[0];
   el.innerHTML='<div class="dnum">'+t[1]+'</div><div class="ddate">'+t[2]+'</div><div class="dsub">'+t[3]+'</div>';
   el.addEventListener('click', t[4]);
@@ -1127,6 +1268,10 @@ document.getElementById('fitAll').addEventListener('click', ()=>{
 
 renderDay(0);
 loadForecast();
+// 신호가 돌아오면 밀린 것 자동 전송
+window.addEventListener('online', ()=>{ if(SYNC_URL && expStore().pending.length) syncFlush(); });
+// 페이지 열자마자 한 번 받아둔다 (지출 탭 눌렀을 때 바로 보이게)
+if(SYNC_URL) syncFlush();
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) loadForecast(); });
 window.addEventListener('resize', ()=>map.invalidateSize());
 </script>
